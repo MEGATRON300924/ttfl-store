@@ -17,7 +17,7 @@ export function Logo({ variant = "dark" }: { variant?: "dark" | "light" }) {
   const sub = variant === "dark" ? "text-graphite-600" : "text-graphite-200";
   return (
     <Link href="/" className="flex items-center gap-2 shrink-0" aria-label="TTFL Store home">
-      <Image src="/ttflstorE.png" alt="TTFL Store" width={132} height={32} priority />
+      <Image src="/ttflstore.png" alt="TTFL Store" width={132} height={32} priority />
       <span className="flex flex-col leading-none">
         <span className={`font-sans text-[15px] font-bold tracking-tight ${text}`}>
           TTFL Store
