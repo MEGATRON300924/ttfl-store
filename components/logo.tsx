@@ -17,18 +17,13 @@ export function Logo({ variant = "dark" }: { variant?: "dark" | "light" }) {
   const sub = variant === "dark" ? "text-graphite-600" : "text-graphite-200";
   return (
     <Link href="/" className="flex items-center gap-2 shrink-0" aria-label="TTFL Store home">
-      <span
-        className={`grid h-8 w-8 place-items-center rounded-[6px] bg-ember-600 font-mono text-sm font-medium text-white`}
-        aria-hidden
-      >
-        T
-      </span>
+      <Image src="/ttflstore.png" alt="TTFL Store" width={132} height={32} priority />
       <span className="flex flex-col leading-none">
         <span className={`font-sans text-[15px] font-bold tracking-tight ${text}`}>
           TTFL Store
         </span>
         <span className={`text-[10px] font-medium tracking-wide ${sub}`}>
-          THE TRON FORGE LIMITED
+          The Tron Forge Limited
         </span>
       </span>
     </Link>
