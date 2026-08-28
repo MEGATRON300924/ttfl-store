@@ -1,19 +1,21 @@
-```tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const token = searchParams.get("token");
 
-  const [status, setStatus] = useState<"loading" | "success" | "error">(
-    "loading"
+  const [status, setStatus] = useState<
+    "loading" | "success" | "error"
+  >("loading");
+
+  const [message, setMessage] = useState(
+    "Verifying your email..."
   );
-  const [message, setMessage] = useState("Verifying your email...");
 
   useEffect(() => {
     if (!token) {
@@ -24,8 +26,14 @@ export default function VerifyEmailPage() {
 
     async function verifyEmail() {
       try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
+        if (!apiUrl) {
+          throw new Error("API URL is not configured.");
+        }
+
         const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/auth/verify-email`,
+          `${apiUrl}/auth/verify-email`,
           {
             method: "POST",
             headers: {
@@ -39,13 +47,16 @@ export default function VerifyEmailPage() {
 
         if (!response.ok) {
           throw new Error(
-            data?.message || "This verification link is invalid or has expired."
+            data?.message ||
+              "This verification link is invalid or has expired."
           );
         }
 
         setStatus("success");
-        setMessage("Your email has been successfully verified! 🎉");
+        setMessage("Your email has been successfully verified!");
       } catch (error) {
+        console.error("Email verification error:", error);
+
         setStatus("error");
         setMessage(
           error instanceof Error
@@ -59,74 +70,86 @@ export default function VerifyEmailPage() {
   }, [token]);
 
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "24px",
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: "480px",
-          textAlign: "center",
-          padding: "40px 24px",
-        }}
-      >
+    <main className="min-h-screen flex items-center justify-center px-6">
+      <div className="w-full max-w-md text-center">
+
         {status === "loading" && (
           <>
-            <div style={{ fontSize: "48px", marginBottom: "20px" }}>⏳</div>
-            <h1>Verifying your email...</h1>
-            <p>Please wait while we confirm your email address.</p>
+            <div className="text-6xl mb-6">⏳</div>
+
+            <h1 className="text-3xl font-bold mb-3">
+              Verifying your email
+            </h1>
+
+            <p className="text-gray-500">
+              Please wait while we confirm your email address.
+            </p>
           </>
         )}
 
         {status === "success" && (
           <>
-            <div style={{ fontSize: "56px", marginBottom: "20px" }}>✅</div>
-            <h1>Email verified!</h1>
-            <p>{message}</p>
+            <div className="text-6xl mb-6">✅</div>
+
+            <h1 className="text-3xl font-bold mb-3">
+              Email verified!
+            </h1>
+
+            <p className="text-gray-500 mb-8">
+              {message}
+            </p>
 
             <button
               onClick={() => router.push("/login")}
-              style={{
-                marginTop: "24px",
-                padding: "12px 24px",
-                borderRadius: "10px",
-                border: "none",
-                cursor: "pointer",
-              }}
+              className="px-6 py-3 rounded-xl bg-black text-white font-medium hover:opacity-90 transition"
             >
-              Continue to login
+              Continue to Login
             </button>
           </>
         )}
 
         {status === "error" && (
           <>
-            <div style={{ fontSize: "56px", marginBottom: "20px" }}>❌</div>
-            <h1>Verification failed</h1>
-            <p>{message}</p>
+            <div className="text-6xl mb-6">❌</div>
+
+            <h1 className="text-3xl font-bold mb-3">
+              Verification failed
+            </h1>
+
+            <p className="text-gray-500 mb-8">
+              {message}
+            </p>
 
             <button
               onClick={() => router.push("/login")}
-              style={{
-                marginTop: "24px",
-                padding: "12px 24px",
-                borderRadius: "10px",
-                border: "none",
-                cursor: "pointer",
-              }}
+              className="px-6 py-3 rounded-xl bg-black text-white font-medium hover:opacity-90 transition"
             >
-              Back to login
+              Back to Login
             </button>
           </>
         )}
+
       </div>
     </main>
   );
 }
-```
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-6xl mb-6">⏳</div>
+
+            <h1 className="text-2xl font-bold">
+              Loading...
+            </h1>
+          </div>
+        </main>
+      }
+    >
+      <VerifyEmailContent />
+    </Suspense>
+  );
+}
