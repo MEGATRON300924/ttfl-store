@@ -22,7 +22,7 @@ export function SiteHeader() {
     : "/account";
 
   return (
-    <header className="sticky top-0 z-40 border-b border-graphite-200 bg-white/95 backdrop-blur-sm">
+        <header className="sticky top-0 z-40 border-b border-graphite-200 bg-white shadow-sm">
       {/* Utility bar — desktop only */}
       <div className="hidden border-b border-graphite-200 bg-graphite-950 text-graphite-200 md:block">
         <div className="shell flex h-9 items-center justify-between text-[13px]">
