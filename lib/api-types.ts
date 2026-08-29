@@ -24,10 +24,21 @@ export type ApiUser = {
   firstName: string;
   lastName: string;
   phone: string | null;
+  avatarUrl: string | null;
   emailVerified: boolean;
   vendorProfile?: ApiVendorProfile | null;
 };
 
+export type ApiAddress = {
+  id: string;
+  label: string;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string;
+  country: string;
+  isDefault: boolean;
+};
 export type ApiVendorProfile = {
   id: string;
   userId: string;
