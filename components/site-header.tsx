@@ -33,7 +33,7 @@ export function SiteHeader() {
           <nav className="flex items-center gap-5">
             <Link href="/sell" className="hover:text-white">Sell on TTFL Store</Link>
             <Link href="/support" className="hover:text-white">Support</Link>
-            <Link href="/vendor/login" className="hover:text-white">Vendor login</Link>
+            <Link href="/login" className="hover:text-white">Vendor login</Link>
           </nav>
         </div>
       </div>
@@ -156,7 +156,7 @@ export function SiteHeader() {
             </div>
             <div className="mt-auto flex flex-col gap-1 border-t border-graphite-200 pt-4 text-sm text-graphite-700">
               <Link href="/sell" className="py-2">Sell on TTFL Store</Link>
-              <Link href="/vendor/login" className="py-2">Vendor login</Link>
+              <Link href="/login" className="py-2">Vendor login</Link>
               <Link href="/support" className="py-2">Support</Link>
             </div>
           </div>
