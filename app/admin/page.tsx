@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/admin/orders", icon: ShoppingBag, title: "Orders & refunds", desc: "View orders, issue Paystack refunds" },
   { href: "/admin/analytics", icon: BarChart3, title: "Analytics", desc: "Platform-wide stats and commission center" },
   { href: "/admin/plans", icon: Layers, title: "Vendor plans", desc: "Edit tier pricing, limits, commission" },
+  { href: "/admin/categories", icon: Tag, title: "Categories", desc: "Create categories so vendors can list products" },
   { href: "/admin/settings", icon: Settings, title: "Platform settings", desc: "Featured pricing, minimum payout amount" },
   { href: "/admin/payouts", icon: Wallet, title: "Payouts", desc: "Review and approve vendor withdrawal requests" },
   { href: "/admin/coupons", icon: Ticket, title: "Coupons", desc: "Platform-wide discount codes" },
