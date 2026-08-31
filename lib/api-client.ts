@@ -4,19 +4,11 @@ const API_URL =
 export class ApiError extends Error {
   status: number;
   code?: string;
-  details?: unknown;
 
-  constructor(
-    status: number,
-    message: string,
-    code?: string,
-    details?: unknown
-  ) {
+  constructor(status: number, message: string, code?: string) {
     super(message);
-    this.name = "ApiError";
     this.status = status;
     this.code = code;
-    this.details = details;
   }
 }
 
@@ -24,12 +16,46 @@ type RequestOptions = {
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: unknown;
   cache?: RequestCache;
+
+  /*
+   * Prevent the refresh request itself from recursively
+   * attempting another refresh.
+   */
+  skipRefresh?: boolean;
 };
 
-/**
- * Every call sends credentials so the httpOnly auth cookies set by the
- * backend ride along automatically — no token handling on the client.
- */
+let refreshPromise: Promise<void> | null = null;
+
+async function refreshSession(): Promise<void> {
+  /*
+   * If multiple API requests fail at the same time, they all
+   * share one refresh request instead of creating a refresh race.
+   */
+  if (!refreshPromise) {
+    refreshPromise = fetch(`${API_URL}/api/auth/refresh`, {
+      method: "POST",
+      credentials: "include",
+      cache: "no-store",
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const json = await res.json().catch(() => ({}));
+
+          throw new ApiError(
+            res.status,
+            json?.error?.message ?? "Session expired",
+            json?.error?.code
+          );
+        }
+      })
+      .finally(() => {
+        refreshPromise = null;
+      });
+  }
+
+  return refreshPromise;
+}
+
 async function request<T>(
   path: string,
   opts: RequestOptions = {}
@@ -39,7 +65,9 @@ async function request<T>(
     credentials: "include",
     cache: opts.cache ?? "no-store",
     headers: opts.body
-      ? { "Content-Type": "application/json" }
+      ? {
+          "Content-Type": "application/json",
+        }
       : undefined,
     body: opts.body ? JSON.stringify(opts.body) : undefined,
   });
@@ -50,12 +78,39 @@ async function request<T>(
 
   const json = await res.json().catch(() => ({}));
 
+  /*
+   * Access token expired.
+   *
+   * Try the long-lived refresh session once, then retry
+   * the original request.
+   */
+  if (
+    res.status === 401 &&
+    !opts.skipRefresh &&
+    path !== "/api/auth/refresh" &&
+    path !== "/api/auth/login" &&
+    path !== "/api/auth/logout"
+  ) {
+    try {
+      await refreshSession();
+
+      return request<T>(path, {
+        ...opts,
+        skipRefresh: true,
+      });
+    } catch {
+      /*
+       * Refresh token is also invalid/expired.
+       * Fall through and return the original 401.
+       */
+    }
+  }
+
   if (!res.ok) {
     throw new ApiError(
       res.status,
       json?.error?.message ?? "Something went wrong",
-      json?.error?.code,
-      json?.error?.details
+      json?.error?.code
     );
   }
 
