@@ -1,7 +1,22 @@
+```tsx
 "use client";
 
 import Link from "next/link";
-import { Users, Package, BarChart3, Wallet, Ticket, Megaphone, Layers, MessageCircle, Settings, FileText, Mail, ShoppingBag } from "lucide-react";
+import {
+  Users,
+  Package,
+  BarChart3,
+  Wallet,
+  Ticket,
+  Megaphone,
+  Layers,
+  MessageCircle,
+  Settings,
+  FileText,
+  Mail,
+  ShoppingBag,
+  Tag,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
 const LINKS = [
@@ -26,7 +41,9 @@ export default function AdminDashboardPage() {
   if (!loading && (!user || user.role !== "ADMIN")) {
     return (
       <div className="shell py-16 text-center">
-        <h1 className="text-lg font-bold text-graphite-900">Admin access only</h1>
+        <h1 className="text-lg font-bold text-graphite-900">
+          Admin access only
+        </h1>
       </div>
     );
   }
@@ -45,6 +62,7 @@ export default function AdminDashboardPage() {
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-card bg-cloud-100 text-graphite-700">
               <Icon className="h-5 w-5" />
             </span>
+
             <div>
               <p className="font-semibold text-graphite-900">{title}</p>
               <p className="text-sm text-graphite-600">{desc}</p>
@@ -55,3 +73,4 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+```
