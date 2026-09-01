@@ -20,7 +20,7 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://store.thetronforge.com"),
+  metadataBase: new URL("https://ttflstore.name.ng"),
   title: {
     default: "TTFL Store — The Tron Forge Limited Marketplace",
     template: "%s | TTFL Store",
