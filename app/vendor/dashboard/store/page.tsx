@@ -1,71 +1,73 @@
+```tsx
 "use client";
 
-import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  FormEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import Link from "next/link";
 import {
   ArrowLeft,
   Camera,
+  Check,
   Image as ImageIcon,
   Loader2,
+  MapPin,
+  MessageCircle,
   Save,
   Store,
+  Trash2,
   Upload,
+  X,
 } from "lucide-react";
 
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api-client";
-import type { ApiUser } from "@/lib/api-types";
 
-/*
- * Change these two paths ONLY if your backend uses different routes.
- *
- * The actual Cloudinary credentials must stay on the backend.
- */
-const STORE_UPDATE_ENDPOINT = "/api/vendor/store";
-const IMAGE_UPLOAD_ENDPOINT = "/api/vendor/upload";
+const STORE_UPDATE_ENDPOINT = "/api/vendors/me/store";
+const IMAGE_UPLOAD_ENDPOINT = "/api/uploads/store-branding";
+
+type UploadType = "logo" | "banner";
 
 type StoreForm = {
   storeName: string;
-  description: string;
+  storeSlug: string;
+  bio: string;
   location: string;
-  phone: string;
-  whatsapp: string;
-  website: string;
+  whatsappNumber: string;
   logoUrl: string;
   bannerUrl: string;
 };
 
-type VendorProfile = NonNullable<ApiUser["vendorProfile"]>;
-
 export default function VendorStoreSettingsPage() {
   const { user, loading: authLoading, refresh } = useAuth();
 
-  const vendor = user?.vendorProfile as VendorProfile | undefined;
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
+
+  const vendor = user?.vendorProfile;
 
   const [form, setForm] = useState<StoreForm>({
     storeName: "",
-    description: "",
+    storeSlug: "",
+    bio: "",
     location: "",
-    phone: "",
-    whatsapp: "",
-    website: "",
+    whatsappNumber: "",
     logoUrl: "",
     bannerUrl: "",
   });
 
   const [pageLoading, setPageLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [uploading, setUploading] = useState<"logo" | "banner" | null>(null);
+  const [uploading, setUploading] = useState<UploadType | null>(null);
+  const [removing, setRemoving] = useState<UploadType | null>(null);
 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  /*
-   * Load the vendor information already available in the auth user.
-   *
-   * This keeps the page fast and avoids making another request
-   * when the information is already present in /api/auth/me.
-   */
   useEffect(() => {
     if (authLoading) return;
 
@@ -77,13 +79,12 @@ export default function VendorStoreSettingsPage() {
     if (vendor) {
       setForm({
         storeName: vendor.storeName ?? "",
-        description: vendor.description ?? "",
+        storeSlug: vendor.storeSlug ?? "",
+        bio: vendor.bio ?? "",
         location: vendor.location ?? "",
-        phone: vendor.phone ?? "",
-        whatsapp: vendor.whatsapp ?? "",
-        website: vendor.website ?? "",
-        logoUrl: vendor.logoUrl ?? "",
-        bannerUrl: vendor.bannerUrl ?? "",
+        whatsappNumber: vendor.whatsappNumber ?? "",
+        logoUrl: "",
+        bannerUrl: "",
       });
     }
 
@@ -103,9 +104,18 @@ export default function VendorStoreSettingsPage() {
     setError("");
   };
 
+  const normalizeSlug = (value: string) => {
+    return value
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+      .replace(/-+/g, "-");
+  };
+
   const uploadImage = async (
     event: ChangeEvent<HTMLInputElement>,
-    type: "logo" | "banner"
+    type: UploadType
   ) => {
     const file = event.target.files?.[0];
 
@@ -114,14 +124,23 @@ export default function VendorStoreSettingsPage() {
     setError("");
     setMessage("");
 
-    if (!file.type.startsWith("image/")) {
-      setError("Please select a valid image file.");
+    const allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/webp",
+      "image/avif",
+    ];
+
+    if (!allowedTypes.includes(file.type)) {
+      setError(
+        "Please select a JPG, PNG, WebP, or AVIF image."
+      );
       event.target.value = "";
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setError("Image must be smaller than 5MB.");
+      setError("Image must be 5MB or smaller.");
       event.target.value = "";
       return;
     }
@@ -130,15 +149,10 @@ export default function VendorStoreSettingsPage() {
       setUploading(type);
 
       const body = new FormData();
-      body.append("file", file);
+
+      body.append("image", file);
       body.append("type", type);
 
-      /*
-       * Use fetch directly because FormData must not be sent
-       * with a JSON Content-Type header.
-       *
-       * credentials: include keeps the vendor session cookie.
-       */
       const apiUrl =
         process.env.NEXT_PUBLIC_API_URL ??
         "http://localhost:4000";
@@ -156,21 +170,22 @@ export default function VendorStoreSettingsPage() {
 
       if (!response.ok) {
         throw new Error(
-          data?.message ||
-            data?.error ||
+          data?.error?.message ??
+            data?.message ??
+            data?.error ??
             "Image upload failed."
         );
       }
 
-      /*
-       * Support several common backend response formats.
-       */
       const imageUrl =
         data?.url ??
         data?.imageUrl ??
         data?.secure_url ??
         data?.data?.url ??
-        data?.data?.imageUrl;
+        data?.data?.imageUrl ??
+        data?.vendorProfile?.[
+          type === "logo" ? "logoUrl" : "bannerUrl"
+        ];
 
       if (!imageUrl) {
         throw new Error(
@@ -178,14 +193,15 @@ export default function VendorStoreSettingsPage() {
         );
       }
 
-      updateField(
-        type === "logo" ? "logoUrl" : "bannerUrl",
-        imageUrl
-      );
+      setForm((current) => ({
+        ...current,
+        [type === "logo" ? "logoUrl" : "bannerUrl"]:
+          imageUrl,
+      }));
 
       setMessage(
         type === "logo"
-          ? "Logo uploaded successfully."
+          ? "Store logo uploaded successfully."
           : "Store banner uploaded successfully."
       );
     } catch (err) {
@@ -200,7 +216,46 @@ export default function VendorStoreSettingsPage() {
     }
   };
 
-  const saveStore = async (event: FormEvent<HTMLFormElement>) => {
+  const removeImage = async (type: UploadType) => {
+    setError("");
+    setMessage("");
+    setRemoving(type);
+
+    try {
+      await api.delete(
+        `${IMAGE_UPLOAD_ENDPOINT}?type=${encodeURIComponent(
+          type
+        )}`
+      );
+
+      setForm((current) => ({
+        ...current,
+        [type === "logo" ? "logoUrl" : "bannerUrl"]: "",
+      }));
+
+      setMessage(
+        type === "logo"
+          ? "Store logo removed."
+          : "Store banner removed."
+      );
+
+      await refresh();
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(
+          err.message || "Unable to remove the image."
+        );
+      } else {
+        setError("Unable to remove the image.");
+      }
+    } finally {
+      setRemoving(null);
+    }
+  };
+
+  const saveStore = async (
+    event: FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
 
     setError("");
@@ -211,35 +266,38 @@ export default function VendorStoreSettingsPage() {
       return;
     }
 
+    if (!form.storeSlug.trim()) {
+      setError("Please enter a store URL.");
+      return;
+    }
+
     try {
       setSaving(true);
 
-      await api.put(STORE_UPDATE_ENDPOINT, {
+      await api.patch(STORE_UPDATE_ENDPOINT, {
         storeName: form.storeName.trim(),
-        description: form.description.trim(),
-        location: form.location.trim(),
-        phone: form.phone.trim(),
-        whatsapp: form.whatsapp.trim(),
-        website: form.website.trim(),
-        logoUrl: form.logoUrl.trim(),
-        bannerUrl: form.bannerUrl.trim(),
+        storeSlug: normalizeSlug(form.storeSlug),
+        bio: form.bio.trim() || null,
+        location: form.location.trim() || null,
+        whatsappNumber:
+          form.whatsappNumber.trim() || null,
       });
 
-      /*
-       * Refresh auth state so the updated vendor profile
-       * is immediately available throughout the dashboard.
-       */
       await refresh();
 
-      setMessage("Your store has been updated successfully.");
+      setMessage(
+        "Your store settings have been saved successfully."
+      );
     } catch (err) {
       if (err instanceof ApiError) {
         setError(
           err.message ||
-            "Unable to update your store."
+            "Unable to update your store. Please try again."
         );
       } else {
-        setError("Unable to update your store. Please try again.");
+        setError(
+          "Unable to update your store. Please try again."
+        );
       }
     } finally {
       setSaving(false);
@@ -250,6 +308,7 @@ export default function VendorStoreSettingsPage() {
     return (
       <div className="shell py-16 text-center">
         <Loader2 className="mx-auto h-6 w-6 animate-spin text-ember-600" />
+
         <p className="mt-3 text-sm text-graphite-600">
           Loading your store...
         </p>
@@ -278,7 +337,7 @@ export default function VendorStoreSettingsPage() {
         <div>
           <Link
             href="/vendor/dashboard"
-            className="inline-flex items-center gap-2 text-sm font-medium text-graphite-600 hover:text-ember-600"
+            className="inline-flex items-center gap-2 text-sm font-medium text-graphite-600 transition hover:text-ember-600"
           >
             <ArrowLeft className="h-4 w-4" />
             Back to dashboard
@@ -301,11 +360,12 @@ export default function VendorStoreSettingsPage() {
           </div>
         </div>
 
-        {vendor?.storeSlug && (
+        {form.storeSlug && (
           <Link
-            href={`/store/${vendor.storeSlug}`}
+            href={`/store/${form.storeSlug}`}
             target="_blank"
-            className="inline-flex items-center justify-center rounded-card border border-graphite-200 px-4 py-2.5 text-sm font-semibold text-graphite-800 hover:border-ember-600 hover:text-ember-600"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center rounded-card border border-graphite-200 px-4 py-2.5 text-sm font-semibold text-graphite-800 transition hover:border-ember-600 hover:text-ember-600"
           >
             View store
           </Link>
@@ -314,14 +374,40 @@ export default function VendorStoreSettingsPage() {
 
       {/* Alerts */}
       {message && (
-        <div className="mt-6 rounded-card border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-800">
-          {message}
+        <div className="mt-6 flex items-start gap-3 rounded-card border border-verified-600/20 bg-verified-100 px-4 py-3 text-sm font-medium text-verified-700">
+          <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-verified-600 text-white">
+            <Check className="h-3 w-3" />
+          </span>
+
+          <span>{message}</span>
+
+          <button
+            type="button"
+            onClick={() => setMessage("")}
+            className="ml-auto"
+            aria-label="Dismiss message"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
 
       {error && (
-        <div className="mt-6 rounded-card border border-red-200 bg-red-50 px-4 py-3 text-sm font-medium text-red-800">
-          {error}
+        <div className="mt-6 flex items-start gap-3 rounded-card border border-ember-600/20 bg-ember-100 px-4 py-3 text-sm font-medium text-ember-700">
+          <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-ember-600 text-white">
+            <X className="h-3 w-3" />
+          </span>
+
+          <span>{error}</span>
+
+          <button
+            type="button"
+            onClick={() => setError("")}
+            className="ml-auto"
+            aria-label="Dismiss error"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
       )}
 
@@ -331,311 +417,531 @@ export default function VendorStoreSettingsPage() {
       >
         {/* Main settings */}
         <div className="space-y-6">
-          {/* Basic information */}
-          <section className="rounded-card border border-graphite-200 bg-white p-6">
-            <h2 className="text-base font-bold text-graphite-900">
-              Store information
-            </h2>
+          {/* Store information */}
+          <section className="rounded-card border border-graphite-200 bg-white p-6 shadow-card">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-card bg-cloud-100 text-graphite-700">
+                <Store className="h-5 w-5" />
+              </span>
 
-            <p className="mt-1 text-sm text-graphite-600">
-              Tell customers about your business.
-            </p>
+              <div>
+                <h2 className="text-base font-bold text-graphite-900">
+                  Store information
+                </h2>
+
+                <p className="mt-1 text-sm text-graphite-600">
+                  Tell customers about your business.
+                </p>
+              </div>
+            </div>
 
             <div className="mt-6 space-y-5">
               <div>
-                <label className="text-sm font-semibold text-graphite-900">
+                <label
+                  htmlFor="storeName"
+                  className="text-sm font-semibold text-graphite-900"
+                >
                   Store name
                 </label>
 
                 <input
+                  id="storeName"
                   type="text"
                   value={form.storeName}
-                  onChange={(e) =>
-                    updateField("storeName", e.target.value)
+                  onChange={(event) =>
+                    updateField(
+                      "storeName",
+                      event.target.value
+                    )
                   }
                   placeholder="My Store"
                   maxLength={100}
-                  className="mt-2 w-full rounded-card border border-graphite-200 px-4 py-3 text-sm outline-none focus:border-ember-600"
+                  required
+                  className="mt-2 w-full rounded-card border border-graphite-200 bg-white px-4 py-3 text-sm text-graphite-900 outline-none transition placeholder:text-graphite-400 focus:border-ember-600"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-semibold text-graphite-900">
+                <label
+                  htmlFor="storeSlug"
+                  className="text-sm font-semibold text-graphite-900"
+                >
+                  Store URL
+                </label>
+
+                <div className="mt-2 flex overflow-hidden rounded-card border border-graphite-200 focus-within:border-ember-600">
+                  <span className="flex items-center border-r border-graphite-200 bg-cloud-100 px-3 text-sm text-graphite-500">
+                    /store/
+                  </span>
+
+                  <input
+                    id="storeSlug"
+                    type="text"
+                    value={form.storeSlug}
+                    onChange={(event) =>
+                      updateField(
+                        "storeSlug",
+                        normalizeSlug(event.target.value)
+                      )
+                    }
+                    placeholder="my-store"
+                    maxLength={80}
+                    required
+                    className="min-w-0 flex-1 bg-white px-4 py-3 text-sm text-graphite-900 outline-none"
+                  />
+                </div>
+
+                <p className="mt-1.5 text-xs text-graphite-500">
+                  Use lowercase letters, numbers, and hyphens.
+                </p>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="bio"
+                  className="text-sm font-semibold text-graphite-900"
+                >
                   Store description
                 </label>
 
                 <textarea
-                  value={form.description}
-                  onChange={(e) =>
-                    updateField("description", e.target.value)
+                  id="bio"
+                  value={form.bio}
+                  onChange={(event) =>
+                    updateField(
+                      "bio",
+                      event.target.value
+                    )
                   }
                   placeholder="Tell customers what your store sells..."
                   rows={5}
-                  maxLength={1000}
-                  className="mt-2 w-full resize-none rounded-card border border-graphite-200 px-4 py-3 text-sm outline-none focus:border-ember-600"
+                  maxLength={500}
+                  className="mt-2 w-full resize-none rounded-card border border-graphite-200 bg-white px-4 py-3 text-sm leading-6 text-graphite-900 outline-none transition placeholder:text-graphite-400 focus:border-ember-600"
                 />
 
-                <p className="mt-1 text-xs text-graphite-500">
-                  {form.description.length}/1000
-                </p>
+                <div className="mt-1 flex justify-end text-xs text-graphite-500">
+                  {form.bio.length}/500
+                </div>
               </div>
             </div>
           </section>
 
           {/* Contact information */}
-          <section className="rounded-card border border-graphite-200 bg-white p-6">
-            <h2 className="text-base font-bold text-graphite-900">
-              Contact information
-            </h2>
+          <section className="rounded-card border border-graphite-200 bg-white p-6 shadow-card">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-card bg-cloud-100 text-graphite-700">
+                <MessageCircle className="h-5 w-5" />
+              </span>
+
+              <div>
+                <h2 className="text-base font-bold text-graphite-900">
+                  Contact information
+                </h2>
+
+                <p className="mt-1 text-sm text-graphite-600">
+                  Give customers useful ways to reach your store.
+                </p>
+              </div>
+            </div>
 
             <div className="mt-6 grid gap-5 sm:grid-cols-2">
               <div>
-                <label className="text-sm font-semibold text-graphite-900">
+                <label
+                  htmlFor="location"
+                  className="flex items-center gap-1.5 text-sm font-semibold text-graphite-900"
+                >
+                  <MapPin className="h-4 w-4 text-graphite-500" />
                   Location
                 </label>
 
                 <input
+                  id="location"
                   type="text"
                   value={form.location}
-                  onChange={(e) =>
-                    updateField("location", e.target.value)
+                  onChange={(event) =>
+                    updateField(
+                      "location",
+                      event.target.value
+                    )
                   }
-                  placeholder="Abuja, Nigeria"
-                  className="mt-2 w-full rounded-card border border-graphite-200 px-4 py-3 text-sm outline-none focus:border-ember-600"
+                  placeholder="Lagos, Nigeria"
+                  maxLength={150}
+                  className="mt-2 w-full rounded-card border border-graphite-200 bg-white px-4 py-3 text-sm text-graphite-900 outline-none transition placeholder:text-graphite-400 focus:border-ember-600"
                 />
               </div>
 
               <div>
-                <label className="text-sm font-semibold text-graphite-900">
-                  Phone number
-                </label>
-
-                <input
-                  type="tel"
-                  value={form.phone}
-                  onChange={(e) =>
-                    updateField("phone", e.target.value)
-                  }
-                  placeholder="+234..."
-                  className="mt-2 w-full rounded-card border border-graphite-200 px-4 py-3 text-sm outline-none focus:border-ember-600"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-graphite-900">
+                <label
+                  htmlFor="whatsappNumber"
+                  className="flex items-center gap-1.5 text-sm font-semibold text-graphite-900"
+                >
+                  <MessageCircle className="h-4 w-4 text-graphite-500" />
                   WhatsApp number
                 </label>
 
                 <input
+                  id="whatsappNumber"
                   type="tel"
-                  value={form.whatsapp}
-                  onChange={(e) =>
-                    updateField("whatsapp", e.target.value)
+                  value={form.whatsappNumber}
+                  onChange={(event) =>
+                    updateField(
+                      "whatsappNumber",
+                      event.target.value
+                    )
                   }
-                  placeholder="+234..."
-                  className="mt-2 w-full rounded-card border border-graphite-200 px-4 py-3 text-sm outline-none focus:border-ember-600"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-graphite-900">
-                  Website
-                </label>
-
-                <input
-                  type="url"
-                  value={form.website}
-                  onChange={(e) =>
-                    updateField("website", e.target.value)
-                  }
-                  placeholder="https://example.com"
-                  className="mt-2 w-full rounded-card border border-graphite-200 px-4 py-3 text-sm outline-none focus:border-ember-600"
+                  placeholder="+234 800 000 0000"
+                  maxLength={30}
+                  className="mt-2 w-full rounded-card border border-graphite-200 bg-white px-4 py-3 text-sm text-graphite-900 outline-none transition placeholder:text-graphite-400 focus:border-ember-600"
                 />
               </div>
             </div>
           </section>
 
-          {/* Images */}
-          <section className="rounded-card border border-graphite-200 bg-white p-6">
-            <h2 className="text-base font-bold text-graphite-900">
-              Store branding
-            </h2>
+          {/* Store branding */}
+          <section className="rounded-card border border-graphite-200 bg-white p-6 shadow-card">
+            <div className="flex items-center gap-3">
+              <span className="grid h-10 w-10 place-items-center rounded-card bg-cloud-100 text-graphite-700">
+                <ImageIcon className="h-5 w-5" />
+              </span>
 
-            <p className="mt-1 text-sm text-graphite-600">
-              Upload the images customers will see on your storefront.
-            </p>
-
-            <div className="mt-6 grid gap-6 sm:grid-cols-2">
-              {/* Logo */}
               <div>
-                <label className="text-sm font-semibold text-graphite-900">
-                  Store logo
-                </label>
+                <h2 className="text-base font-bold text-graphite-900">
+                  Store branding
+                </h2>
 
-                <div className="mt-2 overflow-hidden rounded-card border border-graphite-200">
-                  <div className="flex h-40 items-center justify-center bg-cloud-50 p-6">
-                    {form.logoUrl ? (
-                      <img
-                        src={form.logoUrl}
-                        alt="Store logo preview"
-                        className="h-28 w-28 rounded-card object-contain"
-                      />
-                    ) : (
-                      <div className="text-center text-graphite-500">
-                        <ImageIcon className="mx-auto h-8 w-8" />
-                        <p className="mt-2 text-xs">
-                          No logo uploaded
-                        </p>
-                      </div>
-                    )}
-                  </div>
-
-                  <label className="flex cursor-pointer items-center justify-center gap-2 border-t border-graphite-200 px-4 py-3 text-sm font-semibold text-graphite-800 hover:bg-cloud-50">
-                    {uploading === "logo" ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Camera className="h-4 w-4" />
-                        Upload logo
-                      </>
-                    )}
-
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      className="hidden"
-                      disabled={uploading !== null}
-                      onChange={(e) =>
-                        uploadImage(e, "logo")
-                      }
-                    />
-                  </label>
-                </div>
-
-                <p className="mt-2 text-xs text-graphite-500">
-                  PNG, JPG, or WebP. Maximum 5MB.
+                <p className="mt-1 text-sm text-graphite-600">
+                  Upload the images customers will see on your storefront.
                 </p>
               </div>
+            </div>
 
+            <div className="mt-6 space-y-8">
               {/* Banner */}
               <div>
-                <label className="text-sm font-semibold text-graphite-900">
-                  Store banner
-                </label>
+                <div className="mb-2 flex items-end justify-between gap-4">
+                  <div>
+                    <h3 className="text-sm font-semibold text-graphite-900">
+                      Store banner
+                    </h3>
 
-                <div className="mt-2 overflow-hidden rounded-card border border-graphite-200">
-                  <div className="flex h-40 items-center justify-center bg-cloud-50">
-                    {form.bannerUrl ? (
-                      <img
-                        src={form.bannerUrl}
-                        alt="Store banner preview"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="text-center text-graphite-500">
-                        <ImageIcon className="mx-auto h-8 w-8" />
-                        <p className="mt-2 text-xs">
-                          No banner uploaded
-                        </p>
-                      </div>
-                    )}
+                    <p className="mt-1 text-xs text-graphite-500">
+                      Recommended size: 1600 × 600px
+                    </p>
                   </div>
 
-                  <label className="flex cursor-pointer items-center justify-center gap-2 border-t border-graphite-200 px-4 py-3 text-sm font-semibold text-graphite-800 hover:bg-cloud-50">
-                    {uploading === "banner" ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="h-4 w-4" />
-                        Upload banner
-                      </>
-                    )}
-
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp"
-                      className="hidden"
-                      disabled={uploading !== null}
-                      onChange={(e) =>
-                        uploadImage(e, "banner")
-                      }
-                    />
-                  </label>
+                  <span className="hidden text-xs text-graphite-500 sm:block">
+                    Max 5MB
+                  </span>
                 </div>
 
-                <p className="mt-2 text-xs text-graphite-500">
-                  A wide image works best for your storefront banner.
-                </p>
+                <div className="relative aspect-[16/6] overflow-hidden rounded-card border border-dashed border-graphite-200 bg-cloud-50">
+                  {form.bannerUrl ? (
+                    <img
+                      src={form.bannerUrl}
+                      alt="Store banner preview"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full flex-col items-center justify-center px-4 text-center">
+                      <span className="grid h-12 w-12 place-items-center rounded-full bg-white text-graphite-400 shadow-card">
+                        <ImageIcon className="h-6 w-6" />
+                      </span>
+
+                      <p className="mt-3 text-sm font-medium text-graphite-700">
+                        No banner uploaded
+                      </p>
+
+                      <p className="mt-1 text-xs text-graphite-500">
+                        JPG, PNG, WebP or AVIF
+                      </p>
+                    </div>
+                  )}
+
+                  {uploading === "banner" && (
+                    <div className="absolute inset-0 grid place-items-center bg-graphite-950/60">
+                      <div className="flex items-center gap-2 rounded-card bg-white px-4 py-2.5 text-sm font-medium text-graphite-900 shadow-card">
+                        <Loader2 className="h-4 w-4 animate-spin text-ember-600" />
+                        Uploading...
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <input
+                  ref={bannerInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/avif"
+                  onChange={(event) =>
+                    uploadImage(event, "banner")
+                  }
+                  className="hidden"
+                />
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      bannerInputRef.current?.click()
+                    }
+                    disabled={
+                      uploading !== null ||
+                      removing !== null
+                    }
+                    className="inline-flex items-center gap-2 rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-graphite-800 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {uploading === "banner" ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Upload className="h-4 w-4" />
+                    )}
+
+                    {form.bannerUrl
+                      ? "Change banner"
+                      : "Upload banner"}
+                  </button>
+
+                  {form.bannerUrl && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        removeImage("banner")
+                      }
+                      disabled={
+                        uploading !== null ||
+                        removing !== null
+                      }
+                      className="inline-flex items-center gap-2 rounded-card border border-graphite-200 px-4 py-2.5 text-sm font-semibold text-graphite-700 transition hover:border-ember-600 hover:text-ember-600 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {removing === "banner" ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Logo */}
+              <div className="border-t border-graphite-200 pt-8">
+                <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
+                  <div className="relative shrink-0">
+                    <div className="grid h-28 w-28 overflow-hidden rounded-card border border-graphite-200 bg-cloud-50">
+                      {form.logoUrl ? (
+                        <img
+                          src={form.logoUrl}
+                          alt="Store logo preview"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="grid place-items-center text-graphite-400">
+                          <Store className="h-9 w-9" />
+                        </div>
+                      )}
+
+                      {uploading === "logo" && (
+                        <div className="absolute inset-0 grid place-items-center rounded-card bg-graphite-950/60">
+                          <Loader2 className="h-6 w-6 animate-spin text-white" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold text-graphite-900">
+                      Store logo
+                    </h3>
+
+                    <p className="mt-1 max-w-md text-xs leading-5 text-graphite-600">
+                      Use a square logo that clearly represents your
+                      store. Recommended size: 512 × 512px.
+                    </p>
+
+                    <input
+                      ref={logoInputRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/avif"
+                      onChange={(event) =>
+                        uploadImage(event, "logo")
+                      }
+                      className="hidden"
+                    />
+
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          logoInputRef.current?.click()
+                        }
+                        disabled={
+                          uploading !== null ||
+                          removing !== null
+                        }
+                        className="inline-flex items-center gap-2 rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-graphite-800 disabled:cursor-not-allowed disabled:opacity-60"
+                      >
+                        {uploading === "logo" ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Camera className="h-4 w-4" />
+                        )}
+
+                        {form.logoUrl
+                          ? "Change logo"
+                          : "Upload logo"}
+                      </button>
+
+                      {form.logoUrl && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            removeImage("logo")
+                          }
+                          disabled={
+                            uploading !== null ||
+                            removing !== null
+                          }
+                          className="inline-flex items-center gap-2 rounded-card border border-graphite-200 px-4 py-2.5 text-sm font-semibold text-graphite-700 transition hover:border-ember-600 hover:text-ember-600 disabled:cursor-not-allowed disabled:opacity-60"
+                        >
+                          {removing === "logo" ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+
+                          Remove
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
 
           {/* Save */}
-          <div className="flex justify-end">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+            <Link
+              href="/vendor/dashboard"
+              className="inline-flex items-center justify-center rounded-card border border-graphite-200 px-5 py-3 text-sm font-semibold text-graphite-700 transition hover:border-graphite-400 hover:text-graphite-900"
+            >
+              Cancel
+            </Link>
+
             <button
               type="submit"
               disabled={saving || uploading !== null}
-              className="inline-flex items-center gap-2 rounded-card bg-ember-600 px-5 py-3 text-sm font-semibold text-white hover:bg-ember-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex items-center justify-center gap-2 rounded-card bg-ember-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-ember-700 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {saving ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Saving...
-                </>
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <>
-                  <Save className="h-4 w-4" />
-                  Save store
-                </>
+                <Save className="h-4 w-4" />
               )}
+
+              {saving ? "Saving..." : "Save changes"}
             </button>
           </div>
         </div>
 
         {/* Preview */}
-        <aside className="h-fit rounded-card border border-graphite-200 bg-white p-5 lg:sticky lg:top-6">
-          <h2 className="text-base font-bold text-graphite-900">
-            Store preview
-          </h2>
+        <aside className="lg:sticky lg:top-6 lg:self-start">
+          <div className="overflow-hidden rounded-card border border-graphite-200 bg-white shadow-card">
+            <div className="border-b border-graphite-200 px-5 py-4">
+              <h2 className="font-semibold text-graphite-900">
+                Store preview
+              </h2>
 
-          <div className="mt-4 overflow-hidden rounded-card border border-graphite-200">
-            <div className="relative h-32 bg-cloud-100">
-              {form.bannerUrl && (
-                <img
-                  src={form.bannerUrl}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              )}
+              <p className="mt-1 text-sm text-graphite-600">
+                A quick look at your storefront identity.
+              </p>
             </div>
 
-            <div className="relative px-5 pb-5">
-              <div className="-mt-10 flex h-20 w-20 items-center justify-center overflow-hidden rounded-card border-4 border-white bg-cloud-100">
-                {form.logoUrl ? (
-                  <img
-                    src={form.logoUrl}
-                    alt=""
-                    className="h-full w-full object-contain"
-                  />
-                ) : (
-                  <Store className="h-7 w-7 text-graphite-500" />
-                )}
+            <div className="p-5">
+              <div className="overflow-hidden rounded-card border border-graphite-200 bg-cloud-50">
+                <div className="relative h-32 overflow-hidden bg-cloud-100">
+                  {form.bannerUrl ? (
+                    <img
+                      src={form.bannerUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="grid h-full place-items-center">
+                      <ImageIcon className="h-8 w-8 text-graphite-300" />
+                    </div>
+                  )}
+
+                  <div className="absolute -bottom-7 left-4 grid h-16 w-16 overflow-hidden rounded-card border-4 border-white bg-white shadow-card">
+                    {form.logoUrl ? (
+                      <img
+                        src={form.logoUrl}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <div className="grid place-items-center bg-cloud-100 text-graphite-400">
+                        <Store className="h-7 w-7" />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div className="px-4 pb-5 pt-10">
+                  <div className="flex items-center gap-2">
+                    <h3 className="truncate font-bold text-graphite-900">
+                      {form.storeName || "Your store"}
+                    </h3>
+
+                    {vendor?.verified && (
+                      <span
+                        title="Verified store"
+                        className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-verified-600 text-white"
+                      >
+                        <Check className="h-3 w-3" />
+                      </span>
+                    )}
+                  </div>
+
+                  <p className="mt-1 text-xs text-graphite-500">
+                    /store/
+                    {form.storeSlug || "your-store"}
+                  </p>
+
+                  {form.location && (
+                    <div className="mt-3 flex items-center gap-1.5 text-xs text-graphite-600">
+                      <MapPin className="h-3.5 w-3.5" />
+                      <span className="truncate">
+                        {form.location}
+                      </span>
+                    </div>
+                  )}
+
+                  {form.bio && (
+                    <p className="mt-3 line-clamp-3 text-sm leading-5 text-graphite-600">
+                      {form.bio}
+                    </p>
+                  )}
+
+                  {form.whatsappNumber && (
+                    <div className="mt-4 flex items-center gap-2 rounded-card bg-cloud-100 px-3 py-2.5 text-xs font-medium text-graphite-700">
+                      <MessageCircle className="h-4 w-4 text-verified-600" />
+                      WhatsApp available
+                    </div>
+                  )}
+                </div>
               </div>
 
-              <h3 className="mt-3 font-bold text-graphite-900">
-                {form.storeName || "Your Store"}
-              </h3>
-
-              <p className="mt-2 line-clamp-4 text-sm text-graphite-600">
-                {form.description ||
-                  "Your store description will appear here."}
+              <p className="mt-4 text-xs leading-5 text-graphite-500">
+                Your preview updates as you edit. Upload your branding
+                and save your store information when you're finished.
               </p>
-
-              {form.location && (
-       
+            </div>
+          </div>
+        </aside>
+      </form>
+    </div>
+  );
+}
+```
