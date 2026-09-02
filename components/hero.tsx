@@ -25,7 +25,7 @@ export function Hero() {
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
-              href="/categories"
+              href="/shop"
               className="rounded-card bg-ember-600 px-5 py-3 text-sm font-semibold text-white hover:bg-ember-700"
             >
               Start shopping
