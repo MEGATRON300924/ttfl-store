@@ -32,35 +32,34 @@ export function AuthProvider({
       /*
        * First try the current access token.
        */
-      const { user } = await api.get<{ user: ApiUser }>("/api/auth/me");
+      try {
+        const { user } = await api.get<{ user: ApiUser }>("/api/auth/me");
 
-      setUser(user);
-      return;
-    } catch (err) {
-      /*
-       * Access token may have expired.
-       *
-       * Try the refresh session before deciding the user
-       * is actually logged out.
-       */
-      if (!(err instanceof ApiError && err.status === 401)) {
-        console.error(err);
-        setUser(null);
+        setUser(user);
         return;
+      } catch (err) {
+        /*
+         * Access token may have expired.
+         *
+         * Only try the refresh session when /me
+         * returns a 401 Unauthorized response.
+         */
+        if (!(err instanceof ApiError && err.status === 401)) {
+          console.error(err);
+          setUser(null);
+          return;
+        }
       }
-    }
 
-    try {
       /*
-       * Refresh token lives in the httpOnly cookie.
-       * The browser sends it automatically because api-client
-       * uses credentials: "include".
+       * Access token expired.
+       * Refresh the session using the httpOnly cookie.
        */
       await api.post("/api/auth/refresh");
 
       /*
        * The backend has now issued a fresh access token.
-       * Retry /me using the new cookie.
+       * Retry /me using the new token.
        */
       const { user } = await api.get<{ user: ApiUser }>("/api/auth/me");
 
@@ -75,6 +74,12 @@ export function AuthProvider({
 
       setUser(null);
     } finally {
+      /*
+       * Always stop the loading state.
+       *
+       * This is important because /api/auth/me can succeed
+       * without entering the refresh-token flow.
+       */
       setLoading(false);
     }
   }, []);
