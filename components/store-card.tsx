@@ -1,11 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BadgeCheck, MapPin, Star } from "lucide-react";
-import type { Store } from "@/lib/mock-data";
 
-type StoreCardStore = Store & {
-  logoUrl?: string | null;
+type StoreCardStore = {
+  id: string;
+  name: string;
+  slug: string;
+  rating: number | string;
   productCount?: number;
+  verified: boolean;
+  location: string;
+  logoUrl?: string | null;
 };
 
 export function StoreCard({ store }: { store: StoreCardStore }) {
