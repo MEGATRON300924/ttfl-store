@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  SlidersHorizontal,
+} from "lucide-react";
 import { api } from "@/lib/api-client";
-import type {
-  ApiCategory,
-  ApiProduct,
-} from "@/lib/api-types";
+import type { ApiProduct } from "@/lib/api-types";
 import type { Product } from "@/lib/mock-data";
 import { ProductCard } from "@/components/product-card";
 import { ProductsPerPage } from "@/components/products-per-page";
@@ -20,6 +21,16 @@ type SearchParams = {
   limit?: string;
 };
 
+type ProductResponse = {
+  items: ApiProduct[];
+  pagination: {
+    page: number;
+    totalPages: number;
+    total: number;
+    limit?: number;
+  };
+};
+
 function mapApiProduct(p: ApiProduct): Product {
   return {
     id: p.id,
@@ -29,7 +40,7 @@ function mapApiProduct(p: ApiProduct): Product {
     previousPrice: p.previousPrice
       ? Number(p.previousPrice)
       : undefined,
-    image: p.images[0]?.url ?? "",
+    image: p.images?.[0]?.url ?? "",
     vendor: p.vendor.storeName,
     vendorSlug: p.vendor.storeSlug,
     verified: p.vendor.verified,
@@ -41,46 +52,42 @@ function mapApiProduct(p: ApiProduct): Product {
         ? "external"
         : p.sellingMethod === "WHATSAPP"
           ? "whatsapp"
-          : ("checkout" as const),
+          : "checkout",
   };
 }
 
-async function getProducts(params: SearchParams) {
-  const qs = new URLSearchParams();
+async function getProducts(
+  searchParams: SearchParams
+): Promise<ProductResponse> {
+  const params = new URLSearchParams();
 
-  if (params.q) qs.set("q", params.q);
-  if (params.category) qs.set("category", params.category);
-  if (params.minPrice) qs.set("minPrice", params.minPrice);
-  if (params.maxPrice) qs.set("maxPrice", params.maxPrice);
-  if (params.condition) qs.set("condition", params.condition);
-
-  qs.set("sort", params.sort || "newest");
-  qs.set("page", params.page || "1");
-  qs.set("limit", params.limit || "24");
-
-  return api.get<{
-    items: ApiProduct[];
-    pagination: {
-      page: number;
-      totalPages: number;
-      total: number;
-      limit?: number;
-    };
-  }>(`/api/products?${qs.toString()}`);
-}
-
-async function getCategories() {
-  try {
-    const result = await api.get<
-      ApiCategory[] | { items: ApiCategory[] }
-    >("/api/categories");
-
-    return Array.isArray(result)
-      ? result
-      : result.items;
-  } catch {
-    return [];
+  if (searchParams.q) {
+    params.set("q", searchParams.q);
   }
+
+  if (searchParams.category) {
+    params.set("category", searchParams.category);
+  }
+
+  if (searchParams.minPrice) {
+    params.set("minPrice", searchParams.minPrice);
+  }
+
+  if (searchParams.maxPrice) {
+    params.set("maxPrice", searchParams.maxPrice);
+  }
+
+  if (searchParams.condition) {
+    params.set("condition", searchParams.condition);
+  }
+
+  params.set("sort", searchParams.sort || "newest");
+  params.set("page", searchParams.page || "1");
+  params.set("limit", searchParams.limit || "24");
+
+  return api.get<ProductResponse>(
+    `/api/products?${params.toString()}`
+  );
 }
 
 function buildShopUrl(
@@ -95,17 +102,24 @@ function buildShopUrl(
   const params = new URLSearchParams();
 
   if (merged.q) params.set("q", merged.q);
-  if (merged.category) params.set("category", merged.category);
-  if (merged.minPrice) params.set("minPrice", merged.minPrice);
-  if (merged.maxPrice) params.set("maxPrice", merged.maxPrice);
-  if (merged.condition) params.set("condition", merged.condition);
-  if (merged.sort) params.set("sort", merged.sort);
-  if (merged.page) params.set("page", merged.page);
-  if (merged.limit) params.set("limit", merged.limit);
+  if (merged.category) {
+    params.set("category", merged.category);
+  }
+  if (merged.minPrice) {
+    params.set("minPrice", merged.minPrice);
+  }
+  if (merged.maxPrice) {
+    params.set("maxPrice", merged.maxPrice);
+  }
+  if (merged.condition) {
+    params.set("condition", merged.condition);
+  }
 
-  const query = params.toString();
+  params.set("sort", merged.sort || "newest");
+  params.set("page", merged.page || "1");
+  params.set("limit", merged.limit || "24");
 
-  return query ? `/shop?${query}` : "/shop";
+  return `/shop?${params.toString()}`;
 }
 
 function getPageNumbers(
@@ -140,9 +154,9 @@ function getPageNumbers(
   }
 
   if (currentPage >= totalPages - 2) {
-    pages.add(totalPages - 1);
-    pages.add(totalPages - 2);
     pages.add(totalPages - 3);
+    pages.add(totalPages - 2);
+    pages.add(totalPages - 1);
   }
 
   return Array.from(pages)
@@ -159,17 +173,11 @@ export default async function ShopPage({
 }: {
   searchParams: SearchParams;
 }) {
-  const [productResult, categories] =
-    await Promise.all([
-      getProducts(searchParams),
-      getCategories(),
-    ]);
+  const result = await getProducts(searchParams);
 
-  const products = productResult.items.map(
-    mapApiProduct
-  );
+  const products = result.items.map(mapApiProduct);
 
-  const pagination = productResult.pagination;
+  const pagination = result.pagination;
 
   const currentPage =
     pagination.page ||
@@ -181,14 +189,16 @@ export default async function ShopPage({
   const limit =
     Number(searchParams.limit || "24");
 
-  const selectedCategory =
-    searchParams.category || "";
-
-  const selectedCategoryData =
-    categories.find(
-      (category) =>
-        category.slug === selectedCategory
-    );
+  const categoryName = searchParams.category
+    ? searchParams.category
+        .split("-")
+        .map(
+          (word) =>
+            word.charAt(0).toUpperCase() +
+            word.slice(1)
+        )
+        .join(" ")
+    : "Shop";
 
   const pageNumbers = getPageNumbers(
     currentPage,
@@ -205,8 +215,7 @@ export default async function ShopPage({
           </p>
 
           <h1 className="mt-1 text-2xl font-bold text-graphite-900">
-            {selectedCategoryData?.name ||
-              "Shop"}
+            {categoryName}
           </h1>
 
           <p className="mt-1 text-sm text-graphite-600">
@@ -220,57 +229,30 @@ export default async function ShopPage({
 
         <Link
           href="/search"
-          className="inline-flex w-fit items-center gap-2 rounded-card border border-graphite-200 bg-white px-4 py-2.5 text-sm font-semibold text-graphite-700 hover:border-ember-600 hover:text-ember-600"
+          className="inline-flex w-fit items-center gap-2 rounded-card border border-graphite-200 bg-white px-4 py-2.5 text-sm font-semibold text-graphite-700 transition hover:border-ember-600 hover:text-ember-600"
         >
           <SlidersHorizontal className="h-4 w-4" />
           More filters
         </Link>
       </div>
 
-      {/* Categories */}
-      {categories.length > 0 && (
-        <div className="mt-6 overflow-x-auto pb-1">
-          <div className="flex min-w-max gap-2">
-            <Link
-              href={buildShopUrl(
-                searchParams,
-                {
-                  category: undefined,
-                  page: "1",
-                }
-              )}
-              className={[
-                "rounded-full border px-4 py-2 text-sm font-medium transition",
-                !selectedCategory
-                  ? "border-graphite-900 bg-graphite-900 text-white"
-                  : "border-graphite-200 bg-white text-graphite-700 hover:border-ember-600 hover:text-ember-600",
-              ].join(" ")}
-            >
-              All products
-            </Link>
+      {/* Active category */}
+      {searchParams.category && (
+        <div className="mt-5 flex items-center gap-2">
+          <span className="text-sm text-graphite-500">
+            Category:
+          </span>
 
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                href={buildShopUrl(
-                  searchParams,
-                  {
-                    category: category.slug,
-                    page: "1",
-                  }
-                )}
-                className={[
-                  "rounded-full border px-4 py-2 text-sm font-medium transition",
-                  selectedCategory ===
-                  category.slug
-                    ? "border-graphite-900 bg-graphite-900 text-white"
-                    : "border-graphite-200 bg-white text-graphite-700 hover:border-ember-600 hover:text-ember-600",
-                ].join(" ")}
-              >
-                {category.name}
-              </Link>
-            ))}
-          </div>
+          <Link
+            href={buildShopUrl(searchParams, {
+              category: undefined,
+              page: "1",
+            })}
+            className="rounded-full bg-graphite-900 px-3 py-1.5 text-xs font-semibold text-white"
+          >
+            {categoryName}
+            <span className="ml-2">×</span>
+          </Link>
         </div>
       )}
 
@@ -293,15 +275,15 @@ export default async function ShopPage({
           </h2>
 
           <p className="mt-2 text-sm text-graphite-600">
-            {selectedCategoryData
-              ? `There are no active products in ${selectedCategoryData.name} yet.`
+            {searchParams.category
+              ? `There are no active products in ${categoryName} yet.`
               : "There are no active products available right now."}
           </p>
 
-          {selectedCategory && (
+          {searchParams.category && (
             <Link
               href="/shop"
-              className="mt-5 inline-flex rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-graphite-800"
+              className="mt-5 inline-flex rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-graphite-800"
             >
               Browse all products
             </Link>
@@ -324,17 +306,15 @@ export default async function ShopPage({
           className="mt-8 flex items-center justify-center gap-1.5"
           aria-label="Shop pagination"
         >
+          {/* Previous */}
           {currentPage > 1 ? (
             <Link
-              href={buildShopUrl(
-                searchParams,
-                {
-                  page: String(
-                    currentPage - 1
-                  ),
-                }
-              )}
-              className="grid h-10 w-10 place-items-center rounded-card border border-graphite-200 bg-white text-graphite-700 hover:border-ember-600 hover:text-ember-600"
+              href={buildShopUrl(searchParams, {
+                page: String(
+                  currentPage - 1
+                ),
+              })}
+              className="grid h-10 w-10 place-items-center rounded-card border border-graphite-200 bg-white text-graphite-700 transition hover:border-ember-600 hover:text-ember-600"
               aria-label="Previous page"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -345,6 +325,7 @@ export default async function ShopPage({
             </span>
           )}
 
+          {/* Page numbers */}
           {pageNumbers.map(
             (page, index) => {
               const previous =
@@ -387,17 +368,15 @@ export default async function ShopPage({
             }
           )}
 
+          {/* Next */}
           {currentPage < totalPages ? (
             <Link
-              href={buildShopUrl(
-                searchParams,
-                {
-                  page: String(
-                    currentPage + 1
-                  ),
-                }
-              )}
-              className="grid h-10 w-10 place-items-center rounded-card border border-graphite-200 bg-white text-graphite-700 hover:border-ember-600 hover:text-ember-600"
+              href={buildShopUrl(searchParams, {
+                page: String(
+                  currentPage + 1
+                ),
+              })}
+              className="grid h-10 w-10 place-items-center rounded-card border border-graphite-200 bg-white text-graphite-700 transition hover:border-ember-600 hover:text-ember-600"
               aria-label="Next page"
             >
               <ChevronRight className="h-4 w-4" />
