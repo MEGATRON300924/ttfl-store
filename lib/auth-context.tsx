@@ -13,37 +13,41 @@ import type { ApiUser } from "@/lib/api-types";
 type AuthState = {
   user: ApiUser | null;
   loading: boolean;
+  wishlistIds: Set<string>;
   refresh: () => Promise<void>;
+  refreshWishlist: () => Promise<void>;
+  toggleWishlist: (productId: string) => Promise<boolean>;
   logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
 
-export function AuthProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<ApiUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
+
+  const refreshWishlist = useCallback(async () => {
+    if (!user) {
+      setWishlistIds(new Set());
+      return;
+    }
+
+    try {
+      const { items } = await api.get<{ items: Array<{ productId: string }> }>("/api/wishlist");
+      setWishlistIds(new Set(items.map((item) => item.productId)));
+    } catch (err) {
+      if (!(err instanceof ApiError && err.status === 401)) console.error(err);
+    }
+  }, [user]);
 
   const refresh = useCallback(async () => {
     try {
-      /*
-       * First try the current access token.
-       */
       try {
         const { user } = await api.get<{ user: ApiUser }>("/api/auth/me");
-
         setUser(user);
         return;
       } catch (err) {
-        /*
-         * Access token may have expired.
-         *
-         * Only try the refresh session when /me
-         * returns a 401 Unauthorized response.
-         */
         if (!(err instanceof ApiError && err.status === 401)) {
           console.error(err);
           setUser(null);
@@ -51,62 +55,66 @@ export function AuthProvider({
         }
       }
 
-      /*
-       * Access token expired.
-       * Refresh the session using the httpOnly cookie.
-       */
       await api.post("/api/auth/refresh");
-
-      /*
-       * The backend has now issued a fresh access token.
-       * Retry /me using the new token.
-       */
       const { user } = await api.get<{ user: ApiUser }>("/api/auth/me");
-
       setUser(user);
     } catch (err) {
-      /*
-       * Only now do we consider the session genuinely expired.
-       */
-      if (!(err instanceof ApiError && err.status === 401)) {
-        console.error(err);
-      }
-
+      if (!(err instanceof ApiError && err.status === 401)) console.error(err);
       setUser(null);
     } finally {
-      /*
-       * Always stop the loading state.
-       *
-       * This is important because /api/auth/me can succeed
-       * without entering the refresh-token flow.
-       */
       setLoading(false);
     }
   }, []);
+
+  const toggleWishlist = useCallback(async (productId: string) => {
+    if (!user) {
+      window.location.href = "/login";
+      return false;
+    }
+
+    const next = !wishlistIds.has(productId);
+    setWishlistIds((current) => {
+      const updated = new Set(current);
+      if (next) updated.add(productId);
+      else updated.delete(productId);
+      return updated;
+    });
+
+    try {
+      if (next) await api.post("/api/wishlist", { productId });
+      else await api.delete(`/api/wishlist/${productId}`);
+      return next;
+    } catch (err) {
+      setWishlistIds((current) => {
+        const updated = new Set(current);
+        if (next) updated.delete(productId);
+        else updated.add(productId);
+        return updated;
+      });
+      if (!(err instanceof ApiError)) console.error(err);
+      return !next;
+    }
+  }, [user, wishlistIds]);
 
   const logout = useCallback(async () => {
     try {
       await api.post("/api/auth/logout");
     } catch {
-      // Logout should still clear local state if the API fails.
     }
-
     setUser(null);
+    setWishlistIds(new Set());
   }, []);
 
   useEffect(() => {
     void refresh();
   }, [refresh]);
 
+  useEffect(() => {
+    if (!loading) void refreshWishlist();
+  }, [loading, refreshWishlist]);
+
   return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        refresh,
-        logout,
-      }}
-    >
+    <AuthContext.Provider value={{ user, loading, wishlistIds, refresh, refreshWishlist, toggleWishlist, logout }}>
       {children}
     </AuthContext.Provider>
   );
@@ -114,10 +122,6 @@ export function AuthProvider({
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-
-  if (!ctx) {
-    throw new Error("useAuth must be used within AuthProvider");
-  }
-
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
