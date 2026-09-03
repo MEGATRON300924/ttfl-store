@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BadgeCheck, MapPin, Star, ExternalLink, MessageCircle } from "lucide-react";
+import { ExternalLink, MapPin, MessageCircle, Star } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import { formatNaira } from "@/lib/mock-data";
-import type { ApiProduct } from "@/lib/api-types";
+import type { ApiProduct, StoreBadge } from "@/lib/api-types";
 import { ProductGallery } from "@/components/product-gallery";
 import { ProductPurchaseActions } from "@/components/product-purchase-actions";
 import { ReviewsSection } from "@/components/reviews-section";
 import { WishlistButton } from "@/components/wishlist-button";
-import { Section } from "@/components/section";
+import { StoreBadges } from "@/components/store-badges";
 
 async function getProduct(slug: string): Promise<ApiProduct | null> {
   try {
@@ -18,6 +19,24 @@ async function getProduct(slug: string): Promise<ApiProduct | null> {
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) return null;
     throw err;
+  }
+}
+
+async function getStoreProfile(slug: string) {
+  try {
+    const { store } = await api.get<{
+      store: {
+        storeName: string;
+        storeSlug: string;
+        logoUrl: string | null;
+        verified: boolean;
+        tier: string | null;
+        badges: StoreBadge[];
+      };
+    }>(`/api/store-profile/public/${encodeURIComponent(slug)}`);
+    return store;
+  } catch {
+    return null;
   }
 }
 
@@ -43,6 +62,16 @@ export default async function ProductPage({ params }: { params: { slug: string }
   const product = await getProduct(params.slug);
   if (!product) notFound();
 
+  const store = await getStoreProfile(product.vendor.storeSlug);
+  const storeBadges: StoreBadge[] = store?.badges?.length
+    ? store.badges
+    : product.vendor.verified
+      ? ["VERIFIED"]
+      : [];
+  const storeLogo = store?.logoUrl?.trim() || null;
+  const storeName = store?.storeName || product.vendor.storeName;
+  const storeSlug = store?.storeSlug || product.vendor.storeSlug;
+
   const discount =
     product.previousPrice && Number(product.previousPrice) > Number(product.price)
       ? Math.round(100 - (Number(product.price) / Number(product.previousPrice)) * 100)
@@ -64,17 +93,15 @@ export default async function ProductPage({ params }: { params: { slug: string }
         product.stock > 0
           ? "https://schema.org/InStock"
           : "https://schema.org/OutOfStock",
-      url: `https://store.thetronforge.com/products/${product.slug}`,
+      url: `https://ttflstore.name.ng/products/${product.slug}`,
     },
   };
 
   return (
     <>
-      {/* eslint-disable-next-line react/no-danger */}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="shell py-6">
-        {/* Breadcrumbs (spec §38 BreadcrumbList intent, rendered simply) */}
         <nav className="mb-4 flex items-center gap-1.5 text-xs text-graphite-600">
           <Link href="/" className="hover:text-ember-600">Home</Link>
           <span>/</span>
@@ -139,19 +166,29 @@ export default async function ProductPage({ params }: { params: { slug: string }
             </div>
 
             <Link
-              href={`/store/${product.vendor.storeSlug}`}
-              className="mt-6 flex items-center gap-3 rounded-card border border-graphite-200 p-3 hover:border-ember-600"
+              href={`/store/${storeSlug}`}
+              className="mt-6 block rounded-card border border-graphite-200 p-3 transition hover:border-ember-600"
             >
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-graphite-900 text-sm font-bold text-white">
-                {product.vendor.storeName.charAt(0)}
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1">
-                  <p className="truncate text-sm font-semibold text-graphite-900">{product.vendor.storeName}</p>
-                  {product.vendor.verified && <BadgeCheck className="h-4 w-4 shrink-0 text-verified-600" />}
+              <div className="flex items-center gap-3">
+                {storeLogo ? (
+                  <span className="relative grid h-12 w-12 shrink-0 overflow-hidden rounded-full border border-graphite-200 bg-cloud-100">
+                    <Image src={storeLogo} alt={`${storeName} logo`} fill sizes="48px" className="object-cover" />
+                  </span>
+                ) : (
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-graphite-900 text-sm font-bold text-white">
+                    {storeName.charAt(0).toUpperCase()}
+                  </span>
+                )}
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-graphite-900">{storeName}</p>
+                  <p className="mt-0.5 text-xs text-graphite-600">Visit store</p>
                 </div>
-                <p className="text-xs text-graphite-600">Visit store</p>
               </div>
+              {storeBadges.length > 0 && (
+                <div className="mt-3 border-t border-graphite-100 pt-3">
+                  <StoreBadges badges={storeBadges} />
+                </div>
+              )}
             </Link>
           </div>
         </div>
