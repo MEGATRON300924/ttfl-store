@@ -19,7 +19,12 @@ declare global {
   }
 }
 
-export function GoogleSignIn({ onSuccess, onError }: { onSuccess: () => Promise<void>; onError: (message: string) => void }) {
+type GoogleSignInProps = {
+  onSuccess?: () => Promise<void>;
+  onError?: (message: string) => void;
+};
+
+export function GoogleSignIn({ onSuccess = async () => {}, onError = () => {} }: GoogleSignInProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
 
