@@ -8,6 +8,7 @@ type StoreCardStore = {
   id: string;
   name: string;
   slug: string;
+  customUrl?: string | null;
   rating: number | string;
   productCount?: number;
   verified: boolean;
@@ -29,10 +30,11 @@ export function StoreCard({ store }: { store: StoreCardStore }) {
   const logoUrl = store.logoUrl?.trim() || null;
   const productCount = store.productCount ?? 0;
   const badges = resolveBadges(store);
+  const publicSlug = store.customUrl?.trim() || store.slug;
 
   return (
     <Link
-      href={`/store/${store.slug}`}
+      href={`/store/${publicSlug}`}
       className="group flex items-center gap-3 rounded-card border border-graphite-200 bg-white p-4 transition hover:border-ember-600 hover:shadow-card sm:p-4"
     >
       {logoUrl ? (
