@@ -15,6 +15,7 @@ export type OrderStatus =
   | "REFUNDED"
   | "FAILED";
 export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "REFUNDED";
+export type StoreBadge = "VERIFIED" | "BUSINESS" | "ENTERPRISE" | "PLATINUM";
 
 export type ApiUser = {
   id: string;
