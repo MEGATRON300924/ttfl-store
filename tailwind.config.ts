@@ -40,7 +40,7 @@ const config: Config = {
       },
       fontFamily: {
         sans: ["var(--font-jakarta)", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+        mono: ["var(--font-mono)", "system-ui", "sans-serif"],
       },
       borderRadius: {
         card: "10px",
