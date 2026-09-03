@@ -1,10 +1,7 @@
 import type { Config } from "tailwindcss";
 
-// TTFL Store design tokens
-// Palette named after the "forge" identity: graphite (trust/structure)
-// + ember (energy/CTA) + verified green, kept restrained — no gradients,
-// no glass, no neon. See DESIGN.md for rationale.
 const config: Config = {
+  darkMode: "class",
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
