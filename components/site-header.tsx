@@ -11,7 +11,7 @@ import { useAuth } from "@/lib/auth-context";
 export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { totalItems } = useCart();
-  const { user } = useAuth();
+  const { user, wishlistIds } = useAuth();
   const accountHref = !user ? "/login" : user.role === "ADMIN" ? "/admin" : user.role === "VENDOR" ? "/vendor/dashboard" : "/account";
 
   return (
@@ -22,8 +22,8 @@ export function SiteHeader() {
         <Logo />
         <form role="search" className="hidden flex-1 items-center md:flex" action="/search"><div className="flex w-full items-center rounded-card border border-graphite-200 bg-cloud-50 focus-within:border-ember-600"><Search className="ml-3 h-4 w-4 shrink-0 text-graphite-600" aria-hidden /><input name="q" type="search" placeholder="Search products, brands or vendors" className="w-full bg-transparent px-2.5 py-2.5 text-sm text-graphite-900 outline-none placeholder:text-graphite-600" /><button type="submit" className="m-1 shrink-0 rounded-[7px] bg-graphite-900 px-4 py-2 text-sm font-medium text-white hover:bg-graphite-800">Search</button></div></form>
         <div className="ml-auto flex items-center gap-1 md:ml-0">
-          <Link href="/wishlist" className="hidden h-9 w-9 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 sm:grid" aria-label="Wishlist"><Heart className="h-5 w-5" /></Link>
-          <Link href={accountHref} className="hidden h-9 w-9 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 md:grid" aria-label="Account"><User className="h-5 w-5" /></Link>
+          <Link href="/wishlist" className="hidden h-9 w-9 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 sm:grid" aria-label={`Wishlist${wishlistIds.size ? ` (${wishlistIds.size})` : ""}`}><Heart className="h-5 w-5" />{wishlistIds.size > 0 && <span className="absolute" />}</Link>
+          <Link href={accountHref} className="grid h-9 w-9 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100" aria-label="Profile"><User className="h-5 w-5" /></Link>
           <Link href="/cart" className="relative flex h-9 items-center gap-1.5 rounded-card px-2.5 text-graphite-700 hover:bg-cloud-100" aria-label="Cart"><ShoppingCart className="h-5 w-5" /><span className="hidden text-sm font-medium sm:inline">Cart</span>{totalItems > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-ember-600 px-1 font-mono text-[10px] font-medium text-white">{totalItems}</span>}</Link>
         </div>
       </div>
