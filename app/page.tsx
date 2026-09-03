@@ -13,12 +13,25 @@ type PublicStore = {
   id: string;
   name: string;
   slug: string;
+  customUrl?: string | null;
   rating: number;
   productCount: number;
   verified: boolean;
   location: string | null;
   logoUrl: string | null;
   tier?: VendorTier | string | null;
+  badges?: StoreBadge[];
+};
+
+type VendorStore = {
+  id: string;
+  storeName: string;
+  storeSlug: string;
+  location: string | null;
+  logoUrl: string | null;
+  verified: boolean;
+  tier?: VendorTier | string | null;
+  _count?: { products?: number };
   badges?: StoreBadge[];
 };
 
@@ -40,6 +53,23 @@ function toCardProduct(p: ApiProduct): Product {
   };
 }
 
+function normalizeStores(response: { stores?: PublicStore[]; items?: VendorStore[] }): PublicStore[] {
+  if (response.stores?.length) return response.stores;
+  return (response.items ?? []).map((store) => ({
+    id: store.id,
+    name: store.storeName,
+    slug: store.storeSlug,
+    customUrl: null,
+    rating: 0,
+    productCount: Number(store._count?.products ?? 0),
+    verified: Boolean(store.verified),
+    location: store.location ?? null,
+    logoUrl: store.logoUrl ?? null,
+    tier: store.tier ?? null,
+    badges: store.badges ?? (store.verified ? ["VERIFIED"] : []),
+  }));
+}
+
 async function getHomeData() {
   const [flashDeals, trending, newArrivals] = await Promise.all([
     api.get<{ items: ApiProduct[] }>("/api/products?sort=price_desc&limit=10"),
@@ -49,12 +79,12 @@ async function getHomeData() {
 
   let stores: PublicStore[] = [];
   try {
-    const response = await api.get<{ stores: PublicStore[] }>("/api/store-profile/public/directory?limit=4&page=1");
-    stores = response.stores ?? [];
+    const response = await api.get<{ stores?: PublicStore[]; items?: VendorStore[] }>("/api/store-profile/public/directory?limit=4&page=1");
+    stores = normalizeStores(response);
   } catch {
     try {
-      const response = await api.get<{ stores: PublicStore[] }>("/api/vendors/stores?limit=4&page=1");
-      stores = response.stores ?? [];
+      const response = await api.get<{ stores?: PublicStore[]; items?: VendorStore[] }>("/api/vendors/stores?limit=4&page=1");
+      stores = normalizeStores(response);
     } catch {
       stores = [];
     }
@@ -86,44 +116,18 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
-
       <section className="shell mt-4 sm:hidden">
         <div className="grid grid-cols-2 gap-2">
-          <Link href="/search" className="flex items-center justify-between rounded-card border border-graphite-200 bg-white p-3 text-sm font-semibold text-graphite-900">
-            <span className="flex items-center gap-2"><Search className="h-4 w-4 text-ember-600" />Search</span><ArrowRight className="h-4 w-4 text-graphite-400" />
-          </Link>
-          <Link href="/stores" className="flex items-center justify-between rounded-card border border-graphite-200 bg-white p-3 text-sm font-semibold text-graphite-900">
-            <span className="flex items-center gap-2"><Store className="h-4 w-4 text-ember-600" />Stores</span><ArrowRight className="h-4 w-4 text-graphite-400" />
-          </Link>
+          <Link href="/search" className="flex items-center justify-between rounded-card border border-graphite-200 bg-white p-3 text-sm font-semibold text-graphite-900"><span className="flex items-center gap-2"><Search className="h-4 w-4 text-ember-600" />Search</span><ArrowRight className="h-4 w-4 text-graphite-400" /></Link>
+          <Link href="/stores" className="flex items-center justify-between rounded-card border border-graphite-200 bg-white p-3 text-sm font-semibold text-graphite-900"><span className="flex items-center gap-2"><Store className="h-4 w-4 text-ember-600" />Stores</span><ArrowRight className="h-4 w-4 text-graphite-400" /></Link>
         </div>
       </section>
-
-      <Section title="Shop by category">
-        <CategoryGrid categories={mockCategories} />
-      </Section>
-
-      <Section title="Flash deals" subtitle="Prices drop for a limited time" href="/deals">
-        {flashDeals.length === 0 ? <EmptyState message="No active deals right now — check back soon." /> : <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">{flashDeals.map((p) => <ProductCard key={p.id} product={p} />)}</div>}
-      </Section>
-
-      <section className="shell">
-        <div className="flex flex-col items-start justify-between gap-4 rounded-card bg-gold-100 p-5 sm:flex-row sm:items-center sm:p-6">
-          <div><p className="text-[13px] font-semibold uppercase tracking-wide text-gold-600">Vendor spotlight</p><p className="mt-1 text-base font-bold text-graphite-900 sm:text-lg">Become a verified vendor and reach more buyers</p></div>
-          <Link href="/sell" className="w-full rounded-card bg-graphite-900 px-5 py-2.5 text-center text-sm font-semibold text-white hover:bg-graphite-800 sm:w-auto">Start selling</Link>
-        </div>
-      </section>
-
-      <Section title="Trending now" subtitle="What buyers are viewing most" href="/search?sort=relevance">
-        {trending.length === 0 ? <EmptyState message="No products yet — be the first vendor to list something." /> : <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">{trending.map((p) => <ProductCard key={p.id} product={p} />)}</div>}
-      </Section>
-
-      <Section title="Trusted stores" subtitle="Stores with verified and premium badges" href="/stores" hrefLabel="See all stores">
-        {stores.length === 0 ? <EmptyState message="No approved stores yet. Check back soon." /> : <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4">{stores.map((store) => <StoreCard key={store.id} store={store} />)}</div>}
-      </Section>
-
-      <Section title="New arrivals" subtitle="Freshly listed this week" href="/search?sort=newest">
-        {newArrivals.length === 0 ? <EmptyState message="Nothing new yet." /> : <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">{newArrivals.map((p) => <ProductCard key={p.id} product={p} />)}</div>}
-      </Section>
+      <Section title="Shop by category"><CategoryGrid categories={mockCategories} /></Section>
+      <Section title="Flash deals" subtitle="Prices drop for a limited time" href="/deals">{flashDeals.length === 0 ? <EmptyState message="No active deals right now — check back soon." /> : <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-5">{flashDeals.map((p) => <ProductCard key={p.id} product={p} />)}</div>}</Section>
+      <section className="shell"><div className="flex flex-col items-start justify-between gap-4 rounded-card bg-gold-100 p-5 sm:flex-row sm:items-center sm:p-6"><div><p className="text-[13px] font-semibold uppercase tracking-wide text-gold-600">Vendor spotlight</p><p className="mt-1 text-base font-bold text-graphite-900 sm:text-lg">Become a verified vendor and reach more buyers</p></div><Link href="/sell" className="w-full rounded-card bg-graphite-900 px-5 py-2.5 text-center text-sm font-semibold text-white hover:bg-graphite-800 sm:w-auto">Start selling</Link></div></section>
+      <Section title="Trending now" subtitle="What buyers are viewing most" href="/search?sort=relevance">{trending.length === 0 ? <EmptyState message="No products yet — be the first vendor to list something." /> : <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">{trending.map((p) => <ProductCard key={p.id} product={p} />)}</div>}</Section>
+      <Section title="Trusted stores" subtitle="Stores with verified and premium badges" href="/stores" hrefLabel="See all stores">{stores.length === 0 ? <EmptyState message="No approved stores yet. Check back soon." /> : <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-3 lg:grid-cols-4">{stores.map((store) => <StoreCard key={store.id} store={store} />)}</div>}</Section>
+      <Section title="New arrivals" subtitle="Freshly listed this week" href="/search?sort=newest">{newArrivals.length === 0 ? <EmptyState message="Nothing new yet." /> : <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-6">{newArrivals.map((p) => <ProductCard key={p.id} product={p} />)}</div>}</Section>
     </>
   );
 }
