@@ -4,9 +4,8 @@ import { CategoryGrid } from "@/components/category-grid";
 import { ProductCard } from "@/components/product-card";
 import { StoreCard } from "@/components/store-card";
 import { api } from "@/lib/api-client";
-import type { ApiProduct } from "@/lib/api-types";
+import type { ApiProduct, StoreBadge, VendorTier } from "@/lib/api-types";
 import { categories as mockCategories, products as mockProducts, type Product } from "@/lib/mock-data";
-import type { StoreBadge } from "@/components/store-badges";
 import Link from "next/link";
 import { ArrowRight, Search, Store } from "lucide-react";
 
@@ -19,7 +18,8 @@ type PublicStore = {
   verified: boolean;
   location: string | null;
   logoUrl: string | null;
-  badges: StoreBadge[];
+  tier?: VendorTier | string | null;
+  badges?: StoreBadge[];
 };
 
 function toCardProduct(p: ApiProduct): Product {
@@ -41,31 +41,47 @@ function toCardProduct(p: ApiProduct): Product {
 }
 
 async function getHomeData() {
+  const [flashDeals, trending, newArrivals] = await Promise.all([
+    api.get<{ items: ApiProduct[] }>("/api/products?sort=price_desc&limit=10"),
+    api.get<{ items: ApiProduct[] }>("/api/products?sort=relevance&limit=12"),
+    api.get<{ items: ApiProduct[] }>("/api/products?sort=newest&limit=12"),
+  ]);
+
+  let stores: PublicStore[] = [];
   try {
-    const [flashDeals, trending, newArrivals, stores] = await Promise.all([
-      api.get<{ items: ApiProduct[] }>("/api/products?sort=price_desc&limit=10"),
-      api.get<{ items: ApiProduct[] }>("/api/products?sort=relevance&limit=12"),
-      api.get<{ items: ApiProduct[] }>("/api/products?sort=newest&limit=12"),
-      api.get<{ stores: PublicStore[] }>("/api/store-profile/public/directory?limit=4&page=1"),
-    ]);
-    return {
-      flashDeals: flashDeals.items.filter((p) => p.previousPrice).map(toCardProduct),
-      trending: trending.items.map(toCardProduct),
-      newArrivals: newArrivals.items.map(toCardProduct),
-      stores: stores.stores,
-    };
+    const response = await api.get<{ stores: PublicStore[] }>("/api/store-profile/public/directory?limit=4&page=1");
+    stores = response.stores ?? [];
   } catch {
-    return {
+    try {
+      const response = await api.get<{ stores: PublicStore[] }>("/api/vendors/stores?limit=4&page=1");
+      stores = response.stores ?? [];
+    } catch {
+      stores = [];
+    }
+  }
+
+  return {
+    flashDeals: flashDeals.items.filter((p) => p.previousPrice).map(toCardProduct),
+    trending: trending.items.map(toCardProduct),
+    newArrivals: newArrivals.items.map(toCardProduct),
+    stores,
+  };
+}
+
+export default async function HomePage() {
+  let data: Awaited<ReturnType<typeof getHomeData>>;
+  try {
+    data = await getHomeData();
+  } catch {
+    data = {
       flashDeals: mockProducts.filter((p) => p.previousPrice),
       trending: [...mockProducts].sort((a, b) => b.reviewCount - a.reviewCount),
       newArrivals: [...mockProducts].reverse(),
       stores: [],
     };
   }
-}
 
-export default async function HomePage() {
-  const { flashDeals, trending, newArrivals, stores } = await getHomeData();
+  const { flashDeals, trending, newArrivals, stores } = data;
 
   return (
     <>
