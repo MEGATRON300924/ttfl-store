@@ -9,14 +9,26 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "Stores | TTFL Store",
+  title: "Stores",
   description: "Discover approved stores and trusted vendors on TTFL Store.",
+  openGraph: {
+    title: "Stores | TTFL Store",
+    description: "Discover approved stores and trusted vendors on TTFL Store.",
+    images: [{ url: "/ttflstore.png", width: 1200, height: 630, alt: "TTFL Store" }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Stores | TTFL Store",
+    description: "Discover approved stores and trusted vendors on TTFL Store.",
+    images: ["/ttflstore.png"],
+  },
 };
 
 type PublicStore = {
   id: string;
   name: string;
   slug: string;
+  customUrl?: string | null;
   rating: number;
   productCount: number;
   verified: boolean;
@@ -26,18 +38,60 @@ type PublicStore = {
   badges?: StoreBadge[];
 };
 
+type VendorStore = {
+  id: string;
+  storeName: string;
+  storeSlug: string;
+  bio?: string | null;
+  location: string | null;
+  logoUrl: string | null;
+  verified: boolean;
+  tier?: VendorTier | string | null;
+  _count?: { products?: number };
+  badges?: StoreBadge[];
+};
+
 async function getStores(): Promise<PublicStore[]> {
   try {
-    const response = await api.get<{ stores: PublicStore[] }>("/api/store-profile/public/directory?limit=48&page=1");
-    return response.stores ?? [];
+    const response = await api.get<{ stores?: PublicStore[]; items?: VendorStore[] }>("/api/store-profile/public/directory?limit=48&page=1");
+    if (response.stores?.length) return response.stores;
+    if (response.items?.length) {
+      return response.items.map((store) => ({
+        id: store.id,
+        name: store.storeName,
+        slug: store.storeSlug,
+        customUrl: null,
+        rating: 0,
+        productCount: Number(store._count?.products ?? 0),
+        verified: Boolean(store.verified),
+        location: store.location ?? null,
+        logoUrl: store.logoUrl ?? null,
+        tier: store.tier ?? null,
+        badges: store.badges ?? (store.verified ? ["VERIFIED"] : []),
+      }));
+    }
   } catch {
     try {
-      const response = await api.get<{ stores: PublicStore[] }>("/api/vendors/stores?limit=48&page=1");
-      return response.stores ?? [];
+      const response = await api.get<{ stores?: PublicStore[]; items?: VendorStore[] }>("/api/vendors/stores?limit=48&page=1");
+      if (response.stores?.length) return response.stores;
+      return (response.items ?? []).map((store) => ({
+        id: store.id,
+        name: store.storeName,
+        slug: store.storeSlug,
+        customUrl: null,
+        rating: 0,
+        productCount: Number(store._count?.products ?? 0),
+        verified: Boolean(store.verified),
+        location: store.location ?? null,
+        logoUrl: store.logoUrl ?? null,
+        tier: store.tier ?? null,
+        badges: store.badges ?? (store.verified ? ["VERIFIED"] : []),
+      }));
     } catch {
       return [];
     }
   }
+  return [];
 }
 
 export default async function StoresPage() {
