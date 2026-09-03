@@ -4,217 +4,27 @@ export type VendorTier = "FREE" | "PRO" | "BUSINESS" | "ENTERPRISE";
 export type ProductCondition = "NEW" | "USED";
 export type ProductStatus = "DRAFT" | "ACTIVE" | "SUSPENDED" | "OUT_OF_STOCK";
 export type SellingMethod = "CHECKOUT" | "EXTERNAL_LINK" | "WHATSAPP";
-export type OrderStatus =
-  | "PENDING"
-  | "PROCESSING"
-  | "SHIPPED"
-  | "OUT_FOR_DELIVERY"
-  | "DELIVERED"
-  | "CANCELLED"
-  | "REFUND_REQUESTED"
-  | "REFUNDED"
-  | "FAILED";
+export type OrderStatus = "PENDING" | "PROCESSING" | "SHIPPED" | "OUT_FOR_DELIVERY" | "DELIVERED" | "CANCELLED" | "REFUND_REQUESTED" | "REFUNDED" | "FAILED";
 export type PaymentStatus = "PENDING" | "PAID" | "FAILED" | "REFUNDED";
 export type StoreBadge = "VERIFIED" | "BUSINESS" | "ENTERPRISE" | "PLATINUM";
-
-export type ApiUser = {
-  id: string;
-  email: string;
-  role: Role;
-  status: string;
-  firstName: string;
-  lastName: string;
-  phone: string | null;
-  avatarUrl: string | null;
-  emailVerified: boolean;
-  vendorProfile?: ApiVendorProfile | null;
-};
-
-export type ApiAddress = {
-  id: string;
-  label: string;
-  line1: string;
-  line2: string | null;
-  city: string;
-  state: string;
-  country: string;
-  isDefault: boolean;
-};
-export type ApiVendorProfile = {
-  id: string;
-  userId: string;
-  storeName: string;
-  storeSlug: string;
-  bio: string | null;
-  location: string | null;
-  whatsappNumber: string | null;
-  status: VendorStatus;
-  tier: VendorTier;
-  verified: boolean;
-};
-
-export type ApiCategory = {
-  id: string;
-  name: string;
-  slug: string;
-  icon: string | null;
-  children?: ApiCategory[];
-};
-
-export type ApiReview = {
-  id: string;
-  rating: number;
-  comment: string | null;
-  images: string[];
-  createdAt: string;
-  customer: { firstName: string; lastName: string };
-};
-
-export type ApiVendorPlan = {
-  id: string;
-  tier: VendorTier;
-  name: string;
-  price: string;
-  billingPeriod: "MONTHLY" | "YEARLY";
-  productLimit: number | null;
-  commissionRate: string;
-  features: string[] | null;
-  active: boolean;
-};
-
-export type ApiSubscription = {
-  id: string;
-  status: "ACTIVE" | "PAST_DUE" | "CANCELLED" | "EXPIRED";
-  startDate: string;
-  renewalDate: string | null;
-  plan: ApiVendorPlan;
-  payments: { id: string; reference: string; amount: string; status: PaymentStatus; createdAt: string }[];
-};
-
-export type ApiCoupon = {
-  id: string;
-  code: string;
-  type: "PERCENTAGE" | "FIXED";
-  value: string;
-  vendorId: string | null;
-  minOrderAmount: string | null;
-  maxDiscountAmount: string | null;
-  usageLimit: number | null;
-  usageLimitPerUser: number;
-  active: boolean;
-  expiresAt: string | null;
-  _count?: { redemptions: number };
-};
-
-export type ApiFeaturedProduct = {
-  id: string;
-  productId: string;
-  placement: "HOMEPAGE" | "CATEGORY" | "SEARCH" | "TRENDING";
-  durationDays: number;
-  price: string;
-  status: "PENDING_PAYMENT" | "ACTIVE" | "EXPIRED" | "CANCELLED";
-  startDate: string | null;
-  endDate: string | null;
-};
-
-export type ApiFeaturedStore = {
-  id: string;
-  vendorId: string;
-  durationDays: number;
-  price: string;
-  status: "PENDING_PAYMENT" | "ACTIVE" | "EXPIRED" | "CANCELLED";
-  startDate: string | null;
-  endDate: string | null;
-};
-
-export type ApiPayout = {
-  id: string;
-  amount: string;
-  status: "PENDING" | "APPROVED" | "REJECTED" | "PAID";
-  requestedAt: string;
-  paidAt: string | null;
-  note: string | null;
-};
-
-export type ApiVendorBalance = {
-  grossSales: number;
-  totalCommission: number;
-  totalEarnings: number;
-  paidOut: number;
-  availableBalance: number;
-};
-
-export type ApiSupportConversation = {
-  id: string;
-  status: "OPEN" | "ASSIGNED" | "RESOLVED" | "CLOSED";
-  createdAt: string;
-  updatedAt: string;
-  messages: { id: string; body: string; senderType: "CUSTOMER" | "AGENT" | "SYSTEM"; createdAt: string }[];
-  customer?: { firstName: string; lastName: string; email: string };
-};
-
+export type ApiUser = { id: string; email: string; role: Role; status: string; firstName: string; lastName: string; phone: string | null; avatarUrl: string | null; emailVerified: boolean; vendorProfile?: ApiVendorProfile | null };
+export type ApiAddress = { id: string; label: string; line1: string; line2: string | null; city: string; state: string; country: string; isDefault: boolean };
+export type ApiVendorProfile = { id: string; userId: string; storeName: string; storeSlug: string; bio: string | null; location: string | null; whatsappNumber: string | null; status: VendorStatus; tier: VendorTier; verified: boolean };
+export type ApiCategory = { id: string; name: string; slug: string; icon: string | null; children?: ApiCategory[] };
+export type ApiReview = { id: string; rating: number; comment: string | null; images: string[]; createdAt: string; customer: { firstName: string; lastName: string } };
+export type ApiVendorPlan = { id: string; tier: VendorTier; name: string; price: string; billingPeriod: "MONTHLY" | "YEARLY"; productLimit: number | null; commissionRate: string; features: string[] | null; active: boolean };
+export type ApiSubscription = { id: string; status: "ACTIVE" | "PAST_DUE" | "CANCELLED" | "EXPIRED"; startDate: string; renewalDate: string | null; plan: ApiVendorPlan; payments: { id: string; reference: string; amount: string; status: PaymentStatus; createdAt: string }[] };
+export type ApiCoupon = { id: string; code: string; type: "PERCENTAGE" | "FIXED"; value: string; vendorId: string | null; minOrderAmount: string | null; maxDiscountAmount: string | null; usageLimit: number | null; usageLimitPerUser: number; active: boolean; expiresAt: string | null; _count?: { redemptions: number } };
+export type ApiFeaturedProduct = { id: string; productId: string; placement: "HOMEPAGE" | "CATEGORY" | "SEARCH" | "TRENDING"; durationDays: number; price: string; status: "PENDING_PAYMENT" | "ACTIVE" | "EXPIRED" | "CANCELLED"; startDate: string | null; endDate: string | null };
+export type ApiFeaturedStore = { id: string; vendorId: string; durationDays: number; price: string; status: "PENDING_PAYMENT" | "ACTIVE" | "EXPIRED" | "CANCELLED"; startDate: string | null; endDate: string | null };
+export type ApiPayout = { id: string; amount: string; status: "PENDING" | "APPROVED" | "REJECTED" | "PAID"; requestedAt: string; paidAt: string | null; note: string | null };
+export type ApiVendorBalance = { grossSales: number; totalCommission: number; totalEarnings: number; paidOut: number; availableBalance: number };
+export type ApiSupportConversation = { id: string; status: "OPEN" | "ASSIGNED" | "RESOLVED" | "CLOSED"; createdAt: string; updatedAt: string; messages: { id: string; body: string; senderType: "CUSTOMER" | "AGENT" | "SYSTEM"; createdAt: string }[]; customer?: { firstName: string; lastName: string; email: string } };
 export type ApiProductImage = { id: string; url: string; position: number; isPrimary: boolean };
-
-export type ApiProduct = {
-  id: string;
-  name: string;
-  slug: string;
-  description: string;
-  price: string;
-  previousPrice: string | null;
-  currency: string;
-  condition: ProductCondition;
-  stock: number;
-  status: ProductStatus;
-  sellingMethod: SellingMethod;
-  externalUrl: string | null;
-  whatsappNumber: string | null;
-  location: string | null;
-  viewCount: number;
-  avgRating: string | null;
-  reviewCount: number;
-  specifications: Record<string, string> | null;
-  images: ApiProductImage[];
-  category: ApiCategory;
-  vendor: {
-    id: string;
-    storeName: string;
-    storeSlug: string;
-    verified: boolean;
-    location: string | null;
-  };
-};
-
-export type ApiOrderItem = {
-  id: string;
-  productId: string;
-  productName: string;
-  unitPrice: string;
-  quantity: number;
-  lineTotal: string;
-};
-
-export type ApiVendorOrder = {
-  id: string;
-  status: OrderStatus;
-  subtotal: string;
-  commissionRate: string;
-  commissionAmount: string;
-  vendorEarnings: string;
-  items: ApiOrderItem[];
-  order?: ApiOrder;
-};
-
-export type ApiOrder = {
-  id: string;
-  orderNumber: string;
-  totalAmount: string;
-  currency: string;
-  paymentStatus: PaymentStatus;
-  paidAt: string | null;
-  deliveryName: string;
-  deliveryCity: string;
-  deliveryState: string;
-  createdAt: string;
-  vendorOrders: ApiVendorOrder[];
-};
+export type ApiProduct = { id: string; publicProductId?: string; name: string; slug: string; description: string; price: string; previousPrice: string | null; currency: string; condition: ProductCondition; stock: number; status: ProductStatus; sellingMethod: SellingMethod; externalUrl: string | null; whatsappNumber: string | null; location: string | null; viewCount: number; avgRating: string | null; reviewCount: number; specifications: Record<string, string> | null; images: ApiProductImage[]; category: ApiCategory; vendor: { id: string; storeName: string; storeSlug: string; verified: boolean; location: string | null }; estimatedDeliveryDays?: number };
+export type ApiOrderItem = { id: string; productId: string; publicProductId?: string; productName: string; unitPrice: string; quantity: number; lineTotal: string; estimatedDeliveryDays?: number };
+export type ApiVendorOrder = { id: string; status: OrderStatus; subtotal: string; commissionRate: string; commissionAmount: string; vendorEarnings: string; estimatedDeliveryAt?: string | null; items: ApiOrderItem[]; order?: ApiOrder };
+export type ApiOrder = { id: string; orderNumber: string; totalAmount: string; currency: string; paymentStatus: PaymentStatus; paidAt: string | null; deliveryName: string; deliveryCity: string; deliveryState: string; createdAt: string; vendorOrders: ApiVendorOrder[] };
+export type TrackingEvent = { id: string; checkpoint: number; title: string; description: string | null; avatar: string; trackingUrl: string | null; riderName: string | null; riderPhone: string | null; createdAt: string };
+export type ApiTrackedVendorOrder = { id: string; status: OrderStatus; estimatedDeliveryAt: string | null; vendor: { id: string; storeName: string; storeSlug: string; verified: boolean }; items: { id: string; productId: string; publicProductId: string; productName: string; quantity: number; estimatedDeliveryDays?: number }[]; currentCheckpoint: number; checkpoints: { checkpoint: number; title: string; event: TrackingEvent | null }[] };
+export type ApiTrackingResult = { orderNumber: string; createdAt: string; paymentStatus: PaymentStatus; vendorOrders: ApiTrackedVendorOrder[] };
