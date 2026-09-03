@@ -30,12 +30,22 @@ export function LoginForm() {
     }
   }
 
+  async function handleGoogleSuccess() {
+    setError(null);
+    await refresh();
+    router.push(searchParams.get("next") ?? "/");
+  }
+
+  function handleGoogleError(message: string) {
+    setError(message);
+  }
+
   return (
     <div className="shell flex min-h-[70vh] items-center justify-center py-12">
       <div className="w-full max-w-sm">
         <h1 className="text-xl font-bold text-graphite-900">Log in to TTFL Store</h1>
 
-        <GoogleSignIn />
+        <GoogleSignIn onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
 
         <div className="my-5 flex items-center gap-3 text-xs text-graphite-400">
           <span className="h-px flex-1 bg-graphite-200" />
