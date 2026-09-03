@@ -135,9 +135,10 @@ export const stores: Store[] = [
 ];
 
 export function formatNaira(amount: number) {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
+  const value = Number(amount);
+  if (!Number.isFinite(value)) return "₦0";
+
+  return `₦${new Intl.NumberFormat("en-NG", {
     maximumFractionDigits: 0,
-  }).format(amount);
+  }).format(value)}`;
 }
