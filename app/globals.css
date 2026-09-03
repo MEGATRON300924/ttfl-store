@@ -6,11 +6,15 @@
   :root {
     color-scheme: light;
   }
+  html.dark {
+    color-scheme: dark;
+  }
   html {
     -webkit-text-size-adjust: 100%;
   }
   body {
     @apply bg-cloud-50 text-graphite-900 antialiased;
+    transition: background-color 180ms ease, color 180ms ease;
   }
   ::selection {
     @apply bg-ember-100 text-ember-700;
@@ -27,13 +31,50 @@
     @apply mx-auto w-full max-w-shell px-4 sm:px-6 lg:px-8;
   }
 
-  /* Signature element: the "forge tag" — a stamped, angle-cut label used
-     for prices and discount badges. Evokes a punched metal price tag
-     rather than a generic pill/badge. */
   .forge-tag {
     position: relative;
     clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 0 100%);
   }
+}
+
+html.dark body {
+  background-color: #12141A;
+  color: #F5F6F8;
+}
+
+html.dark .bg-white { background-color: #1A1D24 !important; }
+html.dark .bg-cloud-50 { background-color: #1A1D24 !important; }
+html.dark .bg-cloud-100 { background-color: #262A34 !important; }
+html.dark .bg-graphite-950 { background-color: #0D0F13 !important; }
+html.dark .bg-graphite-900 { background-color: #12141A !important; }
+html.dark .bg-graphite-800 { background-color: #262A34 !important; }
+
+html.dark .text-graphite-900 { color: #F5F6F8 !important; }
+html.dark .text-graphite-800 { color: #E5E7EB !important; }
+html.dark .text-graphite-700 { color: #D6DAE1 !important; }
+html.dark .text-graphite-600 { color: #B7BFCC !important; }
+html.dark .text-graphite-400 { color: #8A93A3 !important; }
+html.dark .text-graphite-200 { color: #D6DAE1 !important; }
+
+html.dark .border-graphite-200 { border-color: #3A3F4C !important; }
+html.dark .border-graphite-300 { border-color: #3A3F4C !important; }
+html.dark .border-graphite-700 { border-color: #3A3F4C !important; }
+html.dark .border-graphite-800 { border-color: #262A34 !important; }
+
+html.dark input,
+html.dark textarea,
+html.dark select {
+  color-scheme: dark;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #8A93A3;
+}
+
+html.dark .shadow-sm,
+html.dark .shadow-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.16);
 }
 
 @media (prefers-reduced-motion: reduce) {
