@@ -87,6 +87,17 @@ function cleanDescription(value: string | null, fallback: string) {
   return (text || fallback).slice(0, 155);
 }
 
+function getDisplayBadges(vendor: PublicVendor): StoreBadge[] {
+  const badges = new Set<StoreBadge>(vendor.badges ?? []);
+  if (vendor.verified) badges.add("VERIFIED");
+  if (vendor.tier === "BUSINESS") badges.add("BUSINESS");
+  if (vendor.tier === "ENTERPRISE") {
+    badges.add("ENTERPRISE");
+    badges.add("PLATINUM");
+  }
+  return Array.from(badges);
+}
+
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const vendor = await getVendor(params.slug);
   if (!vendor) return { title: "Store not found", description: "This store could not be found on TTFL Store.", openGraph: { title: "Store not found | TTFL Store", description: "This store could not be found on TTFL Store.", images: [{ url: DEFAULT_SEO_IMAGE, width: 1200, height: 630, alt: "TTFL Store" }] }, twitter: { card: "summary_large_image", images: [DEFAULT_SEO_IMAGE] } };
@@ -102,7 +113,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
   const vendor = await getVendor(params.slug);
   if (!vendor) notFound();
   const items = await getStoreProducts(vendor.storeSlug);
-  const badges = Array.from(new Set([...(vendor.verified ? ["VERIFIED" as StoreBadge] : []), ...vendor.badges])) as StoreBadge[];
+  const badges = getDisplayBadges(vendor);
   const enterprise = badges.includes("ENTERPRISE") || vendor.tier === "ENTERPRISE";
   const dark = vendor.theme === "DARK";
   const surface = dark ? "bg-graphite-900 text-white" : "bg-white text-graphite-900";
