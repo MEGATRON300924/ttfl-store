@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Crown, Gem, Store, Zap } from "lucide-react";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
@@ -21,6 +21,8 @@ function normalizePlans(plans: ApiVendorPlan[]) {
 
 export default function VendorPricingPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const selectedPlan = searchParams.get("plan") as VendorTier | null;
   const { user, loading: authLoading } = useAuth();
   const [plans, setPlans] = useState(FALLBACK_PLANS);
 
@@ -30,6 +32,12 @@ export default function VendorPricingPage() {
       if (next.length) setPlans(next);
     }).catch(() => undefined);
   }, []);
+
+  useEffect(() => {
+    if (authLoading || !user || !selectedPlan) return;
+    if (user.role === "VENDOR") router.replace(`/vendor/dashboard/subscription?plan=${selectedPlan}`);
+    else router.replace(`/sell?plan=${selectedPlan}`);
+  }, [authLoading, user, selectedPlan, router]);
 
   function choosePlan(tier: VendorTier) {
     if (authLoading) return;
