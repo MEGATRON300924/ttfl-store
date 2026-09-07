@@ -1,0 +1,6 @@
+import type { Metadata } from "next";
+import { SeoContentPage } from "@/components/seo-content-page";
+
+export const metadata: Metadata = { title: "Privacy Policy", description: "Read the TTFL Store privacy policy and learn how account, order and marketplace information is handled.", openGraph: { title: "Privacy Policy | TTFL Store", description: "Read the TTFL Store privacy policy.", images: ["/icon.png"] } };
+
+export default function PrivacyPage() { return <SeoContentPage eyebrow="Legal" title="Privacy Policy" description="This page explains the types of information TTFL Store uses to provide accounts, orders, payments, support and marketplace features." sections={[{ title: "Information we use", body: "Depending on how you use TTFL Store, information can include account details, delivery information, orders, seller information and support messages." }, { title: "Why we use it", body: "We use information to operate the marketplace, process orders, provide support, prevent abuse and improve the service." }, { title: "Payment information", body: "Payment processing is handled through Paystack. TTFL Store does not need to store your full payment card details." }, { title: "Your choices", body: "You can contact TTFL Store support about account or privacy questions and manage information through available account settings." }]} />; }
