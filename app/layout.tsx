@@ -12,15 +12,14 @@ const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakart
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap", weight: ["400", "500"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://ttflstore.name.ng"),
+  metadataBase: new URL("https://www.ttflstore.name.ng"),
   title: { default: "TTFL Store — The Tron Forge Limited Marketplace", template: "%s | TTFL Store" },
   description: "Buy and sell with verified vendors on TTFL Store, the official marketplace of The Tron Forge Limited.",
   icons: { icon: "/ttflstore.png", apple: "/ttflstore.png" },
-  openGraph: { type: "website", siteName: "TTFL Store", title: "TTFL Store — The Tron Forge Limited Marketplace", description: "Buy and sell with verified vendors on TTFL Store, the official marketplace of The Tron Forge Limited.", url: "https://ttflstore.name.ng", images: [{ url: "/ttflstore.png", width: 1200, height: 630, alt: "TTFL Store" }] },
+  alternates: { canonical: "https://www.ttflstore.name.ng" },
+  openGraph: { type: "website", siteName: "TTFL Store", title: "TTFL Store — The Tron Forge Limited Marketplace", description: "Buy and sell with verified vendors on TTFL Store, the official marketplace of The Tron Forge Limited.", url: "https://www.ttflstore.name.ng", images: [{ url: "/ttflstore.png", width: 1200, height: 630, alt: "TTFL Store" }] },
   twitter: { card: "summary_large_image", title: "TTFL Store — The Tron Forge Limited Marketplace", description: "Buy and sell with verified vendors on TTFL Store, the official marketplace of The Tron Forge Limited.", images: ["/ttflstore.png"] },
   robots: { index: true, follow: true },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="en" className={`${jakarta.variable} ${mono.variable}`}><body><AuthProvider><CartProvider><AffiliateTracker /><SiteHeader /><main>{children}</main><SiteFooter /><BroadcastPopup /></CartProvider></AuthProvider></body></html>;
-}
+export default function RootLayout({ children }: { children: React.ReactNode }) { return <html lang="en" className={`${jakarta.variable} ${mono.variable}`}><body><AuthProvider><CartProvider><AffiliateTracker /><SiteHeader /><main>{children}</main><SiteFooter /><BroadcastPopup /></CartProvider></AuthProvider></body></html>; }
