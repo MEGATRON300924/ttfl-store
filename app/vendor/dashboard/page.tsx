@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Package, ShoppingBag, Plus, AlertCircle, CreditCard, Wallet, BarChart3, Megaphone, Ticket, Settings, Palette, Users } from "lucide-react";
+import { Package, ShoppingBag, Plus, AlertCircle, CreditCard, Wallet, BarChart3, Megaphone, Ticket, Settings, Palette, Users, Zap } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 
@@ -14,6 +14,7 @@ const LINKS = [
   { href: "/vendor/dashboard/payouts", permission: "FINANCE", icon: Wallet, title: "Payouts", desc: "View balances and settlement details" },
   { href: "/vendor/dashboard/subscription", permission: "MANAGER", icon: CreditCard, title: "Subscription", desc: "Manage your plan and billing" },
   { href: "/vendor/dashboard/promote", permission: "PRODUCTS", icon: Megaphone, title: "Promote", desc: "Feature a product or your store" },
+  { href: "/vendor/dashboard/flash-deals", permission: "PRODUCTS", icon: Zap, title: "Flash deals", desc: "Run free limited-time product discounts" },
   { href: "/vendor/dashboard/coupons", permission: "MANAGER", icon: Ticket, title: "Coupons", desc: "Discount codes for your store" },
   { href: "/vendor/dashboard/store-settings", permission: "MANAGER", icon: Settings, title: "Store settings", desc: "Manage your store profile and branding" },
   { href: "/vendor/dashboard/public-profile", permission: "MANAGER", icon: Palette, title: "Public profile", desc: "Enterprise storefront appearance and gallery" },
