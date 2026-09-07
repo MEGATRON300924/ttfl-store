@@ -1,12 +1,9 @@
 "use client";
 
-import type { Metadata } from "next";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import { formatNaira } from "@/lib/mock-data";
-
-export const metadata: Metadata = { title: "Flash Deals", description: "Shop limited-time flash deals and discounted products from TTFL Store sellers.", openGraph: { title: "Flash Deals | TTFL Store", description: "Limited-time discounts from TTFL Store sellers.", images: ["/ttflstore.png"] } };
 
 type Deal = { id: string; productId: string; name: string; slug: string; price: number; salePrice: number; discountPercent: number; endsAt: string; imageUrl?: string | null };
 
