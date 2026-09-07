@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
 import { SeoContentPage } from "@/components/seo-content-page";
-
-export const metadata: Metadata = { title: "About The Tron Forge Limited", description: "Learn about The Tron Forge Limited, the company behind TTFL Store.", openGraph: { title: "About The Tron Forge Limited | TTFL Store", description: "Learn about The Tron Forge Limited and TTFL Store.", images: ["/icon.png"] } };
-
+export const metadata: Metadata = { title: "About The Tron Forge Limited", description: "Learn about The Tron Forge Limited, the company behind TTFL Store.", openGraph: { title: "About The Tron Forge Limited | TTFL Store", description: "Learn about The Tron Forge Limited and TTFL Store.", images: ["/ttflstore.png"] } };
 export default function AboutPage() { return <SeoContentPage eyebrow="The Tron Forge Limited" title="Building digital products for the future" description="TTFL Store is a commerce platform from The Tron Forge Limited, created to connect customers with independent sellers through a modern online marketplace." sections={[{ title: "TTFL Store", body: "TTFL Store brings products, storefronts, seller tools, secure checkout and delivery tracking together in one marketplace." }, { title: "Our approach", body: "We focus on useful technology, clear experiences, reliable systems and responsible handling of customer and seller information." }]} actions={[{ href: "/", label: "Visit TTFL Store" }, { href: "/trust", label: "Trust & safety" }]} />; }
