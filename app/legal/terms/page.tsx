@@ -1,0 +1,6 @@
+import type { Metadata } from "next";
+import { SeoContentPage } from "@/components/seo-content-page";
+
+export const metadata: Metadata = { title: "Terms of Service", description: "Read the TTFL Store terms of service governing marketplace use, purchases and seller activity.", openGraph: { title: "Terms of Service | TTFL Store", description: "Read the TTFL Store terms of service.", images: ["/icon.png"] } };
+
+export default function TermsPage() { return <SeoContentPage eyebrow="Legal" title="Terms of Service" description="These terms describe the rules for using TTFL Store as a customer, seller or visitor." sections={[{ title: "Using TTFL Store", body: "Use the marketplace lawfully and provide accurate information when creating an account, listing products or placing orders." }, { title: "Seller responsibilities", body: "Sellers are responsible for accurate listings, lawful products, fulfillment and customer communication." }, { title: "Orders and payments", body: "Orders are created from the information supplied at checkout and payments are processed through supported payment providers." }, { title: "Updates", body: "TTFL Store may update these terms as the service develops. Material changes will be communicated where appropriate." }]} />; }
