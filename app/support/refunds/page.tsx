@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
 import { SeoContentPage } from "@/components/seo-content-page";
-
-export const metadata: Metadata = { title: "Returns & Refunds", description: "Learn how returns, refunds and order issues are handled on TTFL Store.", openGraph: { title: "Returns & Refunds | TTFL Store", description: "Understand returns and refunds for TTFL Store orders.", images: ["/icon.png"] } };
-
+export const metadata: Metadata = { title: "Returns & Refunds", description: "Learn how returns, refunds and order issues are handled on TTFL Store.", openGraph: { title: "Returns & Refunds | TTFL Store", description: "Understand returns and refunds for TTFL Store orders.", images: ["/ttflstore.png"] } };
 export default function RefundsPage() { return <SeoContentPage eyebrow="Customer support" title="Returns & refunds" description="If something goes wrong with an order, TTFL Store provides support for eligible return and refund requests." sections={[{ title: "Start with the order", body: "Keep your TTFL Store order number and product details available when contacting support." }, { title: "Refund decisions", body: "Refund eligibility can depend on the product, seller policy, delivery status and the circumstances of the issue." }, { title: "Payment safety", body: "Refunds for Paystack transactions are handled through the payment system and confirmed against the order record." }]} actions={[{ href: "/account", label: "View my orders" }, { href: "/support/report", label: "Report a problem" }]} />; }
