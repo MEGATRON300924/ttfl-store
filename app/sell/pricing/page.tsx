@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, Crown, Gem, Store, Zap } from "lucide-react";
 import { api } from "@/lib/api-client";
@@ -19,7 +19,7 @@ function normalizePlans(plans: ApiVendorPlan[]) {
   return plans.filter((plan) => plan.active).map((plan) => ({ tier: plan.tier, name: plan.name, price: Number(plan.price), commissionRate: Number(plan.commissionRate), productLimit: plan.productLimit, features: plan.features ?? [] }));
 }
 
-export default function VendorPricingPage() {
+function VendorPricingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const selectedPlan = searchParams.get("plan") as VendorTier | null;
@@ -70,5 +70,13 @@ export default function VendorPricingPage() {
         <div className="mx-auto mt-8 max-w-3xl rounded-card border border-graphite-200 bg-white p-5 text-sm leading-6 text-graphite-600"><strong className="text-graphite-900">How vendor payments work:</strong> customer checkout payments are split through Paystack. TTFL receives the commission for the vendor's plan and the vendor's share is settled to the vendor's connected Paystack subaccount.</div>
       </div>
     </div>
+  );
+}
+
+export default function VendorPricingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-cloud-50" />}>
+      <VendorPricingContent />
+    </Suspense>
   );
 }
