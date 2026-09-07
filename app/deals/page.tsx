@@ -1,6 +1,18 @@
+"use client";
+
 import type { Metadata } from "next";
-import { SeoContentPage } from "@/components/seo-content-page";
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api-client";
+import { formatNaira } from "@/lib/mock-data";
 
-export const metadata: Metadata = { title: "Deals", description: "Discover deals and limited-time offers from stores on TTFL Store.", openGraph: { title: "Deals | TTFL Store", description: "Discover deals and limited-time offers from TTFL Store sellers.", images: ["/icon.png"] } };
+export const metadata: Metadata = { title: "Flash Deals", description: "Shop limited-time flash deals and discounted products from TTFL Store sellers.", openGraph: { title: "Flash Deals | TTFL Store", description: "Limited-time discounts from TTFL Store sellers.", images: ["/ttflstore.png"] } };
 
-export default function DealsPage() { return <SeoContentPage eyebrow="TTFL Store Deals" title="Deals and limited-time offers" description="Find great prices from independent stores on TTFL Store. Flash deals and featured offers will appear here as sellers publish them." sections={[{ title: "Flash deals", body: "Limited-time seller promotions are designed to help shoppers discover products at special prices." }, { title: "Shop safely", body: "Every checkout payment is processed through Paystack and eligible orders can be tracked from confirmation through delivery." }]} actions={[{ href: "/categories", label: "Browse categories" }, { href: "/", label: "Shop products" }]} />; }
+type Deal = { id: string; productId: string; name: string; slug: string; price: number; salePrice: number; discountPercent: number; endsAt: string; imageUrl?: string | null };
+
+export default function DealsPage() {
+  const [deals, setDeals] = useState<Deal[]>([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => { api.get<{ deals: Deal[] }>("/api/flash-deals").then(r => setDeals(r.deals)).catch(() => setDeals([])).finally(() => setLoading(false)); }, []);
+  return <div className="shell py-10"><p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-600">TTFL Store</p><h1 className="mt-2 text-3xl font-bold text-graphite-900">Flash deals</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-graphite-600">Limited-time discounts from TTFL Store sellers. Every store can participate for free.</p>{loading ? <p className="mt-8 text-sm text-graphite-600">Loading deals…</p> : deals.length === 0 ? <div className="mt-8 rounded-card border border-dashed border-graphite-300 p-10 text-center"><p className="font-semibold text-graphite-900">No active flash deals right now</p><p className="mt-1 text-sm text-graphite-600">Check back soon for limited-time offers.</p><Link href="/" className="mt-4 inline-flex rounded-card bg-ember-600 px-4 py-2 text-sm font-semibold text-white">Shop all products</Link></div> : <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{deals.map(d => <Link key={d.id} href={`/product/${d.slug}`} className="rounded-card border border-graphite-200 bg-white p-4 hover:border-ember-600"><div className="aspect-square overflow-hidden rounded-[7px] bg-cloud-100">{d.imageUrl ? <img src={d.imageUrl} alt={d.name} className="h-full w-full object-cover" /> : <img src="/ttflstore.png" alt="TTFL Store" className="h-full w-full object-cover p-8" />}</div><p className="mt-3 line-clamp-2 text-sm font-semibold text-graphite-900">{d.name}</p><p className="mt-1 text-xs font-bold text-ember-600">{d.discountPercent}% OFF</p><div className="mt-1 flex items-baseline gap-2"><span className="font-mono font-bold text-graphite-900">{formatNaira(Number(d.salePrice))}</span><span className="font-mono text-xs text-graphite-400 line-through">{formatNaira(Number(d.price))}</span></div><p className="mt-2 text-xs text-graphite-500">Ends {new Date(d.endsAt).toLocaleString()}</p></Link>)}</div>}</div>;
+}
