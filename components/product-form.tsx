@@ -10,12 +10,12 @@ import type { ApiCategory, SellingMethod, ProductCondition } from "@/lib/api-typ
 export type ProductFormValues = {
   name: string; description: string; categorySlug: string; price: string; previousPrice: string;
   condition: ProductCondition; stock: string; location: string; images: UploadedImage[];
-  sellingMethod: SellingMethod; externalUrl: string; whatsappNumber: string; estimatedDeliveryDays: string;
+  tags: string[]; sellingMethod: SellingMethod; externalUrl: string; whatsappNumber: string; estimatedDeliveryDays: string;
 };
 
 const EMPTY: ProductFormValues = {
   name: "", description: "", categorySlug: "", price: "", previousPrice: "", condition: "NEW", stock: "1",
-  location: "", images: [], sellingMethod: "CHECKOUT", externalUrl: "", whatsappNumber: "", estimatedDeliveryDays: "7",
+  location: "", images: [], tags: [], sellingMethod: "CHECKOUT", externalUrl: "", whatsappNumber: "", estimatedDeliveryDays: "7",
 };
 
 export function ProductForm({ productId, initial }: { productId?: string; initial?: Partial<ProductFormValues> }) {
@@ -23,6 +23,7 @@ export function ProductForm({ productId, initial }: { productId?: string; initia
   const [categories, setCategories] = useState<ApiCategory[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [form, setForm] = useState<ProductFormValues>({ ...EMPTY, ...initial });
+  const [tagInput, setTagInput] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -47,6 +48,17 @@ export function ProductForm({ productId, initial }: { productId?: string; initia
     setForm((current) => ({ ...current, [key]: value }));
   }
 
+  function addTagsFromInput(value: string) {
+    const incoming = value.split(",").map((tag) => tag.trim().toLowerCase()).filter(Boolean);
+    if (!incoming.length) return;
+    setForm((current) => ({ ...current, tags: Array.from(new Set([...current.tags, ...incoming])).slice(0, 20) }));
+    setTagInput("");
+  }
+
+  function removeTag(tag: string) {
+    setForm((current) => ({ ...current, tags: current.tags.filter((item) => item !== tag) }));
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); setError(null);
     if (!form.name.trim() || form.name.trim().length < 3) return setError("Product name must be at least 3 characters.");
@@ -61,12 +73,14 @@ export function ProductForm({ productId, initial }: { productId?: string; initia
     if (form.sellingMethod === "EXTERNAL_LINK" && !form.externalUrl.trim()) return setError("Please enter the product URL for the external link.");
     if (form.sellingMethod === "EXTERNAL_LINK") { try { new URL(form.externalUrl.trim()); } catch { return setError("Please enter a valid external purchase URL."); } }
     if (form.sellingMethod === "WHATSAPP" && form.whatsappNumber.trim() && form.whatsappNumber.trim().length < 7) return setError("Please enter a valid WhatsApp number.");
+    addTagsFromInput(tagInput);
 
     setSubmitting(true);
     const images = form.images.map((image) => image.url).filter(Boolean);
+    const tags = Array.from(new Set([...form.tags, ...tagInput.split(",").map((tag) => tag.trim().toLowerCase()).filter(Boolean)])).slice(0, 20);
     const payload: Record<string, unknown> = {
       name: form.name.trim(), description: form.description.trim(), categorySlug: form.categorySlug, price: Number(form.price),
-      condition: form.condition, stock: Number(form.stock), images, sellingMethod: form.sellingMethod, estimatedDeliveryDays: deliveryDays,
+      condition: form.condition, stock: Number(form.stock), images, tags, sellingMethod: form.sellingMethod, estimatedDeliveryDays: deliveryDays,
     };
     if (form.previousPrice.trim()) payload.previousPrice = Number(form.previousPrice);
     if (form.location.trim()) payload.location = form.location.trim();
@@ -94,6 +108,15 @@ export function ProductForm({ productId, initial }: { productId?: string; initia
       <div className="grid grid-cols-2 gap-3"><TextField label="Price (₦)" type="number" value={form.price} onChange={(value) => set("price", value)} /><TextField label="Previous price" type="number" value={form.previousPrice} onChange={(value) => set("previousPrice", value)} optional hint="Only enter this if discounted." /></div>
       <div className="grid grid-cols-2 gap-3"><label className="flex flex-col gap-1 text-sm"><span className="font-medium text-graphite-700 dark:text-graphite-300">Condition</span><select value={form.condition} onChange={(e) => set("condition", e.target.value as ProductCondition)} className="rounded-[7px] border border-graphite-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-ember-600 dark:border-graphite-700 dark:bg-graphite-900 dark:text-white"><option value="NEW">New</option><option value="USED">Used</option></select></label><TextField label="Stock" type="number" value={form.stock} onChange={(value) => set("stock", value)} /></div>
       <TextField label="Location" value={form.location} onChange={(value) => set("location", value)} optional hint="Optional — e.g. Lagos, Abuja, Port Harcourt." />
+      <div className="rounded-card border border-graphite-200 p-4 dark:border-graphite-700">
+        <div className="text-sm font-medium text-graphite-700 dark:text-graphite-300">Search tags</div>
+        <p className="mt-1 text-xs text-graphite-500 dark:text-graphite-400">Add words customers might search for. Example: laptop, laptops, HP, MacBook, computer, notebook.</p>
+        <div className="mt-3 flex gap-2">
+          <input value={tagInput} onChange={(e) => setTagInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addTagsFromInput(tagInput); } }} placeholder="Type a tag and press Enter" className="min-w-0 flex-1 rounded-[7px] border border-graphite-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-ember-600 dark:border-graphite-700 dark:bg-graphite-900 dark:text-white" />
+          <button type="button" onClick={() => addTagsFromInput(tagInput)} className="rounded-[7px] border border-graphite-200 px-4 py-2 text-sm font-semibold hover:bg-cloud-100 dark:border-graphite-700 dark:hover:bg-graphite-800">Add</button>
+        </div>
+        {form.tags.length > 0 && <div className="mt-3 flex flex-wrap gap-2">{form.tags.map((tag) => <button key={tag} type="button" onClick={() => removeTag(tag)} className="rounded-full bg-cloud-100 px-3 py-1 text-xs font-medium text-graphite-700 hover:bg-ember-100 hover:text-ember-700 dark:bg-graphite-800 dark:text-graphite-200">{tag} ×</button>)}</div>}
+      </div>
       <div className="rounded-card border border-graphite-200 p-4 dark:border-graphite-700"><TextField label="Estimated delivery (days)" type="number" value={form.estimatedDeliveryDays} onChange={(value) => set("estimatedDeliveryDays", value)} hint="Customers will see an exact estimated date based on when they view or order the product." /></div>
       <ImageUploadField images={form.images} onChange={(images) => set("images", images)} />
       {form.images.length === 0 && <p className="text-xs text-ember-600">Add at least one product photo.</p>}
