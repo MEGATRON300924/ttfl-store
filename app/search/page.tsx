@@ -8,15 +8,48 @@ import type { Product } from "@/lib/mock-data";
 import { ProductCard } from "@/components/product-card";
 import { SearchFilters } from "@/components/search-filters";
 
-export const metadata: Metadata = { title: "Search results" };
+const SITE_URL = "https://ttflstore.name.ng";
 
-type SearchParams = { q?: string; category?: string; minPrice?: string; maxPrice?: string; condition?: string; sort?: string; page?: string };
+export const revalidate = 300;
+
+type SearchParams = { q?: string; category?: string; vendor?: string; minPrice?: string; maxPrice?: string; condition?: string; location?: string; verifiedOnly?: string; sort?: string; page?: string };
 type StoreResult = { id: string; name: string; slug: string; customUrl?: string | null; logoUrl?: string | null; location?: string | null; verified: boolean; productCount?: number; rating?: number };
+type ProductSearchResponse = { items: ApiProduct[]; pagination: { page: number; totalPages: number; total: number } };
+
+function clean(value: string | undefined) {
+  return value?.trim().replace(/\s+/g, " ") || "";
+}
+
+function buildSearchLabel(params: SearchParams) {
+  const query = clean(params.q);
+  const location = clean(params.location);
+  const min = clean(params.minPrice);
+  const max = clean(params.maxPrice);
+  const queryLabel = query || "Products";
+  const locationLabel = location ? ` in ${location}` : "";
+  const priceLabel = min && max ? ` from ₦${Number(min).toLocaleString()} to ₦${Number(max).toLocaleString()}` : min ? ` from ₦${Number(min).toLocaleString()}` : max ? ` up to ₦${Number(max).toLocaleString()}` : "";
+  return `${queryLabel}${locationLabel}${priceLabel}`;
+}
+
+export async function generateMetadata({ searchParams }: { searchParams: SearchParams }): Promise<Metadata> {
+  const label = buildSearchLabel(searchParams);
+  const description = `Shop ${label.toLowerCase()} on TTFL Store. Compare products, prices, sellers and locations from Nigerian stores.`;
+  const qs = new URLSearchParams();
+  Object.entries(searchParams).forEach(([key, value]) => { if (value) qs.set(key, value); });
+  const canonical = `${SITE_URL}/search${qs.toString() ? `?${qs.toString()}` : ""}`;
+  return {
+    title: `${label} | TTFL Store`,
+    description: description.slice(0, 155),
+    alternates: { canonical },
+    robots: { index: true, follow: true },
+    openGraph: { title: `${label} | TTFL Store`, description: description.slice(0, 200), url: canonical, siteName: "TTFL Store", type: "website" },
+  };
+}
 
 async function getResults(params: SearchParams) {
   const qs = new URLSearchParams();
   Object.entries(params).forEach(([k, v]) => { if (v) qs.set(k, v); });
-  return api.get<{ items: ApiProduct[]; pagination: { page: number; totalPages: number; total: number } }>(`/api/products?${qs.toString()}`);
+  return api.get<ProductSearchResponse>(`/api/products?${qs.toString()}`);
 }
 
 async function getVerifiedStore(q?: string) {
@@ -29,41 +62,77 @@ async function getVerifiedStore(q?: string) {
   }
 }
 
+function productListJsonLd(items: ApiProduct[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    numberOfItems: items.length,
+    itemListElement: items.map((product, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      url: `${SITE_URL}/products/${product.slug}`,
+      item: {
+        "@type": "Product",
+        name: product.name,
+        image: product.images[0]?.url,
+        offers: {
+          "@type": "Offer",
+          priceCurrency: product.currency,
+          price: Number(product.price),
+          availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+          url: `${SITE_URL}/products/${product.slug}`,
+        },
+      },
+    })),
+  };
+}
+
 export default async function SearchPage({ searchParams }: { searchParams: SearchParams }) {
   const [{ items, pagination }, verifiedStore] = await Promise.all([getResults(searchParams), getVerifiedStore(searchParams.q)]);
+  const label = buildSearchLabel(searchParams);
 
   return (
-    <div className="shell py-8">
-      <h1 className="text-xl font-bold text-graphite-900">{searchParams.q ? `Results for "${searchParams.q}"` : "Browse products"}</h1>
-      <p className="mt-1 text-sm text-graphite-600">{pagination.total} products found</p>
+    <>
+      {items.length > 0 && <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productListJsonLd(items)) }} />}
+      <div className="shell py-8">
+        <h1 className="text-xl font-bold text-graphite-900">{searchParams.q ? `Results for "${searchParams.q}"` : "Browse products"}</h1>
+        <p className="mt-1 text-sm text-graphite-600">{pagination.total} products found{searchParams.location ? ` in ${searchParams.location}` : ""}{searchParams.minPrice || searchParams.maxPrice ? ` within your price range` : ""}.</p>
 
-      {verifiedStore && (
-        <section className="mt-5 overflow-hidden rounded-card border border-verified-100 bg-verified-100/40" aria-label="Verified store result">
-          <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
-            <div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full border border-verified-100 bg-white">
-              {verifiedStore.logoUrl ? <Image src={verifiedStore.logoUrl} alt={`${verifiedStore.name} logo`} fill sizes="64px" className="object-cover" /> : <Store className="h-7 w-7 text-verified-700" />}
+        {searchParams.location && searchParams.q && (
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-graphite-600">Shop {clean(searchParams.q).toLowerCase()} for sale in {clean(searchParams.location)}. Compare current prices, product condition, stores and seller locations on TTFL Store.</p>
+        )}
+        {!searchParams.location && searchParams.q && (searchParams.minPrice || searchParams.maxPrice) && (
+          <p className="mt-3 max-w-3xl text-sm leading-relaxed text-graphite-600">Compare {clean(searchParams.q).toLowerCase()} for sale in Nigeria within your selected price range.</p>
+        )}
+
+        {verifiedStore && (
+          <section className="mt-5 overflow-hidden rounded-card border border-verified-100 bg-verified-100/40" aria-label="Verified store result">
+            <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center">
+              <div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full border border-verified-100 bg-white">
+                {verifiedStore.logoUrl ? <Image src={verifiedStore.logoUrl} alt={`${verifiedStore.name} logo`} fill sizes="64px" className="object-cover" /> : <Store className="h-7 w-7 text-verified-700" />}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-verified-700">Verified store</p>
+                <h2 className="mt-1 flex items-center gap-1.5 text-lg font-bold text-graphite-900"><span className="truncate">{verifiedStore.name}</span><BadgeCheck className="h-5 w-5 shrink-0 text-verified-600" /></h2>
+                <p className="mt-1 text-sm text-graphite-600">{verifiedStore.location || "Nigeria"} · {verifiedStore.productCount ?? 0} products</p>
+              </div>
+              <Link href={`/store/${verifiedStore.customUrl?.trim() || verifiedStore.slug}`} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-graphite-800">View store <ArrowRight className="h-4 w-4" /></Link>
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold uppercase tracking-wide text-verified-700">Verified store</p>
-              <h2 className="mt-1 flex items-center gap-1.5 text-lg font-bold text-graphite-900"><span className="truncate">{verifiedStore.name}</span><BadgeCheck className="h-5 w-5 shrink-0 text-verified-600" /></h2>
-              <p className="mt-1 text-sm text-graphite-600">{verifiedStore.location || "Nigeria"} · {verifiedStore.productCount ?? 0} products</p>
-            </div>
-            <Link href={`/store/${verifiedStore.customUrl?.trim() || verifiedStore.slug}`} className="inline-flex shrink-0 items-center justify-center gap-2 rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-graphite-800">View store <ArrowRight className="h-4 w-4" /></Link>
+          </section>
+        )}
+
+        <div className="mt-6 grid gap-6 lg:grid-cols-[240px_1fr]">
+          <SearchFilters initial={searchParams} />
+          <div>
+            {items.length === 0 ? (
+              <div className="rounded-card border border-dashed border-graphite-200 p-10 text-center text-sm text-graphite-600">No products matched your search. Try a different keyword, location or price range.</div>
+            ) : (
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{items.map((p) => <ProductCard key={p.id} product={mapApiProduct(p)} />)}</div>
+            )}
           </div>
-        </section>
-      )}
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-[240px_1fr]">
-        <SearchFilters initial={searchParams} />
-        <div>
-          {items.length === 0 ? (
-            <div className="rounded-card border border-dashed border-graphite-200 p-10 text-center text-sm text-graphite-600">No products matched your search. Try a different keyword or filter.</div>
-          ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{items.map((p) => <ProductCard key={p.id} product={mapApiProduct(p)} />)}</div>
-          )}
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
@@ -79,8 +148,8 @@ function mapApiProduct(p: ApiProduct): Product {
     vendorSlug: p.vendor.storeSlug,
     verified: p.vendor.verified,
     location: p.location ?? p.vendor.location ?? "",
-    rating: 0,
-    reviewCount: 0,
+    rating: p.avgRating ? Number(p.avgRating) : 0,
+    reviewCount: p.reviewCount,
     sellingMethod: p.sellingMethod === "EXTERNAL_LINK" ? "external" : p.sellingMethod === "WHATSAPP" ? "whatsapp" : "checkout" as const,
   };
 }
