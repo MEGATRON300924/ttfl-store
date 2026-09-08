@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Users, Package, BarChart3, Wallet, Ticket, Megaphone, Layers, MessageCircle, Settings, FileText, Mail, ShoppingBag, Send, UserPlus, MessageSquare, UserMinus } from "lucide-react";
+import { Users, Package, BarChart3, Wallet, Ticket, Megaphone, Layers, MessageCircle, Settings, FileText, Mail, ShoppingBag, Send, UserPlus, MessageSquare, UserMinus, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api-client";
 
@@ -42,6 +42,7 @@ export default function AdminDashboardPage() {
   if (!user || user.role !== "ADMIN") return <div className="shell py-16 text-center"><h1 className="text-lg font-bold text-graphite-900">Admin access only</h1><p className="mt-2 text-sm text-graphite-600">Your account does not currently have administrator access. If an administrator just added you, refresh the page or sign in again.</p></div>;
 
   return <div className="shell py-8">
+    <div className="mb-4"><Link href="/" className="inline-flex items-center gap-2 rounded-card border border-graphite-200 bg-white px-3 py-2 text-sm font-semibold text-graphite-700 transition hover:border-ember-600 hover:text-ember-700"><ArrowLeft className="h-4 w-4"/>Back to store</Link></div>
     <div className="flex items-center justify-between gap-4"><div><h1 className="text-xl font-bold text-graphite-900">Admin</h1><p className="mt-1 text-sm text-graphite-600">Manage TTFL Store from one place.</p></div><Link href="/admin/broadcast" className="inline-flex items-center gap-2 rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white"><Send className="h-4 w-4"/>Broadcast</Link></div>
     <section className="mt-6 rounded-card border border-graphite-200 bg-white p-5"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-card bg-cloud-100 text-graphite-700"><UserPlus className="h-5 w-5"/></span><div><h2 className="font-bold text-graphite-900">Administrators</h2><p className="mt-0.5 text-sm text-graphite-600">Add an existing TTFL Store account as an admin or remove administrator access.</p></div></div>
       <form onSubmit={addAdmin} className="mt-4 flex flex-col gap-2 sm:flex-row"><input type="email" required value={adminEmail} onChange={(event) => setAdminEmail(event.target.value)} placeholder="admin@example.com" className="min-w-0 flex-1 rounded-card border border-graphite-200 bg-white px-3 py-2.5 text-sm text-graphite-900 outline-none focus:border-ember-600"/><button disabled={adminLoading} className="inline-flex items-center justify-center gap-2 rounded-card bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"><UserPlus className="h-4 w-4"/>{adminLoading ? "Adding..." : "Add admin"}</button></form>
