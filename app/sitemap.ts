@@ -14,14 +14,8 @@ async function getAllProducts(): Promise<ApiProduct[]> {
   return all;
 }
 
-function locationKey(value: string | null | undefined) {
-  return value?.split(",")[0]?.trim().replace(/\s+/g, " ") || "";
-}
-
-function searchUrl(params: Record<string, string>) {
-  const qs = new URLSearchParams(params);
-  return `${SITE_URL}/search?${qs.toString()}`;
-}
+function locationKey(value: string | null | undefined) { return value?.split(",")[0]?.trim().replace(/\s+/g, " ") || ""; }
+function searchUrl(params: Record<string, string>) { return `${SITE_URL}/search?${new URLSearchParams(params).toString()}`; }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticPaths = ["/", "/deals", "/categories", "/featured", "/search", "/support", "/support/vendors", "/support/refunds", "/about", "/trust", "/legal/terms", "/legal/privacy", "/docs", "/sell", "/sell/pricing"];
@@ -33,15 +27,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const productPages = products.map((p) => ({ url: `${SITE_URL}/products/${p.slug}`, changeFrequency: "weekly" as const, priority: 0.8 }));
     const storePages = Array.from(new Set(products.map((p) => p.vendor.storeSlug))).map((slug) => ({ url: `${SITE_URL}/store/${slug}`, changeFrequency: "weekly" as const, priority: 0.6 }));
 
-    const locations = Array.from(new Set(products.flatMap((product) => [locationKey(product.location), locationKey(product.vendor.location)]).filter(Boolean))).slice(0, 60);
-    const categoryNames = allCategories.map((category) => category.name).filter(Boolean);
-    const priceRanges = [
-      ["0", "100000"],
-      ["100000", "200000"],
-      ["200000", "500000"],
-      ["500000", "1000000"],
-      ["1000000", ""],
-    ];
+    const locations = Array.from(new Set(products.flatMap((product) => [locationKey(product.location), locationKey(product.vendor.location)]).filter(Boolean))).slice(0, 20);
+    const categoryNames = allCategories.map((category) => category.name).filter(Boolean).slice(0, 30);
+    const priceRanges = [["0", "100000"], ["100000", "200000"], ["200000", "500000"], ["500000", "1000000"], ["1000000", ""]];
 
     const searchPages: MetadataRoute.Sitemap = [];
     for (const location of locations) {
@@ -49,23 +37,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       for (const category of categoryNames) {
         searchPages.push({ url: searchUrl({ q: category, location, sort: "relevance" }), changeFrequency: "daily", priority: 0.5 });
         for (const [minPrice, maxPrice] of priceRanges) {
-          searchPages.push({
-            url: searchUrl({ q: category, location, ...(minPrice !== "0" ? { minPrice } : {}), ...(maxPrice ? { maxPrice } : {}), sort: "price_asc" }),
-            changeFrequency: "daily",
-            priority: 0.4,
-          });
+          searchPages.push({ url: searchUrl({ q: category, location, ...(minPrice !== "0" ? { minPrice } : {}), ...(maxPrice ? { maxPrice } : {}), sort: "price_asc" }), changeFrequency: "daily", priority: 0.4 });
         }
       }
     }
 
-    const nigeriaPricePages = categoryNames.flatMap((category) => priceRanges.map(([minPrice, maxPrice]) => ({
-      url: searchUrl({ q: category, ...(minPrice !== "0" ? { minPrice } : {}), ...(maxPrice ? { maxPrice } : {}), sort: "price_asc" }),
-      changeFrequency: "daily" as const,
-      priority: 0.4,
-    })));
-
-    return [...staticPages, ...categoryPages, ...productPages, ...storePages, ...searchPages, ...nigeriaPricePages].slice(0, 49000);
-  } catch {
-    return staticPages;
-  }
+    const nigeriaPricePages = categoryNames.flatMap((category) => priceRanges.map(([minPrice, maxPrice]) => ({ url: searchUrl({ q: category, ...(minPrice !== "0" ? { minPrice } : {}), ...(maxPrice ? { maxPrice } : {}), sort: "price_asc" }), changeFrequency: "daily" as const, priority: 0.4 })));
+    return [...staticPages, ...categoryPages, ...productPages, ...storePages, ...searchPages, ...nigeriaPricePages];
+  } catch { return staticPages; }
 }
