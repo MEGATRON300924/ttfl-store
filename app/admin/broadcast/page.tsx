@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { Send, Megaphone } from "lucide-react";
+import { Send, Megaphone, Smartphone } from "lucide-react";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 
@@ -16,12 +16,24 @@ export default function BroadcastPage() {
   const [email, setEmail] = useState(false);
   const [whatsapp, setWhatsapp] = useState(false);
   const [status, setStatus] = useState("");
+  const [testStatus, setTestStatus] = useState("");
+  const [testing, setTesting] = useState(false);
   const [history, setHistory] = useState<any[]>([]);
 
   async function load() {
     try { const result = await api.get<{ items: any[] }>("/api/broadcast/admin"); setHistory(result.items); } catch {}
   }
   useEffect(() => { if (user?.role === "ADMIN") void load(); }, [user]);
+
+  async function testWhatsApp() {
+    setTesting(true); setTestStatus("Testing WhatsApp connection...");
+    try {
+      const result = await api.post<{ ok: boolean }>("/api/broadcast/admin/test-whatsapp", {});
+      setTestStatus(result.ok ? "WhatsApp test sent successfully to the configured admin number(s)." : "WhatsApp test failed.");
+    } catch (error) {
+      setTestStatus(error instanceof Error ? `WhatsApp test failed: ${error.message}` : "WhatsApp test failed.");
+    } finally { setTesting(false); }
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault(); setStatus("Sending...");
@@ -36,6 +48,7 @@ export default function BroadcastPage() {
   if (!user || user.role !== "ADMIN") return <div className="shell py-16 text-center"><h1 className="font-bold">Admin access only</h1></div>;
 
   return <div className="shell py-8"><div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-card bg-ember-100 text-ember-700"><Megaphone className="h-5 w-5" /></span><div><h1 className="text-xl font-bold">Broadcast Center</h1><p className="text-sm text-graphite-600">Target users with popup announcements, Resend email, and WhatsApp.</p></div></div>
+    <section className="mt-6 max-w-3xl rounded-card border border-graphite-200 p-5"><div className="flex flex-wrap items-center justify-between gap-4"><div><h2 className="font-bold">WhatsApp connection</h2><p className="mt-1 text-sm text-graphite-600">Test the Meta WhatsApp Cloud API using the configured admin number(s).</p></div><button type="button" onClick={testWhatsApp} disabled={testing} className="inline-flex items-center gap-2 rounded-card border border-graphite-300 px-4 py-2.5 text-sm font-semibold disabled:opacity-60"><Smartphone className="h-4 w-4" /> {testing ? "Testing..." : "Test WhatsApp — Admins"}</button></div>{testStatus && <p className="mt-3 text-sm text-graphite-600">{testStatus}</p>}</section>
     <form onSubmit={submit} className="mt-6 max-w-3xl space-y-5 rounded-card border border-graphite-200 p-6">
       <div><label className="text-sm font-semibold">Title</label><input value={title} onChange={e => setTitle(e.target.value)} required maxLength={160} className="mt-1 w-full rounded-card border border-graphite-200 px-3 py-2.5" /></div>
       <div><label className="text-sm font-semibold">Message</label><textarea value={message} onChange={e => setMessage(e.target.value)} required rows={6} maxLength={10000} className="mt-1 w-full rounded-card border border-graphite-200 px-3 py-2.5" /></div>
