@@ -12,6 +12,7 @@ export type Product = {
   rating: number;
   reviewCount: number;
   sellingMethod: "checkout" | "external" | "whatsapp";
+  sponsored?: boolean;
   estimatedDeliveryDays?: number;
 };
 
@@ -31,4 +32,4 @@ export const products: Product[] = [
 export const stores: Store[] = [
   { id: "s1", name: "Lagos Mobile Hub", slug: "lagos-mobile-hub", verified: true, rating: 4.8, productCount: 340, location: "Lagos" }, { id: "s2", name: "ByteForge PCs", slug: "byteforge-pcs", verified: true, rating: 4.7, productCount: 128, location: "Lagos" }, { id: "s3", name: "AudioWorks NG", slug: "audioworks-ng", verified: true, rating: 4.9, productCount: 76, location: "Abuja" }, { id: "s4", name: "StepUp Footwear", slug: "stepup-footwear", verified: true, rating: 4.6, productCount: 210, location: "Ibadan" },
 ];
-export function formatNaira(amount: number) { const value = Number(amount); if (!Number.isFinite(value)) return "₦0"; return `₦${new Intl.NumberFormat("en-NG", { maximumFractionDigits: 0 }).format(value)}`; }
+export function formatNaira(amount: number) { const value = Number(amount); if (!Number.isFinite(value)) return "₦0"; return `₦${new Intl.NumberFormat("en-NG", { maximumFractionDigits: 0 }).format(value)}`; } 
