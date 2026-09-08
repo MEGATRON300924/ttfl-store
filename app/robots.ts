@@ -1,5 +1,7 @@
 import type { MetadataRoute } from "next";
 
+const SITE_URL = "https://ttflstore.name.ng";
+
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
@@ -13,8 +15,10 @@ export default function robots(): MetadataRoute.Robots {
         "/orders/",
         "/login",
         "/reset-password",
+        "/api/",
       ],
     },
-    sitemap: "https://store.thetronforge.com/sitemap.xml",
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }
