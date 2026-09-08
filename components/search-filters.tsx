@@ -8,6 +8,7 @@ export function SearchFilters({ initial }: { initial: Record<string, string | un
   const searchParams = useSearchParams();
   const [minPrice, setMinPrice] = useState(initial.minPrice ?? "");
   const [maxPrice, setMaxPrice] = useState(initial.maxPrice ?? "");
+  const [location, setLocation] = useState(initial.location ?? "");
   const [condition, setCondition] = useState(initial.condition ?? "");
   const [sort, setSort] = useState(initial.sort ?? "relevance");
 
@@ -15,6 +16,7 @@ export function SearchFilters({ initial }: { initial: Record<string, string | un
     const params = new URLSearchParams(searchParams.toString());
     minPrice ? params.set("minPrice", minPrice) : params.delete("minPrice");
     maxPrice ? params.set("maxPrice", maxPrice) : params.delete("maxPrice");
+    location ? params.set("location", location) : params.delete("location");
     condition ? params.set("condition", condition) : params.delete("condition");
     params.set("sort", sort);
     router.push(`/search?${params.toString()}`);
@@ -23,6 +25,16 @@ export function SearchFilters({ initial }: { initial: Record<string, string | un
   return (
     <aside className="h-fit rounded-card border border-graphite-200 p-4">
       <h2 className="text-sm font-bold text-graphite-900">Filters</h2>
+
+      <div className="mt-4">
+        <label className="text-xs font-medium text-graphite-700">Location</label>
+        <input
+          value={location}
+          onChange={(e) => setLocation(e.target.value)}
+          placeholder="e.g. Lagos, Abuja"
+          className="mt-1 w-full rounded-[7px] border border-graphite-200 px-2.5 py-2 text-sm"
+        />
+      </div>
 
       <div className="mt-4">
         <label className="text-xs font-medium text-graphite-700">Sort by</label>
@@ -41,21 +53,9 @@ export function SearchFilters({ initial }: { initial: Record<string, string | un
       <div className="mt-4">
         <label className="text-xs font-medium text-graphite-700">Price range (₦)</label>
         <div className="mt-1 flex items-center gap-2">
-          <input
-            type="number"
-            placeholder="Min"
-            value={minPrice}
-            onChange={(e) => setMinPrice(e.target.value)}
-            className="w-full rounded-[7px] border border-graphite-200 px-2.5 py-2 text-sm"
-          />
+          <input type="number" placeholder="Min" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="w-full rounded-[7px] border border-graphite-200 px-2.5 py-2 text-sm" />
           <span className="text-graphite-400">–</span>
-          <input
-            type="number"
-            placeholder="Max"
-            value={maxPrice}
-            onChange={(e) => setMaxPrice(e.target.value)}
-            className="w-full rounded-[7px] border border-graphite-200 px-2.5 py-2 text-sm"
-          />
+          <input type="number" placeholder="Max" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-full rounded-[7px] border border-graphite-200 px-2.5 py-2 text-sm" />
         </div>
       </div>
 
@@ -64,24 +64,14 @@ export function SearchFilters({ initial }: { initial: Record<string, string | un
         <div className="mt-1.5 flex flex-col gap-1.5">
           {["", "NEW", "USED"].map((c) => (
             <label key={c} className="flex items-center gap-2 text-sm text-graphite-700">
-              <input
-                type="radio"
-                name="condition"
-                checked={condition === c}
-                onChange={() => setCondition(c)}
-              />
+              <input type="radio" name="condition" checked={condition === c} onChange={() => setCondition(c)} />
               {c === "" ? "Any" : c === "NEW" ? "New" : "Used"}
             </label>
           ))}
         </div>
       </div>
 
-      <button
-        onClick={apply}
-        className="mt-5 w-full rounded-card bg-graphite-900 py-2.5 text-sm font-semibold text-white hover:bg-graphite-800"
-      >
-        Apply filters
-      </button>
+      <button onClick={apply} className="mt-5 w-full rounded-card bg-graphite-900 py-2.5 text-sm font-semibold text-white hover:bg-graphite-800">Apply filters</button>
     </aside>
   );
 }
