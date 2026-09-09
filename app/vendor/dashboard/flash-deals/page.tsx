@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { api, ApiError } from "@/lib/api-client";
 import { formatNaira } from "@/lib/mock-data";
+import { FlashDealCountdown } from "@/components/flash-deal-countdown";
 
 type Product = { id: string; name: string; price: number | string; stock: number; status: string };
 type Deal = { id: string; productId: string; name: string; price: number; salePrice: number; discountPercent: number; startsAt: string; endsAt: string; active: boolean };
@@ -29,8 +30,7 @@ export default function FlashDealsPage() {
   useEffect(() => { void load(); }, []);
 
   async function createDeal(event: React.FormEvent) {
-    event.preventDefault();
-    setBusy(true); setError(null);
+    event.preventDefault(); setBusy(true); setError(null);
     try {
       const end = new Date(endsAt);
       if (!productId || !Number.isFinite(end.getTime()) || end <= new Date()) throw new Error("Choose a product and a future end time.");
@@ -53,6 +53,6 @@ export default function FlashDealsPage() {
       {error && <p className="sm:col-span-4 rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}
       <button disabled={busy} className="sm:col-span-4 rounded-card bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{busy ? "Saving…" : "Start flash deal"}</button>
     </form>
-    <div className="mt-6 grid gap-3">{deals.map(deal => <div key={deal.id} className="flex flex-wrap items-center justify-between gap-4 rounded-card border border-graphite-200 bg-white p-4"><div><p className="font-semibold text-graphite-900">{deal.name}</p><p className="text-sm text-graphite-600">{deal.discountPercent}% off · {formatNaira(Number(deal.salePrice))} · ends {new Date(deal.endsAt).toLocaleString()}</p></div><button onClick={() => void removeDeal(deal.id)} className="rounded-card border border-graphite-300 px-3 py-2 text-sm font-semibold text-graphite-800">Remove</button></div>)}{deals.length === 0 && <div className="rounded-card border border-dashed border-graphite-300 p-8 text-center text-sm text-graphite-600">No flash deals yet.</div>}</div>
+    <div className="mt-6 grid gap-3">{deals.map(deal => <div key={deal.id} className="flex flex-wrap items-center justify-between gap-4 rounded-card border border-graphite-200 bg-white p-4"><div><p className="font-semibold text-graphite-900">{deal.name}</p><p className="text-sm text-graphite-600">{deal.discountPercent}% off · {formatNaira(Number(deal.salePrice))} · ends {new Date(deal.endsAt).toLocaleString()}</p><p className="mt-1 text-xs text-graphite-500">Time remaining: <FlashDealCountdown endsAt={deal.endsAt} /></p></div><button onClick={() => void removeDeal(deal.id)} className="rounded-card border border-graphite-300 px-3 py-2 text-sm font-semibold text-graphite-800">Remove</button></div>)}{deals.length === 0 && <div className="rounded-card border border-dashed border-graphite-300 p-8 text-center text-sm text-graphite-600">No flash deals yet.</div>}</div>
   </div>;
 }
