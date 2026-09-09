@@ -7,19 +7,27 @@ import { AffiliateTracker } from "@/components/affiliate-tracker";
 import { BroadcastPopup } from "@/components/broadcast-popup";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
+import { SiteStructuredData } from "@/components/site-structured-data";
 
+const SITE_URL = "https://ttflstore.name.ng";
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap", weight: ["400", "500"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://www.ttflstore.name.ng"),
-  title: { default: "TTFL Store — The Tron Forge Limited Marketplace", template: "%s | TTFL Store" },
-  description: "Buy and sell with verified vendors on TTFL Store, the official marketplace of The Tron Forge Limited.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: "TTFL Store — Buy & Sell in Nigeria", template: "%s | TTFL Store" },
+  description: "Shop products from vendors across Nigeria on TTFL Store, the marketplace from The Tron Forge Limited.",
+  applicationName: "TTFL Store",
+  category: "shopping",
+  creator: "The Tron Forge Limited",
+  publisher: "The Tron Forge Limited",
   icons: { icon: "/ttflstore.png", apple: "/ttflstore.png" },
-  alternates: { canonical: "https://www.ttflstore.name.ng" },
-  openGraph: { type: "website", siteName: "TTFL Store", title: "TTFL Store — The Tron Forge Limited Marketplace", description: "Buy and sell with verified vendors on TTFL Store, the official marketplace of The Tron Forge Limited.", url: "https://www.ttflstore.name.ng", images: [{ url: "/ttflstore.png", width: 1200, height: 630, alt: "TTFL Store" }] },
-  twitter: { card: "summary_large_image", title: "TTFL Store — The Tron Forge Limited Marketplace", description: "Buy and sell with verified vendors on TTFL Store, the official marketplace of The Tron Forge Limited.", images: ["/ttflstore.png"] },
-  robots: { index: true, follow: true },
+  alternates: { canonical: SITE_URL },
+  openGraph: { type: "website", siteName: "TTFL Store", title: "TTFL Store — Buy & Sell in Nigeria", description: "Shop products from vendors across Nigeria on TTFL Store.", url: SITE_URL, locale: "en_NG", images: [{ url: "/ttflstore.png", width: 1200, height: 630, alt: "TTFL Store" }] },
+  twitter: { card: "summary_large_image", title: "TTFL Store — Buy & Sell in Nigeria", description: "Shop products from vendors across Nigeria on TTFL Store.", images: ["/ttflstore.png"] },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) { return <html lang="en" className={`${jakarta.variable} ${mono.variable}`}><body><AuthProvider><CartProvider><AffiliateTracker /><SiteHeader /><main>{children}</main><SiteFooter /><BroadcastPopup /></CartProvider></AuthProvider></body></html>; }
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return <html lang="en-NG" className={`${jakarta.variable} ${mono.variable}`}><body><SiteStructuredData /><AuthProvider><CartProvider><AffiliateTracker /><SiteHeader /><main>{children}</main><SiteFooter /><BroadcastPopup /></CartProvider></AuthProvider></body></html>;
+}
