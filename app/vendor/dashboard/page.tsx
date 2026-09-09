@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Package, ShoppingBag, Plus, AlertCircle, CreditCard, Wallet, BarChart3, Megaphone, Ticket, Settings, Palette, Users, Zap } from "lucide-react";
+import { Package, ShoppingBag, Plus, AlertCircle, CreditCard, Wallet, BarChart3, Megaphone, Ticket, Settings, Palette, Users, Zap, Bell } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api-client";
 
@@ -17,6 +17,7 @@ const LINKS = [
   { href: "/vendor/dashboard/flash-deals", permission: "PRODUCTS", icon: Zap, title: "Flash deals", desc: "Run free limited-time product discounts" },
   { href: "/vendor/dashboard/coupons", permission: "MANAGER", icon: Ticket, title: "Coupons", desc: "Discount codes for your store" },
   { href: "/vendor/dashboard/store-settings", permission: "MANAGER", icon: Settings, title: "Store settings", desc: "Manage your store profile and branding" },
+  { href: "/vendor/dashboard/notifications", permission: "MANAGER", icon: Bell, title: "Notifications", desc: "Choose email, WhatsApp, and marketing alerts" },
   { href: "/vendor/dashboard/public-profile", permission: "MANAGER", icon: Palette, title: "Public profile", desc: "Enterprise storefront appearance and gallery" },
   { href: "/vendor/dashboard/team", ownerOnly: true, icon: Users, title: "Team", desc: "Invite staff and manage permissions" },
 ] as const;
