@@ -18,7 +18,7 @@ const EMPTY: ProductFormValues = {
   location: "", images: [], tags: [], sellingMethod: "CHECKOUT", externalUrl: "", whatsappNumber: "", estimatedDeliveryDays: "7",
   comingSoon: false, availableAt: "",
 };
-export function ProductForm({ productId, initial }: { productId?: string; initial?: Partial<ProductFormValues> }) {
+export function ProductForm({ productId, initial, redirectTo }: { productId?: string; initial?: Partial<ProductFormValues>; redirectTo?: string }) {
   const router = useRouter(); const [categories, setCategories] = useState<ApiCategory[]>([]); const [loadingCategories, setLoadingCategories] = useState(true);
   const [form, setForm] = useState<ProductFormValues>({ ...EMPTY, ...initial }); const [tagInput, setTagInput] = useState(""); const [error, setError] = useState<string | null>(null); const [submitting, setSubmitting] = useState(false);
   useEffect(() => { let mounted = true; async function loadCategories() { try { setLoadingCategories(true); const response = await api.get<{ categories: ApiCategory[] }>("/api/categories"); if (mounted) setCategories(response.categories); } catch (err) { if (mounted) setError(err instanceof ApiError ? err.message : "Unable to load product categories. Please refresh the page and try again."); } finally { if (mounted) setLoadingCategories(false); } } void loadCategories(); return () => { mounted = false; }; }, []);
@@ -30,7 +30,7 @@ export function ProductForm({ productId, initial }: { productId?: string; initia
     setSubmitting(true); const images = form.images.map((image) => image.url).filter(Boolean); const tags = Array.from(new Set([...form.tags, ...tagInput.split(",").map((tag) => tag.trim().toLowerCase()).filter(Boolean)])).slice(0, 20);
     const payload: Record<string, unknown> = { name: form.name.trim(), description: form.description.trim(), categorySlug: form.categorySlug, price: Number(form.price), condition: form.condition, stock: Number(form.stock), images, tags, sellingMethod: form.sellingMethod, estimatedDeliveryDays: deliveryDays, comingSoon: form.comingSoon, availableAt: form.availableAt ? new Date(form.availableAt).toISOString() : null };
     if (form.previousPrice.trim()) payload.previousPrice = Number(form.previousPrice); if (form.location.trim()) payload.location = form.location.trim(); if (form.sellingMethod === "EXTERNAL_LINK") payload.externalUrl = form.externalUrl.trim(); if (form.sellingMethod === "WHATSAPP" && form.whatsappNumber.trim()) payload.whatsappNumber = form.whatsappNumber.trim();
-    try { if (productId) await api.patch(`/api/products/${productId}`, payload); else await api.post("/api/products", payload); router.push("/vendor/dashboard/products"); } catch (err) { setError(err instanceof ApiError ? err.message : "Something went wrong while saving the product."); setSubmitting(false); }
+    try { if (productId) await api.patch(`/api/products/${productId}`, payload); else await api.post("/api/products", payload); router.push(redirectTo || "/vendor/dashboard/products"); } catch (err) { setError(err instanceof ApiError ? err.message : "Something went wrong while saving the product."); setSubmitting(false); }
   }
   return <form onSubmit={handleSubmit} className="flex flex-col gap-4">
     <TextField label="Product name" value={form.name} onChange={(value) => set("name", value)} />
