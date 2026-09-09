@@ -14,6 +14,8 @@ export type Product = {
   sellingMethod: "checkout" | "external" | "whatsapp";
   sponsored?: boolean;
   estimatedDeliveryDays?: number;
+  comingSoon?: boolean;
+  availableAt?: string | null;
 };
 
 export type Category = { id: string; name: string; slug: string; icon: string };
