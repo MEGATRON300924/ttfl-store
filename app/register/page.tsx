@@ -20,9 +20,10 @@ export default function RegisterPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    if (form.phone.trim().length < 7) return setError("A valid phone number is required so TTFL Store can send important WhatsApp notifications and announcements.");
     setSubmitting(true);
     try {
-      await api.post("/api/auth/register/customer", form);
+      await api.post("/api/auth/register/customer", { ...form, phone: form.phone.trim() });
       await refresh();
       setVerificationNotice(true);
     } catch (err) {
@@ -34,7 +35,7 @@ export default function RegisterPage() {
   async function handleGoogleSuccess() {
     setError(null);
     await refresh();
-    router.push("/");
+    router.push("/account");
   }
 
   function handleGoogleError(message: string) {
@@ -55,6 +56,7 @@ export default function RegisterPage() {
 
           <div className="mt-6">
             <GoogleSignIn onSuccess={handleGoogleSuccess} onError={handleGoogleError} />
+            <p className="mt-2 text-center text-[11px] text-graphite-500">Google may require you to add your phone number in your account profile for WhatsApp notifications.</p>
           </div>
 
           <div className="my-5 flex items-center gap-3 text-xs text-graphite-400">
@@ -69,7 +71,7 @@ export default function RegisterPage() {
               <TextField label="Last name" value={form.lastName} onChange={(v) => setForm({ ...form, lastName: v })} />
             </div>
             <TextField label="Email" type="email" value={form.email} onChange={(v) => setForm({ ...form, email: v })} />
-            <TextField label="Phone (optional)" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} optional />
+            <TextField label="Phone number" value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} hint="Required for WhatsApp order updates, product alerts and TTFL Store announcements." />
             <TextField label="Password" type="password" value={form.password} onChange={(v) => setForm({ ...form, password: v })} hint="At least 8 characters, with upper, lower, and a number" />
 
             {error && <p role="alert" className="rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}
