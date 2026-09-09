@@ -1,13 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { BadgeCheck, Building2, Crown, Gem, ExternalLink } from "lucide-react";
+import { BadgeCheck, Building2, Crown, ExternalLink, Gift } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import type { VendorStatus } from "@/lib/api-types";
 import { StoreBadges, type StoreBadge } from "@/components/store-badges";
 
+type Tier = "FREE" | "PRO" | "BUSINESS" | "ENTERPRISE";
 type Application = {
-  id: string; storeName: string; storeSlug: string; status: VendorStatus; tier: string; appliedAt: string;
+  id: string; storeName: string; storeSlug: string; status: VendorStatus; tier: Tier; appliedAt: string;
   verified: boolean; badges?: StoreBadge[]; user: { firstName: string; lastName: string; email: string };
 };
 
@@ -16,6 +17,9 @@ const TABS: { label: string; value: VendorStatus }[] = [
 ];
 const BADGES: { value: StoreBadge; label: string; icon: typeof BadgeCheck }[] = [
   { value: "VERIFIED", label: "Verified Store", icon: BadgeCheck }, { value: "BUSINESS", label: "Business Store", icon: Building2 }, { value: "ENTERPRISE", label: "Enterprise Store", icon: Building2 }, { value: "PLATINUM", label: "Platinum", icon: Crown },
+];
+const TIERS: { value: Tier; label: string }[] = [
+  { value: "FREE", label: "Free" }, { value: "PRO", label: "Pro" }, { value: "BUSINESS", label: "Business" }, { value: "ENTERPRISE", label: "Enterprise" },
 ];
 
 export default function AdminVendorsPage() {
@@ -30,7 +34,7 @@ export default function AdminVendorsPage() {
       const { stores } = await api.get<{ stores: Application[] }>("/api/store-profile/admin");
       const badgesById = new Map(stores.map((store) => [store.id, store.badges ?? []]));
       setApplications(applications.map((app) => ({ ...app, badges: badgesById.get(app.id) ?? (app.verified ? ["VERIFIED"] : []) })));
-    } catch (err) { setApplications([]); }
+    } catch { setApplications([]); }
   }
 
   useEffect(() => { void load(tab); }, [tab]);
@@ -46,17 +50,43 @@ export default function AdminVendorsPage() {
     finally { setBusyId(null); }
   }
 
+  async function grantSubscription(app: Application) {
+    const tier = (document.getElementById(`grant-tier-${app.id}`) as HTMLSelectElement)?.value as Tier | undefined;
+    const lifetime = (document.getElementById(`grant-lifetime-${app.id}`) as HTMLInputElement)?.checked ?? false;
+    if (!tier) return;
+    const duration = lifetime ? "lifetime" : "1 month";
+    if (!confirm(`Grant ${app.storeName} the ${tier} plan for ${duration} without payment? This will also make the store verified and approved.`)) return;
+    setBusyId(`grant:${app.id}`);
+    try {
+      await api.post(`/api/vendors/admin/${app.id}/grant-subscription`, { tier, lifetime });
+      await load(tab);
+      alert(`${app.storeName} is now on the ${tier} plan and has been verified.`);
+    } catch (err) {
+      alert(err instanceof ApiError ? err.message : "Unable to grant subscription.");
+    } finally { setBusyId(null); }
+  }
+
   return (
     <div className="shell py-8">
-      <div><h1 className="text-xl font-bold text-graphite-900">Vendor applications & store badges</h1><p className="mt-1 text-sm text-graphite-600">Approve stores, manage tiers, and control public trust badges.</p></div>
+      <div><h1 className="text-xl font-bold text-graphite-900">Vendor applications & store management</h1><p className="mt-1 text-sm text-graphite-600">Approve stores, grant plans, and control public trust badges.</p></div>
       <div className="mt-4 flex gap-1 overflow-x-auto border-b border-graphite-200">{TABS.map((t) => <button key={t.value} onClick={() => setTab(t.value)} className={`border-b-2 px-3 py-2 text-sm font-medium ${tab === t.value ? "border-ember-600 text-ember-600" : "border-transparent text-graphite-600"}`}>{t.label}</button>)}</div>
 
       {applications === null ? <p className="mt-6 text-sm text-graphite-600">Loading…</p> : applications.length === 0 ? <div className="mt-6 rounded-card border border-dashed border-graphite-200 p-10 text-center text-sm text-graphite-600">Nothing here.</div> : <div className="mt-6 flex flex-col gap-4">{applications.map((app) => {
         const badges = app.badges ?? [];
+        const grantBusy = busyId === `grant:${app.id}`;
         return <div key={app.id} className="rounded-card border border-graphite-200 bg-white p-4 sm:p-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div><div className="flex items-center gap-2"><p className="font-semibold text-graphite-900">{app.storeName}</p>{app.verified && <BadgeCheck className="h-4 w-4 text-verified-600" />}</div><p className="text-sm text-graphite-600">{app.user.firstName} {app.user.lastName} · {app.user.email}</p><p className="text-xs text-graphite-400">Applied {new Date(app.appliedAt).toLocaleDateString("en-NG", { dateStyle: "medium" })} · {app.tier} tier</p></div>
             <a href={`/store/${app.storeSlug}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-graphite-600 hover:text-ember-600">View store <ExternalLink className="h-3.5 w-3.5" /></a>
+          </div>
+
+          <div className="mt-5 border-t border-graphite-100 pt-4">
+            <div className="flex items-start gap-2"><Gift className="mt-0.5 h-4 w-4 text-ember-600" /><div><p className="text-sm font-semibold text-graphite-900">Grant subscription</p><p className="text-xs text-graphite-500">Give this store a TTFL plan without a Paystack payment. Granting a plan also verifies and approves the store.</p></div></div>
+            <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+              <select id={`grant-tier-${app.id}`} defaultValue={app.tier} className="rounded-card border border-graphite-300 bg-white px-3 py-2 text-sm font-medium text-graphite-900"><option value="FREE">Free</option><option value="PRO">Pro</option><option value="BUSINESS">Business</option><option value="ENTERPRISE">Enterprise</option></select>
+              <label className="flex items-center gap-2 rounded-card border border-graphite-200 px-3 py-2 text-sm text-graphite-700"><input id={`grant-lifetime-${app.id}`} type="checkbox" className="h-4 w-4" /> Lifetime</label>
+              <button onClick={() => void grantSubscription(app)} disabled={grantBusy} className="inline-flex items-center justify-center rounded-card bg-ember-600 px-4 py-2 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-60">{grantBusy ? "Granting…" : "Grant plan"}</button>
+            </div>
           </div>
 
           {app.status === "APPROVED" && <div className="mt-5 border-t border-graphite-100 pt-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-sm font-semibold text-graphite-900">Public badges</p><p className="text-xs text-graphite-500">Badges are controlled by TTFL Store administration.</p></div><StoreBadges badges={badges} /></div><div className="mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">{BADGES.map(({ value, label, icon: Icon }) => { const enabled = badges.includes(value); const busy = busyId === `${app.id}:${value}`; return <button key={value} onClick={() => void toggleBadge(app.id, value, !enabled)} disabled={busy} className={`flex items-center justify-between rounded-card border px-3 py-3 text-left text-sm transition ${enabled ? "border-verified-100 bg-verified-100" : "border-graphite-200 hover:border-ember-600"}`}><span className="flex items-center gap-2 font-semibold text-graphite-800"><Icon className="h-4 w-4" />{label}</span><span className={`text-xs font-semibold ${enabled ? "text-verified-700" : "text-graphite-400"}`}>{busy ? "…" : enabled ? "Enabled" : "Grant"}</span></button>; })}</div></div>}
