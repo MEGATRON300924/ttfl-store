@@ -8,13 +8,13 @@ import { ImageUploadField, type UploadedImage } from "@/components/image-upload-
 import type { ApiCategory, SellingMethod, ProductCondition } from "@/lib/api-types";
 
 export type ProductFormValues = {
-  name: string; brand: string; description: string; categorySlug: string; price: string; previousPrice: string;
+  name: string; brand: string; specifications: Record<string,string>; description: string; categorySlug: string; price: string; previousPrice: string;
   condition: ProductCondition; stock: string; location: string; images: UploadedImage[];
   tags: string[]; sellingMethod: SellingMethod; externalUrl: string; whatsappNumber: string; estimatedDeliveryDays: string;
   comingSoon: boolean; availableAt: string;
 };
 const EMPTY: ProductFormValues = {
-  name: "", brand: "", description: "", categorySlug: "", price: "", previousPrice: "", condition: "NEW", stock: "1",
+  name: "", brand: "", specifications: {}, description: "", categorySlug: "", price: "", previousPrice: "", condition: "NEW", stock: "1",
   location: "", images: [], tags: [], sellingMethod: "CHECKOUT", externalUrl: "", whatsappNumber: "", estimatedDeliveryDays: "7",
   comingSoon: false, availableAt: "",
 };
@@ -28,8 +28,8 @@ export function ProductForm({ productId, initial, redirectTo }: { productId?: st
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault(); setError(null); if (!form.name.trim() || form.name.trim().length < 3) return setError("Product name must be at least 3 characters."); if (form.brand.trim().length > 80) return setError("Brand name is too long."); if (!form.description.trim() || form.description.trim().length < 10) return setError("Product description must be at least 10 characters."); if (!form.categorySlug) return setError("Please choose a product category."); if (!form.comingSoon && (!form.price || Number(form.price) <= 0)) return setError("Please enter a valid product price."); if (form.previousPrice && Number(form.previousPrice) <= Number(form.price)) return setError("Previous price must be greater than the current price."); if (Number(form.stock) < 0) return setError("Stock cannot be negative."); if (form.images.length === 0) return setError("Please add at least one product photo."); const deliveryDays = Number(form.estimatedDeliveryDays); if (!Number.isInteger(deliveryDays) || deliveryDays < 1 || deliveryDays > 90) return setError("Estimated delivery must be between 1 and 90 days."); if (form.sellingMethod === "EXTERNAL_LINK" && !form.externalUrl.trim()) return setError("Please enter the product URL for the external link."); if (form.sellingMethod === "EXTERNAL_LINK") { try { new URL(form.externalUrl.trim()); } catch { return setError("Please enter a valid external purchase URL."); } } if (form.sellingMethod === "WHATSAPP" && form.whatsappNumber.trim() && form.whatsappNumber.trim().length < 7) return setError("Please enter a valid WhatsApp number."); addTagsFromInput(tagInput);
     setSubmitting(true); const images = form.images.map((image) => image.url).filter(Boolean); const tags = Array.from(new Set([...form.tags, ...tagInput.split(",").map((tag) => tag.trim().toLowerCase()).filter(Boolean)])).slice(0, 20);
-    const specifications: Record<string,string> = {};
-    if (form.brand.trim()) specifications.brand = form.brand.trim();
+    const specifications = { ...form.specifications };
+    if (form.brand.trim()) specifications.brand = form.brand.trim(); else delete specifications.brand;
     const payload: Record<string, unknown> = { name: form.name.trim(), description: form.description.trim(), categorySlug: form.categorySlug, price: form.price.trim() ? Number(form.price) : 0, condition: form.condition, stock: Number(form.stock), images, tags, specifications, sellingMethod: form.sellingMethod, estimatedDeliveryDays: deliveryDays, comingSoon: form.comingSoon, availableAt: form.availableAt ? new Date(form.availableAt).toISOString() : null };
     if (form.previousPrice.trim()) payload.previousPrice = Number(form.previousPrice); if (form.location.trim()) payload.location = form.location.trim(); if (form.sellingMethod === "EXTERNAL_LINK") payload.externalUrl = form.externalUrl.trim(); if (form.sellingMethod === "WHATSAPP" && form.whatsappNumber.trim()) payload.whatsappNumber = form.whatsappNumber.trim();
     try { if (productId) await api.patch(`/api/products/${productId}`, payload); else await api.post("/api/products", payload); router.push(redirectTo || "/vendor/dashboard/products"); } catch (err) { setError(err instanceof ApiError ? err.message : "Something went wrong while saving the product."); setSubmitting(false); }
