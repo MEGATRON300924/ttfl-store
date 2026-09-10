@@ -8,6 +8,8 @@ import { useAuth } from "@/lib/auth-context";
 import type { ApiVendorPlan, VendorTier } from "@/lib/api-types";
 import { formatNaira } from "@/lib/mock-data";
 
+export const dynamic = "force-dynamic";
+
 const FALLBACK_PLANS: Array<{ tier: VendorTier; name: string; price: number; commissionRate: number; productLimit: number | null; features: string[] }> = [
   { tier: "FREE", name: "Free", price: 0, commissionRate: 8, productLimit: 20, features: ["Basic store page", "Checkout, external links and WhatsApp selling", "Basic order management", "Customer reviews", "Basic analytics", "3 Coming Soon products", "Notify Me waitlists", "Basic discounts"] },
   { tier: "PRO", name: "Pro", price: 15000, commissionRate: 6, productLimit: 200, features: ["Everything in Free", "20 Coming Soon products", "3 active Flash Deals", "5 Sponsored Products", "2 Featured Products", "Advanced analytics", "Launch scheduling", "Priority support"] },
