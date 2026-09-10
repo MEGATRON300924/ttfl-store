@@ -1,5 +1,9 @@
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/$/, "");
 
+// Browser requests stay on the TTFL Store origin. Vercel rewrites /api/* to
+// the Render backend, which makes authentication cookies first-party on iOS/Safari.
+const REQUEST_BASE = typeof window === "undefined" ? API_URL : "";
+
 export class ApiError extends Error {
   status: number;
   code?: string;
@@ -22,7 +26,7 @@ let refreshPromise: Promise<void> | null = null;
 
 async function refreshSession(): Promise<void> {
   if (!refreshPromise) {
-    refreshPromise = fetch(`${API_URL}/api/auth/refresh`, {
+    refreshPromise = fetch(`${REQUEST_BASE}/api/auth/refresh`, {
       method: "POST",
       credentials: "include",
       cache: "no-store",
@@ -45,7 +49,7 @@ async function refreshSession(): Promise<void> {
 }
 
 async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetch(`${REQUEST_BASE}${path}`, {
     method: opts.method ?? "GET",
     credentials: "include",
     cache: opts.cache ?? "no-store",
