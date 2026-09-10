@@ -3,22 +3,14 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
-    color-scheme: light;
-  }
-  html.dark {
-    color-scheme: dark;
-  }
-  html {
-    -webkit-text-size-adjust: 100%;
-  }
+  :root { color-scheme: light; }
+  html.dark { color-scheme: dark; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
     @apply bg-cloud-50 text-graphite-900 antialiased;
     transition: background-color 180ms ease, color 180ms ease;
   }
-  ::selection {
-    @apply bg-ember-100 text-ember-700;
-  }
+  ::selection { @apply bg-ember-100 text-ember-700; }
   :focus-visible {
     outline: 2px solid theme("colors.ember.600");
     outline-offset: 2px;
@@ -27,61 +19,77 @@
 }
 
 @layer components {
-  .shell {
-    @apply mx-auto w-full max-w-shell px-4 sm:px-6 lg:px-8;
-  }
-
+  .shell { @apply mx-auto w-full max-w-shell px-4 sm:px-6 lg:px-8; }
   .forge-tag {
     position: relative;
     clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 100%, 0 100%);
   }
 }
 
-html.dark body {
-  background-color: #12141A;
-  color: #F5F6F8;
-}
+html.dark body { background-color: #12141A; color: #F5F6F8; }
 
+/* Shared dark-mode surface mapping. */
 html.dark .bg-white { background-color: #1A1D24 !important; }
+html.dark .bg-white\/95 { background-color: rgba(26,29,36,.95) !important; }
+html.dark .bg-white\/90 { background-color: rgba(26,29,36,.90) !important; }
+html.dark .bg-white\/80 { background-color: rgba(26,29,36,.80) !important; }
 html.dark .bg-cloud-50 { background-color: #1A1D24 !important; }
 html.dark .bg-cloud-100 { background-color: #262A34 !important; }
 html.dark .bg-graphite-950 { background-color: #0D0F13 !important; }
 html.dark .bg-graphite-900 { background-color: #12141A !important; }
 html.dark .bg-graphite-800 { background-color: #262A34 !important; }
 
+/* Never allow a light surface + white foreground to disappear. */
+html.dark button.bg-white.text-white,
+html.dark a.bg-white.text-white,
+html.dark button.bg-white\/95.text-white,
+html.dark a.bg-white\/95.text-white,
+html.dark button.bg-white\/90.text-white,
+html.dark a.bg-white\/90.text-white {
+  background-color: #262A34 !important;
+  color: #F5F6F8 !important;
+  border-color: #4A5160 !important;
+}
+
+/* Neutral text remains readable against every dark surface. */
+html.dark .text-graphite-950 { color: #F5F6F8 !important; }
 html.dark .text-graphite-900 { color: #F5F6F8 !important; }
 html.dark .text-graphite-800 { color: #E5E7EB !important; }
 html.dark .text-graphite-700 { color: #D6DAE1 !important; }
 html.dark .text-graphite-600 { color: #B7BFCC !important; }
-html.dark .text-graphite-400 { color: #8A93A3 !important; }
-html.dark .text-graphite-200 { color: #D6DAE1 !important; }
+html.dark .text-graphite-400 { color: #A4ADBB !important; }
+html.dark .text-graphite-200 { color: #E5E7EB !important; }
 
 html.dark .border-graphite-200 { border-color: #3A3F4C !important; }
-html.dark .border-graphite-300 { border-color: #3A3F4C !important; }
-html.dark .border-graphite-700 { border-color: #3A3F4C !important; }
-html.dark .border-graphite-800 { border-color: #262A34 !important; }
+html.dark .border-graphite-300 { border-color: #4A5160 !important; }
+html.dark .border-graphite-700 { border-color: #4A5160 !important; }
+html.dark .border-graphite-800 { border-color: #303541 !important; }
+
+/* Prevent light hover states from flashing bright white. */
+html.dark .hover\:bg-white:hover { background-color: #262A34 !important; }
+html.dark .hover\:bg-white\/95:hover { background-color: rgba(38,42,52,.95) !important; }
+html.dark .hover\:bg-white\/90:hover { background-color: rgba(38,42,52,.90) !important; }
 
 html.dark input,
 html.dark textarea,
-html.dark select {
-  color-scheme: dark;
-}
-
+html.dark select { color-scheme: dark; }
 html.dark input::placeholder,
-html.dark textarea::placeholder {
-  color: #8A93A3;
-}
+html.dark textarea::placeholder { color: #8A93A3; }
+html.dark input:disabled,
+html.dark textarea:disabled,
+html.dark select:disabled,
+html.dark button:disabled { opacity: .58; }
 
 html.dark .shadow-sm,
 html.dark .shadow-card {
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35), 0 8px 24px rgba(0, 0, 0, 0.16);
+  box-shadow: 0 1px 3px rgba(0,0,0,.35), 0 8px 24px rgba(0,0,0,.16);
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
 }
