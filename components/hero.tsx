@@ -15,7 +15,7 @@ export function Hero() {
           <span className="inline-flex items-center rounded-tag bg-ember-600/15 px-2 py-0.5 font-mono text-[9px] font-medium tracking-wide text-ember-500 sm:px-2.5 sm:py-1 sm:text-[11px]">
             THE OFFICIAL TTFL MARKETPLACE
           </span>
-          <h1 className="mt-2.5 max-w-lg text-2xl font-bold leading-tight tracking-tight text-white sm:mt-4 sm:text-4xl lg:text-[42px]">
+          <h1 className="mt-2 max-w-[20rem] text-[21px] font-bold leading-[1.12] tracking-tight text-white sm:mt-4 sm:max-w-lg sm:text-4xl sm:leading-tight lg:text-[42px]">
             Buy it, sell it — with vendors you can trust.
           </h1>
           <p className="mt-2.5 max-w-md text-[13px] leading-relaxed text-graphite-400 sm:mt-4 sm:text-[15px]">
