@@ -9,20 +9,50 @@ import { useCart } from "@/lib/cart-context";
 import type { ApiOrder } from "@/lib/api-types";
 import { getStoredAffiliateCode } from "@/components/affiliate-tracker";
 
+type PaymentStatusResponse = {
+  reference: string;
+  orderNumber: string;
+  paymentStatus: "PAID" | "PENDING" | "FAILED";
+  orderFinalized: boolean;
+  gatewayStatus: string;
+  gatewayResponse: string;
+};
+
+type ApiOrderWithPaymentReference = ApiOrder & { paymentReference?: string | null };
+
 export function OrderConfirmView() {
   const params = useParams<{ orderNumber: string }>();
   const cart = useCart();
   const [status, setStatus] = useState<"checking" | "processing" | "success" | "failed">("checking");
-  const [order, setOrder] = useState<ApiOrder | null>(null);
+  const [paymentReceived, setPaymentReceived] = useState(false);
+  const [order, setOrder] = useState<ApiOrderWithPaymentReference | null>(null);
   const [errorCode, setErrorCode] = useState<string | null>(null);
   const [attempts, setAttempts] = useState(0);
 
-  const checkOrderStatus = useCallback(async () => {
-    const confirmedOrder = await api.get<ApiOrder>(`/api/orders/${encodeURIComponent(params.orderNumber)}`);
-    setOrder(confirmedOrder);
-    setErrorCode(null);
-    return confirmedOrder;
+  const checkPaymentStatus = useCallback(async () => {
+    const currentOrder = await api.get<ApiOrderWithPaymentReference>(`/api/orders/${encodeURIComponent(params.orderNumber)}`);
+    setOrder(currentOrder);
+
+    if (!currentOrder.paymentReference) {
+      throw new Error("Payment reference is missing from the order");
+    }
+
+    const payment = await api.get<PaymentStatusResponse>(`/api/orders/payment-status/${encodeURIComponent(currentOrder.paymentReference)}`);
+    return { currentOrder, payment };
   }, [params.orderNumber]);
+
+  const finishSuccess = useCallback((confirmedOrder: ApiOrderWithPaymentReference) => {
+    setOrder(confirmedOrder);
+    setStatus("success");
+    setPaymentReceived(true);
+    cart.clear();
+    const code = getStoredAffiliateCode();
+    if (code) {
+      void api.post("/api/affiliates/convert", { orderNumber: confirmedOrder.orderNumber, code }).catch((err) => {
+        console.error("Affiliate conversion failed", err);
+      });
+    }
+  }, [cart]);
 
   useEffect(() => {
     let cancelled = false;
@@ -35,31 +65,34 @@ export function OrderConfirmView() {
       setAttempts(attempt);
 
       try {
-        const confirmedOrder = await checkOrderStatus();
+        const { currentOrder, payment } = await checkPaymentStatus();
         if (cancelled) return;
 
-        if (confirmedOrder.paymentStatus === "PAID") {
-          setStatus("success");
-          cart.clear();
-          const code = getStoredAffiliateCode();
-          if (code) {
-            try {
-              await api.post("/api/affiliates/convert", { orderNumber: confirmedOrder.orderNumber, code });
-            } catch (err) {
-              console.error("Affiliate conversion failed", err);
-            }
+        if (payment.paymentStatus === "PAID") {
+          setPaymentReceived(true);
+          if (payment.orderFinalized || currentOrder.paymentStatus === "PAID") {
+            finishSuccess(currentOrder);
+            return;
           }
+
+          // Paystack has confirmed the money, but order fulfillment is still running.
+          // Do not make the customer wait for the fulfillment transaction before telling
+          // them that their payment was received.
+          setStatus("processing");
+          setErrorCode(null);
+          if (attempt < 16) retryTimer = setTimeout(poll, 2000);
           return;
         }
 
-        if (confirmedOrder.paymentStatus === "FAILED") {
+        if (payment.gatewayStatus === "failed" || payment.gatewayStatus === "abandoned" || currentOrder.paymentStatus === "FAILED") {
           setStatus("failed");
           setErrorCode("PAYMENT_FAILED");
           return;
         }
 
         setStatus("processing");
-        if (attempt < 21) retryTimer = setTimeout(poll, 3000);
+        setErrorCode(null);
+        if (attempt < 16) retryTimer = setTimeout(poll, 2000);
       } catch (err) {
         if (cancelled) return;
         console.error(err instanceof ApiError ? err.message : err);
@@ -74,22 +107,24 @@ export function OrderConfirmView() {
       cancelled = true;
       if (retryTimer) clearTimeout(retryTimer);
     };
-    // cart intentionally omitted from deps — clearing it shouldn't re-trigger this effect
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [checkOrderStatus]);
+  }, [checkPaymentStatus, finishSuccess]);
 
   const retry = async () => {
     setStatus("checking");
     setErrorCode(null);
     try {
-      const confirmedOrder = await checkOrderStatus();
-      setOrder(confirmedOrder);
-      if (confirmedOrder.paymentStatus === "PAID") {
-        setStatus("success");
-        cart.clear();
+      const { currentOrder, payment } = await checkPaymentStatus();
+      setOrder(currentOrder);
+      if (payment.paymentStatus === "PAID") {
+        setPaymentReceived(true);
+        if (payment.orderFinalized || currentOrder.paymentStatus === "PAID") {
+          finishSuccess(currentOrder);
+        } else {
+          setStatus("processing");
+        }
         return;
       }
-      if (confirmedOrder.paymentStatus === "FAILED") {
+      if (payment.gatewayStatus === "failed" || payment.gatewayStatus === "abandoned" || currentOrder.paymentStatus === "FAILED") {
         setStatus("failed");
         setErrorCode("PAYMENT_FAILED");
         return;
@@ -105,14 +140,14 @@ export function OrderConfirmView() {
     <div className="shell py-16 text-center">
       {status === "checking" && <>
         <Loader2 className="mx-auto h-10 w-10 animate-spin text-graphite-400" />
-        <h1 className="mt-4 text-lg font-bold text-graphite-900">Checking your order…</h1>
-        <p className="mt-1 text-sm text-graphite-600">Your payment is being confirmed securely.</p>
+        <h1 className="mt-4 text-lg font-bold text-graphite-900">Checking your payment…</h1>
+        <p className="mt-1 text-sm text-graphite-600">We're checking Paystack directly so you don't have to wait for order processing.</p>
       </>}
       {status === "processing" && <>
         <Loader2 className="mx-auto h-10 w-10 animate-spin text-graphite-400" />
-        <h1 className="mt-4 text-lg font-bold text-graphite-900">Payment is being confirmed…</h1>
-        <p className="mt-1 text-sm text-graphite-600">Paystack is confirming the transaction. Please don't pay again.</p>
-        {attempts >= 21 && <button onClick={retry} className="mt-6 rounded-card border border-graphite-300 px-5 py-2.5 text-sm font-semibold text-graphite-900 hover:bg-cloud-100">Check again</button>}
+        <h1 className="mt-4 text-lg font-bold text-graphite-900">{paymentReceived ? "Payment received — finishing your order…" : "Payment is being confirmed…"}</h1>
+        <p className="mt-1 text-sm text-graphite-600">{paymentReceived ? "Your money has been received. We're finishing the order in the background. Please don't pay again." : "Paystack is confirming the transaction. Please don't pay again."}</p>
+        {attempts >= 16 && <button onClick={retry} className="mt-6 rounded-card border border-graphite-300 px-5 py-2.5 text-sm font-semibold text-graphite-900 hover:bg-cloud-100">Check again</button>}
       </>}
       {status === "success" && <>
         <CheckCircle2 className="mx-auto h-12 w-12 text-verified-600" />
