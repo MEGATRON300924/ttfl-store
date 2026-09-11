@@ -5,6 +5,7 @@ export type Product = {
   price: number;
   previousPrice?: number;
   image: string;
+  video?: string | null;
   vendor: string;
   vendorSlug: string;
   verified: boolean;
