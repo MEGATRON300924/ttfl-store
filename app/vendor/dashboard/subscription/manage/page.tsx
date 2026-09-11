@@ -23,15 +23,16 @@ export default function ManageSubscriptionPage() {
     setLoading(true);
     try {
       const [me, sub] = await Promise.all([
-        api.get<ApiUser>("/api/auth/me"),
+        api.get<{ user: ApiUser }>("/api/auth/me"),
         api.get<{ subscription: ApiSubscription | null }>("/api/subscriptions/me"),
       ]);
-      setUser(me);
+      setUser(me.user);
       setSubscription(sub.subscription);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Couldn't load your subscription");
     } finally {
       setLoading(false);
+      setBusy(false);
     }
   }
 
