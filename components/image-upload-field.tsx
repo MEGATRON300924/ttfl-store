@@ -4,8 +4,6 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { Upload, X, GripVertical, Loader2 } from "lucide-react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
-
 export type UploadedImage = { url: string; publicId: string };
 
 export function ImageUploadField({
@@ -30,10 +28,9 @@ export function ImageUploadField({
       const formData = new FormData();
       formData.append("image", file);
       try {
-        // credentials: include so the vendor's auth cookie rides along —
-        // this isn't going through lib/api-client since that helper
-        // always JSON-encodes the body, which multipart uploads can't use.
-        const res = await fetch(`${API_URL}/api/uploads/product-image`, {
+        // Use the same-origin API proxy so the browser sends the TTFL auth
+        // cookie reliably before the backend hands the file to Cloudinary.
+        const res = await fetch("/api/uploads/product-image", {
           method: "POST",
           credentials: "include",
           body: formData,
@@ -54,15 +51,9 @@ export function ImageUploadField({
   async function handleRemove(index: number) {
     const image = images[index];
     onChange(images.filter((_, i) => i !== index));
-    if (image.publicId.startsWith("existing-")) {
-      // Loaded from an existing product's saved URLs, not a real
-      // Cloudinary asset this session uploaded — nothing to delete
-      // remotely, and calling the API with a fake ID would just 404.
-      return;
-    }
-    // Best-effort cleanup — a failed delete just leaves an orphaned
-    // Cloudinary asset, never blocks the product edit.
-    fetch(`${API_URL}/api/uploads/product-image/${encodeURIComponent(image.publicId)}`, {
+    if (image.publicId.startsWith("existing-")) return;
+
+    fetch(`/api/uploads/product-image/${encodeURIComponent(image.publicId)}`, {
       method: "DELETE",
       credentials: "include",
     }).catch(() => undefined);
