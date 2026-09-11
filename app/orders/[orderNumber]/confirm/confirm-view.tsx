@@ -13,36 +13,69 @@ export function OrderConfirmView() {
   const params = useParams<{ orderNumber: string }>();
   const searchParams = useSearchParams();
   const cart = useCart();
-  const [status, setStatus] = useState<"checking" | "success" | "failed">("checking");
+  const [status, setStatus] = useState<"checking" | "processing" | "success" | "failed">("checking");
   const [order, setOrder] = useState<ApiOrder | null>(null);
+  const [errorCode, setErrorCode] = useState<string | null>(null);
 
   useEffect(() => {
     const reference = searchParams.get("reference") ?? searchParams.get("trxref");
     if (!reference) {
       setStatus("failed");
+      setErrorCode("MISSING_PAYMENT_REFERENCE");
       return;
     }
 
-    api.get<{ order: ApiOrder }>(`/api/orders/verify/${reference}`)
-      .then(async ({ order }) => {
-        setOrder(order);
-        setStatus(order.paymentStatus === "PAID" ? "success" : "failed");
-        if (order.paymentStatus === "PAID") {
+    let cancelled = false;
+    let attempts = 0;
+    let retryTimer: ReturnType<typeof setTimeout> | undefined;
+
+    const confirmPayment = async () => {
+      if (cancelled) return;
+      attempts += 1;
+
+      try {
+        const { order: confirmedOrder } = await api.get<{ order: ApiOrder }>(`/api/orders/verify/${encodeURIComponent(reference)}`);
+        if (cancelled) return;
+
+        setOrder(confirmedOrder);
+        setErrorCode(null);
+
+        if (confirmedOrder.paymentStatus === "PAID") {
+          setStatus("success");
           cart.clear();
           const code = getStoredAffiliateCode();
           if (code) {
             try {
-              await api.post("/api/affiliates/convert", { orderNumber: order.orderNumber, code });
+              await api.post("/api/affiliates/convert", { orderNumber: confirmedOrder.orderNumber, code });
             } catch (err) {
               console.error("Affiliate conversion failed", err);
             }
           }
+          return;
         }
-      })
-      .catch((err) => {
-        console.error(err instanceof ApiError ? err.message : err);
+
+        if (confirmedOrder.paymentStatus === "PENDING" && attempts < 11) {
+          setStatus("processing");
+          retryTimer = setTimeout(confirmPayment, 3000);
+          return;
+        }
+
         setStatus("failed");
-      });
+        setErrorCode(confirmedOrder.paymentStatus === "FAILED" ? "PAYMENT_FAILED" : "PAYMENT_CONFIRMATION_TIMEOUT");
+      } catch (err) {
+        if (cancelled) return;
+        console.error(err instanceof ApiError ? err.message : err);
+        setErrorCode(err instanceof ApiError ? err.code ?? `HTTP_${err.status}` : "PAYMENT_CONFIRMATION_FAILED");
+        setStatus("failed");
+      }
+    };
+
+    void confirmPayment();
+
+    return () => {
+      cancelled = true;
+      if (retryTimer) clearTimeout(retryTimer);
+    };
     // cart intentionally omitted from deps — clearing it shouldn't re-trigger this effect
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
@@ -52,7 +85,12 @@ export function OrderConfirmView() {
       {status === "checking" && <>
         <Loader2 className="mx-auto h-10 w-10 animate-spin text-graphite-400" />
         <h1 className="mt-4 text-lg font-bold text-graphite-900">Confirming your payment…</h1>
-        <p className="mt-1 text-sm text-graphite-600">This only takes a moment.</p>
+        <p className="mt-1 text-sm text-graphite-600">We're securely checking the transaction with Paystack.</p>
+      </>}
+      {status === "processing" && <>
+        <Loader2 className="mx-auto h-10 w-10 animate-spin text-graphite-400" />
+        <h1 className="mt-4 text-lg font-bold text-graphite-900">Payment is still processing…</h1>
+        <p className="mt-1 text-sm text-graphite-600">We're waiting for Paystack to confirm the final payment status. Please don't pay again.</p>
       </>}
       {status === "success" && <>
         <CheckCircle2 className="mx-auto h-12 w-12 text-verified-600" />
@@ -63,7 +101,7 @@ export function OrderConfirmView() {
       {status === "failed" && <>
         <XCircle className="mx-auto h-12 w-12 text-ember-600" />
         <h1 className="mt-4 text-lg font-bold text-graphite-900">We couldn't confirm this payment</h1>
-        <p className="mt-1 text-sm text-graphite-600">If you were charged, contact support with order {params.orderNumber} — nothing was lost from your cart.</p>
+        <p className="mt-1 text-sm text-graphite-600">If you were charged, don't pay again. Contact support with order <span className="font-mono">{params.orderNumber}</span>{errorCode ? <> and code <span className="font-mono">{errorCode}</span></> : null}.</p>
         <Link href="/support" className="mt-6 inline-block rounded-card border border-graphite-300 px-5 py-2.5 text-sm font-semibold text-graphite-900 hover:bg-cloud-100">Contact support</Link>
       </>}
     </div>
