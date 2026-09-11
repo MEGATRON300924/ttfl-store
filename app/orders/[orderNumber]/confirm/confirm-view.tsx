@@ -19,6 +19,7 @@ type PaymentStatusResponse = {
 };
 
 type ApiOrderWithPaymentReference = ApiOrder & { paymentReference?: string | null };
+type ApiOrderResponse = { order: ApiOrderWithPaymentReference };
 
 export function OrderConfirmView() {
   const params = useParams<{ orderNumber: string }>();
@@ -30,10 +31,11 @@ export function OrderConfirmView() {
   const [attempts, setAttempts] = useState(0);
 
   const checkPaymentStatus = useCallback(async () => {
-    const currentOrder = await api.get<ApiOrderWithPaymentReference>(`/api/orders/${encodeURIComponent(params.orderNumber)}`);
+    const response = await api.get<ApiOrderResponse>(`/api/orders/${encodeURIComponent(params.orderNumber)}`);
+    const currentOrder = response.order;
     setOrder(currentOrder);
 
-    if (!currentOrder.paymentReference) {
+    if (!currentOrder?.paymentReference) {
       throw new Error("Payment reference is missing from the order");
     }
 
@@ -75,9 +77,6 @@ export function OrderConfirmView() {
             return;
           }
 
-          // Paystack has confirmed the money, but order fulfillment is still running.
-          // Do not make the customer wait for the fulfillment transaction before telling
-          // them that their payment was received.
           setStatus("processing");
           setErrorCode(null);
           if (attempt < 16) retryTimer = setTimeout(poll, 2000);
