@@ -75,36 +75,23 @@ export function ProductVideoPlayer({
   async function fullscreen() {
     const container = containerRef.current;
     if (!container) return;
-    if (document.fullscreenElement) await document.exitFullscreen().catch(() => undefined);
-    else await container.requestFullscreen?.().catch(() => undefined);
+    if (document.fullscreenElement) {
+      await document.exitFullscreen().catch(() => undefined);
+      return;
+    }
+    const request = container.requestFullscreen?.();
+    await request?.catch(() => undefined);
   }
 
   const progress = duration > 0 ? Math.min(100, Math.max(0, (current / duration) * 100)) : 0;
 
   return (
     <div ref={containerRef} onClick={(event) => event.stopPropagation()} className={`group relative overflow-hidden rounded-card bg-black ${className}`}>
-      <video
-        ref={videoRef}
-        src={optimizeVideoUrl(src)}
-        poster={poster}
-        playsInline
-        preload={compact ? "metadata" : "auto"}
-        className="h-full w-full object-contain"
-        onClick={() => void togglePlay()}
-        aria-label="Product video"
-      />
-
-      {!playing && (
-        <button type="button" onClick={() => void togglePlay()} className={`absolute left-1/2 top-1/2 grid -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-graphite-900 shadow-lg transition hover:scale-105 ${compact ? "h-11 w-11" : "h-14 w-14"}`} aria-label="Play video">
-          <Play className={compact ? "ml-0.5 h-5 w-5 fill-current" : "ml-0.5 h-6 w-6 fill-current"} />
-        </button>
-      )}
-
+      <video ref={videoRef} src={optimizeVideoUrl(src)} poster={poster} playsInline preload={compact ? "metadata" : "auto"} className="h-full w-full object-contain" onClick={() => void togglePlay()} aria-label="Product video" />
+      {!playing && <button type="button" onClick={() => void togglePlay()} className={`absolute left-1/2 top-1/2 grid -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full bg-white/95 text-graphite-900 shadow-lg transition hover:scale-105 ${compact ? "h-11 w-11" : "h-14 w-14"}`} aria-label="Play video"><Play className={compact ? "ml-0.5 h-5 w-5 fill-current" : "ml-0.5 h-6 w-6 fill-current"} /></button>}
       <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent px-3 pb-2 pt-8 opacity-100 transition md:opacity-0 md:group-hover:opacity-100">
         <div className="mb-1.5 flex items-center gap-2">
-          <button type="button" onClick={() => void togglePlay()} className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/90 text-graphite-900" aria-label={playing ? "Pause video" : "Play video"}>
-            {playing ? <Pause className="h-3.5 w-3.5 fill-current" /> : <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />}
-          </button>
+          <button type="button" onClick={() => void togglePlay()} className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/90 text-graphite-900" aria-label={playing ? "Pause video" : "Play video"}>{playing ? <Pause className="h-3.5 w-3.5 fill-current" /> : <Play className="ml-0.5 h-3.5 w-3.5 fill-current" />}</button>
           <input type="range" min={0} max={duration || 0} step={0.1} value={current} onChange={(event) => seek(Number(event.target.value))} className="h-1.5 min-w-0 flex-1 accent-white" aria-label="Video progress" style={{ background: `linear-gradient(to right, white ${progress}%, rgba(255,255,255,.3) ${progress}%)` }} />
           {!compact && <span className="shrink-0 text-[10px] font-medium tabular-nums text-white/90">{formatTime(current)} / {formatTime(duration)}</span>}
           <button type="button" onClick={toggleMute} className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/15 text-white backdrop-blur" aria-label={muted ? "Unmute video" : "Mute video"}>{muted ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}</button>
