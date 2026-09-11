@@ -1,0 +1,15 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import { CheckCircle2, Loader2, XCircle } from "lucide-react";
+import { api, ApiError } from "@/lib/api-client";
+
+type ServiceOrder={id:string;serviceTitle:string;serviceSlug:string;status:string;payment_status:string;amount:number|string;booking_date:string|null;booking_time:string|null};
+
+export default function ServicePaymentConfirmation(){
+  const params=useParams<{slug:string}>(); const search=useSearchParams(); const[status,setStatus]=useState<"loading"|"success"|"error">("loading"); const[message,setMessage]=useState(""); const[order,setOrder]=useState<ServiceOrder|null>(null);
+  useEffect(()=>{const reference=search.get("reference")||search.get("trxref"); if(!reference){setStatus("error");setMessage("No payment reference was provided.");return;} void api.post<{serviceOrder:ServiceOrder}>(`/api/service-orders/${encodeURIComponent(reference)}/verify`).then(r=>{setOrder(r.serviceOrder);setStatus("success")}).catch(e=>{setStatus("error");setMessage(e instanceof ApiError?e.message:"We couldn't verify this payment yet. If you were charged, please contact TTFL support.")})},[search]);
+  return <div className="shell flex min-h-[65vh] items-center justify-center py-16"><div className="w-full max-w-lg rounded-3xl border border-graphite-200 bg-white p-8 text-center shadow-sm dark:border-graphite-700 dark:bg-graphite-900">{status==="loading"&&<><Loader2 className="mx-auto h-10 w-10 animate-spin text-ember-600"/><h1 className="mt-5 text-2xl font-bold">Confirming your payment…</h1><p className="mt-2 text-sm text-graphite-500">Please wait while TTFL confirms your service order.</p></>}{status==="success"&&<><CheckCircle2 className="mx-auto h-12 w-12 text-emerald-600"/><h1 className="mt-5 text-2xl font-bold">Payment confirmed</h1><p className="mt-2 text-sm text-graphite-500">Your service booking has been confirmed.</p>{order&&<div className="mt-6 rounded-2xl bg-cloud-50 p-4 text-left dark:bg-graphite-800"><p className="text-sm font-semibold">{order.serviceTitle}</p><p className="mt-1 text-sm text-graphite-500">₦{Number(order.amount).toLocaleString()}</p>{order.booking_date&&<p className="mt-1 text-xs text-graphite-500">Booking: {order.booking_date}{order.booking_time?` at ${order.booking_time}`:""}</p>}</div>}<div className="mt-6 flex gap-3"><Link href="/account" className="flex-1 rounded-xl border border-graphite-200 px-4 py-3 text-sm font-semibold dark:border-graphite-700">My account</Link><Link href={`/services/${encodeURIComponent(params.slug)}`} className="flex-1 rounded-xl bg-ember-600 px-4 py-3 text-sm font-semibold text-white">Back to service</Link></div></>}{status==="error"&&<><XCircle className="mx-auto h-12 w-12 text-red-500"/><h1 className="mt-5 text-2xl font-bold">Payment confirmation failed</h1><p className="mt-2 text-sm text-graphite-500">{message}</p><Link href={`/services/${encodeURIComponent(params.slug)}`} className="mt-6 inline-flex rounded-xl bg-ember-600 px-5 py-3 text-sm font-semibold text-white">Back to service</Link></>}</div></div>;
+}
