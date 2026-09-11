@@ -4,15 +4,15 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import {
   BarChart3,
+  Bell,
   BookOpen,
-  CheckCircle2,
   CreditCard,
   HelpCircle,
-  Landmark,
   Package,
   Rocket,
   ShoppingBag,
   Store,
+  Users,
   Wallet,
   X,
   Zap,
@@ -20,15 +20,16 @@ import {
 
 const STORAGE_KEY = "ttfl.vendorDashboardTutorial.v1";
 
-type Props = {
+type TutorialProps = {
   open?: boolean;
+  onComplete?: () => void;
 };
 
 const sections = [
   {
     icon: Package,
     title: "My products",
-    body: "Add, edit, and manage everything you sell. You can see your products, update prices and stock, and create new listings.",
+    body: "Add, edit, and manage everything you sell. You can update prices and stock, create new listings, and manage product availability.",
   },
   {
     icon: ShoppingBag,
@@ -48,7 +49,7 @@ const sections = [
   {
     icon: CreditCard,
     title: "Subscription",
-    body: "Choose and manage your vendor plan. Plans can change how many products you can list and the marketplace commission rate that applies to your sales.",
+    body: "Choose and manage your vendor plan. Your plan can affect how many products you can list and the marketplace commission rate applied to your sales.",
   },
   {
     icon: Store,
@@ -58,21 +59,34 @@ const sections = [
   {
     icon: Zap,
     title: "Promote, Flash deals & Coupons",
-    body: "Use these tools to market your products. Promotions can help customers discover your products, while Flash deals and Coupons let you offer special discounts.",
+    body: "Use these tools to market your products. Promotions help customers discover your products, while Flash deals and Coupons let you offer special discounts.",
   },
   {
     icon: Rocket,
     title: "Launch campaigns",
     body: "Use launches when you want to prepare a product for a planned release. A Coming Soon product can be shown before it is available for normal purchase.",
   },
+  {
+    icon: Bell,
+    title: "Notifications",
+    body: "Choose which store notifications you want to receive, including useful updates and marketing alerts where available.",
+  },
+  {
+    icon: Users,
+    title: "Team",
+    body: "If you work with other people, you can invite staff and give them permissions so they can help manage the store without needing your main account.",
+  },
 ];
 
-export function VendorDashboardTutorial({ open = false }: Props) {
+export function VendorDashboardTutorial({ open = false, onComplete }: TutorialProps) {
   const [visible, setVisible] = useState(open);
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    if (open) return;
+    if (open) {
+      setVisible(true);
+      return;
+    }
     try {
       if (window.localStorage.getItem(STORAGE_KEY) !== "completed") setVisible(true);
     } catch {
@@ -87,6 +101,7 @@ export function VendorDashboardTutorial({ open = false }: Props) {
       // The tutorial can still be closed if storage is unavailable.
     }
     setVisible(false);
+    onComplete?.();
   }
 
   if (!visible) return null;
@@ -140,11 +155,12 @@ export function VendorDashboardTutorial({ open = false }: Props) {
             <div className="mt-5 rounded-card border border-graphite-200 bg-cloud-50 p-4 dark:border-graphite-800 dark:bg-graphite-900">
               <p className="font-semibold text-graphite-900 dark:text-white">Plans in simple terms</p>
               <ul className="mt-2 space-y-2 text-sm leading-6 text-graphite-600 dark:text-graphite-300">
-                <li><strong className="text-graphite-900 dark:text-white">Free:</strong> good for getting started. It has the plan's product limit and commission rate shown on the page.</li>
-                <li><strong className="text-graphite-900 dark:text-white">Paid plans:</strong> generally give you more capacity and/or a lower commission rate, depending on the plan.</li>
-                <li><strong className="text-graphite-900 dark:text-white">Choose a plan:</strong> select the plan that fits your store. Paid plans may send you to Paystack to complete payment.</li>
+                <li><strong className="text-graphite-900 dark:text-white">Free:</strong> a simple way to start selling. The exact product limit and commission are shown on the Subscription page.</li>
+                <li><strong className="text-graphite-900 dark:text-white">Pro:</strong> designed for vendors who need more room to grow and may benefit from a different commission rate and features.</li>
+                <li><strong className="text-graphite-900 dark:text-white">Business:</strong> for stores that need more capacity and business-focused features.</li>
+                <li><strong className="text-graphite-900 dark:text-white">Enterprise:</strong> for larger stores that need the highest level of capacity and features available on TTFL Store.</li>
               </ul>
-              <p className="mt-2 text-xs leading-5 text-graphite-500">Always check the exact price, product limit, commission, billing period, and features shown on your Subscription page before choosing a plan.</p>
+              <p className="mt-2 text-xs leading-5 text-graphite-500">Prices, limits, commission rates, billing periods, and features can change. Always use the values currently shown on your Subscription page when choosing a plan.</p>
             </div>
           )}
 
@@ -157,6 +173,7 @@ export function VendorDashboardTutorial({ open = false }: Props) {
                 <li><strong className="text-graphite-900 dark:text-white">3.</strong> Your share goes through Paystack settlement.</li>
                 <li><strong className="text-graphite-900 dark:text-white">4.</strong> You normally do not need to request a manual payout for every order.</li>
               </ol>
+              <p className="mt-3 text-xs leading-5 text-graphite-500">Connect the correct bank account in Payouts so your settlement can be sent to the account you control.</p>
             </div>
           )}
 
@@ -213,7 +230,7 @@ export function VendorTutorialsSection() {
         </div>
       )}
 
-      {open && <VendorDashboardTutorial open onClose={undefined} />}
+      {open && <VendorDashboardTutorial open onComplete={() => setOpen(false)} />}
     </section>
   );
 }
