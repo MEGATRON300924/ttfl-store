@@ -18,6 +18,8 @@ type Campaign = {
   serviceTitle: string | null;
 };
 
+const ATTRIBUTION_KEY = "ttfl.adCampaign";
+
 export function SponsoredPlacementCard({ campaign, recordDestinationView = false }: { campaign: Campaign; recordDestinationView?: boolean }) {
   useEffect(() => {
     const eventType = recordDestinationView ? "DESTINATION_VIEW" : "IMPRESSION";
@@ -35,8 +37,15 @@ export function SponsoredPlacementCard({ campaign, recordDestinationView = false
   const href = isService ? `/services/${slug}` : isStore ? `/store/${campaign.storeSlug}` : `/products/${slug}`;
   const Icon = isService ? Wrench : isStore ? Store : Package;
 
+  function handleClick() {
+    try {
+      window.localStorage.setItem(ATTRIBUTION_KEY, JSON.stringify({ campaignId: campaign.id, capturedAt: Date.now() }));
+    } catch {}
+    void api.post("/api/ads/events", { campaignId: campaign.id, eventType: "CLICK" });
+  }
+
   return (
-    <Link href={href} onClick={() => void api.post("/api/ads/events", { campaignId: campaign.id, eventType: "CLICK" })} className="group flex min-w-0 items-center gap-3 rounded-card border border-graphite-200 bg-white p-3.5 transition hover:border-ember-500 dark:border-graphite-700 dark:bg-graphite-900">
+    <Link href={href} onClick={handleClick} className="group flex min-w-0 items-center gap-3 rounded-card border border-graphite-200 bg-white p-3.5 transition hover:border-ember-500 dark:border-graphite-700 dark:bg-graphite-900">
       <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-card bg-cloud-100 dark:bg-graphite-800">{campaign.storeLogoUrl ? <img src={campaign.storeLogoUrl} alt="" className="h-full w-full object-cover" /> : <Icon className="h-5 w-5 text-graphite-400" />}</span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5"><span className="truncate font-semibold">{title || campaign.storeName}</span></span>
