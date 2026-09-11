@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ComponentProps } from "react";
 import { Package, ShoppingBag, Plus, AlertCircle, CreditCard, Wallet, BarChart3, Megaphone, Ticket, Settings, Palette, Users, Zap, Bell, Rocket, TrendingUp, PartyPopper, Landmark, Trash2, Power, Wrench } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api-client";
@@ -27,7 +27,7 @@ const LINKS = [
   { href: "/vendor/dashboard/public-profile", permission: "MANAGER", icon: Palette, title: "Public profile", desc: "Enterprise storefront appearance, visibility, and gallery" },
   { href: "/vendor/dashboard/team", ownerOnly: true, icon: Users, title: "Team", desc: "Invite staff and manage permissions" },
 ] as const;
-function CalendarIcon(props: React.ComponentProps<"svg">) { return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>; }
+function CalendarIcon(props: ComponentProps<"svg">) { return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>; }
 
 export default function VendorDashboardPage() {
   const { user, loading, logout } = useAuth(); const [membership,setMembership]=useState<Membership>(null); const [membershipLoading,setMembershipLoading]=useState(true); const [growth,setGrowth]=useState<VendorGrowth|null>(null); const [tipIndex,setTipIndex]=useState(0); const [accountAction,setAccountAction]=useState<"disable"|"delete"|null>(null); const [accountError,setAccountError]=useState<string|null>(null);
