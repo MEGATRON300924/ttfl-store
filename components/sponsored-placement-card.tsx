@@ -18,14 +18,15 @@ type Campaign = {
   serviceTitle: string | null;
 };
 
-export function SponsoredPlacementCard({ campaign }: { campaign: Campaign }) {
+export function SponsoredPlacementCard({ campaign, recordDestinationView = false }: { campaign: Campaign; recordDestinationView?: boolean }) {
   useEffect(() => {
+    const eventType = recordDestinationView ? "DESTINATION_VIEW" : "IMPRESSION";
     void api.post("/api/ads/events", {
       campaignId: campaign.id,
-      eventType: "IMPRESSION",
+      eventType,
       visitorKey: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : undefined,
     });
-  }, [campaign.id]);
+  }, [campaign.id, recordDestinationView]);
 
   const isService = campaign.target_type === "SERVICE";
   const isStore = campaign.target_type === "STORE" || (!campaign.productSlug && !campaign.serviceSlug);
@@ -35,14 +36,8 @@ export function SponsoredPlacementCard({ campaign }: { campaign: Campaign }) {
   const Icon = isService ? Wrench : isStore ? Store : Package;
 
   return (
-    <Link
-      href={href}
-      onClick={() => void api.post("/api/ads/events", { campaignId: campaign.id, eventType: "CLICK" })}
-      className="group flex min-w-0 items-center gap-3 rounded-card border border-graphite-200 bg-white p-3.5 transition hover:border-ember-500 dark:border-graphite-700 dark:bg-graphite-900"
-    >
-      <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-card bg-cloud-100 dark:bg-graphite-800">
-        {campaign.storeLogoUrl ? <img src={campaign.storeLogoUrl} alt="" className="h-full w-full object-cover" /> : <Icon className="h-5 w-5 text-graphite-400" />}
-      </span>
+    <Link href={href} onClick={() => void api.post("/api/ads/events", { campaignId: campaign.id, eventType: "CLICK" })} className="group flex min-w-0 items-center gap-3 rounded-card border border-graphite-200 bg-white p-3.5 transition hover:border-ember-500 dark:border-graphite-700 dark:bg-graphite-900">
+      <span className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-card bg-cloud-100 dark:bg-graphite-800">{campaign.storeLogoUrl ? <img src={campaign.storeLogoUrl} alt="" className="h-full w-full object-cover" /> : <Icon className="h-5 w-5 text-graphite-400" />}</span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5"><span className="truncate font-semibold">{title || campaign.storeName}</span></span>
         <span className="mt-0.5 flex items-center gap-1 text-xs text-graphite-500">{campaign.storeName}{campaign.storeVerified && <BadgeCheck className="h-3.5 w-3.5 text-verified-600" />}</span>
