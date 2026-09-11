@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
@@ -33,7 +34,7 @@ export default function VendorSubscriptionPage() {
       if (result.checkoutUrl) {
         window.location.href = result.checkoutUrl;
       } else {
-        await load(); // FREE tier activates instantly, no redirect
+        await load();
       }
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Couldn't change your plan");
@@ -41,30 +42,46 @@ export default function VendorSubscriptionPage() {
     }
   }
 
-  async function cancel() {
-    if (!confirm("Cancel your subscription? You'll drop to the Free plan immediately.")) return;
-    await api.post("/api/subscriptions/cancel");
-    await load();
-  }
-
   return (
     <div className="shell py-8">
-      <h1 className="text-xl font-bold text-graphite-900">Subscription</h1>
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="text-xl font-bold text-graphite-900">Pricing plans</h1>
+          <p className="mt-1 text-sm text-graphite-500">Choose the plan that fits your store.</p>
+        </div>
+        {subscription && subscription.plan.tier !== "FREE" && (
+          <Link
+            href="/vendor/dashboard/subscription/manage"
+            className="inline-flex items-center justify-center rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-graphite-800"
+          >
+            Manage plan
+          </Link>
+        )}
+      </div>
 
-      {subscription && (
-        <div className="mt-4 rounded-card border border-graphite-200 p-4">
-          <p className="text-sm text-graphite-600">Current plan</p>
-          <p className="text-lg font-bold text-graphite-900">{subscription.plan.name}</p>
-          <p className="text-xs text-graphite-400">
-            Status: {subscription.status.toLowerCase()}
-            {subscription.renewalDate &&
-              ` · renews ${new Date(subscription.renewalDate).toLocaleDateString("en-NG", { dateStyle: "medium" })}`}
-          </p>
-          {subscription.status === "ACTIVE" && subscription.plan.tier !== "FREE" && (
-            <button onClick={cancel} className="mt-2 text-sm font-medium text-ember-600 hover:text-ember-700">
-              Cancel subscription
-            </button>
-          )}
+      {subscription && subscription.plan.tier !== "FREE" && (
+        <div className="mt-5 rounded-card border border-graphite-200 bg-white p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-graphite-400">Current plan</p>
+              <p className="mt-1 text-lg font-bold text-graphite-900">{subscription.plan.name}</p>
+              <p className="mt-1 text-sm text-graphite-500">
+                {subscription.status === "CANCELLED"
+                  ? subscription.renewalDate
+                    ? `Cancellation scheduled for ${new Date(subscription.renewalDate).toLocaleDateString("en-NG", { dateStyle: "medium" })}`
+                    : "Cancellation scheduled"
+                  : subscription.renewalDate
+                    ? `Renews ${new Date(subscription.renewalDate).toLocaleDateString("en-NG", { dateStyle: "medium" })}`
+                    : "Active subscription"}
+              </p>
+            </div>
+            <Link
+              href="/vendor/dashboard/subscription/manage"
+              className="text-sm font-semibold text-ember-600 hover:text-ember-700"
+            >
+              View details →
+            </Link>
+          </div>
         </div>
       )}
 
@@ -75,7 +92,7 @@ export default function VendorSubscriptionPage() {
           <p className="text-sm text-graphite-600">Loading plans…</p>
         ) : (
           plans.map((plan) => {
-            const isCurrent = subscription?.plan.tier === plan.tier && subscription.status === "ACTIVE";
+            const isCurrent = subscription?.plan.tier === plan.tier && ["ACTIVE", "CANCELLED"].includes(subscription.status);
             return (
               <div
                 key={plan.id}
@@ -106,17 +123,22 @@ export default function VendorSubscriptionPage() {
                   </ul>
                 )}
 
-                <button
-                  onClick={() => changeTo(plan.tier)}
-                  disabled={isCurrent || busyTier === plan.tier}
-                  className={`mt-4 rounded-card py-2.5 text-sm font-semibold disabled:opacity-60 ${
-                    isCurrent
-                      ? "bg-cloud-100 text-graphite-500"
-                      : "bg-ember-600 text-white hover:bg-ember-700"
-                  }`}
-                >
-                  {isCurrent ? "Current plan" : busyTier === plan.tier ? "Processing…" : "Choose plan"}
-                </button>
+                {isCurrent ? (
+                  <Link
+                    href="/vendor/dashboard/subscription/manage"
+                    className="mt-4 rounded-card bg-cloud-100 py-2.5 text-center text-sm font-semibold text-graphite-700 hover:bg-cloud-200"
+                  >
+                    Manage plan
+                  </Link>
+                ) : (
+                  <button
+                    onClick={() => changeTo(plan.tier)}
+                    disabled={busyTier === plan.tier}
+                    className="mt-4 rounded-card bg-ember-600 py-2.5 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-60"
+                  >
+                    {busyTier === plan.tier ? "Processing…" : "Choose plan"}
+                  </button>
+                )}
               </div>
             );
           })
