@@ -1,12 +1,27 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 
 export function MaintenanceGate({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+  const [maintenanceMode, setMaintenanceMode] = useState<boolean | null>(null);
 
-  if (loading) {
+  useEffect(() => {
+    let active = true;
+    void api.get<{ maintenanceMode: boolean }>("/api/settings/public")
+      .then((result) => {
+        if (active) setMaintenanceMode(result.maintenanceMode);
+      })
+      .catch(() => {
+        if (active) setMaintenanceMode(true);
+      });
+    return () => { active = false; };
+  }, []);
+
+  if (maintenanceMode === null || (maintenanceMode && authLoading)) {
     return (
       <main className="grid min-h-screen place-items-center bg-cloud-50 px-6 dark:bg-graphite-950">
         <div className="text-center">
@@ -17,6 +32,7 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
     );
   }
 
+  if (!maintenanceMode) return <>{children}</>;
   if (user?.role === "ADMIN") return <>{children}</>;
 
   return (
