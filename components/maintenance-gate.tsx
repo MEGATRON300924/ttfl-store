@@ -1,12 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 
 export function MaintenanceGate({ children }: { children: React.ReactNode }) {
   const { user, loading: authLoading } = useAuth();
+  const pathname = usePathname();
   const [maintenanceMode, setMaintenanceMode] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -20,6 +23,9 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
       });
     return () => { active = false; };
   }, []);
+
+  // The login page must remain reachable during maintenance so an admin can sign in.
+  if (pathname === "/login") return <>{children}</>;
 
   if (maintenanceMode === null || (maintenanceMode && authLoading)) {
     return (
@@ -46,6 +52,15 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
         <p className="mt-1 text-sm leading-6 text-graphite-600 dark:text-graphite-400">
           All services are temporarily down. Please come back later. Thank you for your patience.
         </p>
+        <div className="mt-7 border-t border-graphite-200 pt-5 dark:border-graphite-800">
+          <p className="text-xs font-medium text-graphite-500 dark:text-graphite-400">Are you an administrator?</p>
+          <Link
+            href="/login?next=/admin/settings"
+            className="mt-3 inline-flex items-center justify-center rounded-card bg-ember-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-ember-700"
+          >
+            Admin Login
+          </Link>
+        </div>
       </div>
     </main>
   );
