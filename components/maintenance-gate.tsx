@@ -24,7 +24,7 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
     return () => { active = false; };
   }, []);
 
-  // The login page must remain reachable during maintenance so an admin can sign in.
+  // Always allow the login page so administrators can sign in while maintenance mode is active.
   if (pathname === "/login") return <>{children}</>;
 
   if (maintenanceMode === null || (maintenanceMode && authLoading)) {
@@ -52,8 +52,11 @@ export function MaintenanceGate({ children }: { children: React.ReactNode }) {
         <p className="mt-1 text-sm leading-6 text-graphite-600 dark:text-graphite-400">
           All services are temporarily down. Please come back later. Thank you for your patience.
         </p>
+
         <div className="mt-7 border-t border-graphite-200 pt-5 dark:border-graphite-800">
-          <p className="text-xs font-medium text-graphite-500 dark:text-graphite-400">Are you an administrator?</p>
+          <p className="text-xs font-medium text-graphite-500 dark:text-graphite-400">
+            Are you an administrator?
+          </p>
           <Link
             href="/login?next=/admin/settings"
             className="mt-3 inline-flex items-center justify-center rounded-card bg-ember-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-ember-700"
