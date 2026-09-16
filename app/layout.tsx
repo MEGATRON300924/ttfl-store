@@ -8,7 +8,6 @@ import { BroadcastPopup } from "@/components/broadcast-popup";
 import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
 import { SiteStructuredData } from "@/components/site-structured-data";
-import { MaintenanceGate } from "@/components/maintenance-gate";
 
 const SITE_URL = "https://ttflstore.name.ng";
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
@@ -30,5 +29,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="en-NG" className={`${jakarta.variable} ${mono.variable}`}><body><SiteStructuredData /><AuthProvider><MaintenanceGate><CartProvider><AffiliateTracker /><SiteHeader /><main>{children}</main><SiteFooter /><BroadcastPopup /></CartProvider></MaintenanceGate></AuthProvider></body></html>;
+  return <html lang="en-NG" className={`${jakarta.variable} ${mono.variable}`}><body><SiteStructuredData /><AuthProvider><CartProvider><AffiliateTracker /><SiteHeader /><main>{children}</main><SiteFooter /><BroadcastPopup /></CartProvider></AuthProvider></body></html>;
 }
