@@ -18,12 +18,22 @@ export function ProductCard({ product }: { product: Product }) {
   return <StandardProductCard product={product} />;
 }
 
+function whatsappHref(number: string | null | undefined, productName: string) {
+  if (!number) return null;
+  const digits = number.replace(/\D/g, "");
+  if (!digits) return null;
+  const normalized = digits.startsWith("0") ? `234${digits.slice(1)}` : digits;
+  const message = encodeURIComponent(`Hi, I'm interested in "${productName}" on TTFL Store.`);
+  return `https://wa.me/${normalized}?text=${message}`;
+}
+
 function StandardProductCard({ product }: { product: Product }) {
   const [busy, setBusy] = useState<"cart" | "buy" | null>(null);
   const [error, setError] = useState(false);
   const cart = useCart();
   const router = useRouter();
   const discount = product.previousPrice && product.previousPrice > product.price ? Math.round(100 - (product.price / product.previousPrice) * 100) : null;
+  const whatsappUrl = whatsappHref(product.whatsappNumber, product.name);
 
   async function purchase(andCheckout: boolean) {
     if (product.sellingMethod !== "checkout") return;
@@ -52,6 +62,7 @@ function StandardProductCard({ product }: { product: Product }) {
     </div>
     <Link href={`/products/${product.slug}`} className="block"><div className="flex flex-col gap-1.5 p-3"><p className="line-clamp-2 min-h-[2.6em] text-[13.5px] font-medium leading-snug text-graphite-900 dark:text-white">{product.name}</p><div className="flex items-baseline gap-2 font-mono"><span className="text-[15px] font-semibold text-graphite-900 dark:text-white">{formatNaira(product.price)}</span>{product.previousPrice&&<span className="text-xs text-graphite-400 line-through">{formatNaira(product.previousPrice)}</span>}</div>{(product.rating>0||product.reviewCount>0)&&<div className="flex items-center gap-1 text-xs text-graphite-600 dark:text-graphite-300"><Star className="h-3.5 w-3.5 fill-gold-600 text-gold-600"/><span>{product.rating}</span><span className="text-graphite-400">({product.reviewCount})</span></div>}<div className="mt-1"><DeliveryEstimate days={product.estimatedDeliveryDays ?? 7}/></div><div className="flex items-center gap-1 pt-1 text-xs text-graphite-600 dark:text-graphite-300">{product.verified&&<BadgeCheck className="h-3.5 w-3.5 shrink-0 text-verified-600" />}<span className="truncate">{product.vendor}</span><span className="text-graphite-300">·</span><span className="shrink-0 text-graphite-400">{product.location}</span></div></div></Link>
     {product.sellingMethod === "checkout" && <div className="grid grid-cols-2 gap-2 p-3 pt-0"><button type="button" onClick={() => void purchase(false)} disabled={busy !== null} className="flex min-w-0 items-center justify-center gap-1.5 rounded-card border border-graphite-300 px-2 py-2.5 text-[11px] font-semibold text-graphite-900 transition hover:bg-cloud-100 disabled:cursor-not-allowed disabled:opacity-60 dark:border-graphite-600 dark:text-white dark:hover:bg-graphite-800">{busy === "cart" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ShoppingCart className="h-3.5 w-3.5" />}Add to cart</button><button type="button" onClick={() => void purchase(true)} disabled={busy !== null} className="flex min-w-0 items-center justify-center gap-1.5 rounded-card bg-ember-600 px-2 py-2.5 text-[11px] font-semibold text-white transition hover:bg-ember-700 disabled:cursor-not-allowed disabled:opacity-60">{busy === "buy" ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}{busy === "buy" ? "Opening…" : "Buy now"}</button></div>}
+    {product.sellingMethod === "whatsapp" && <div className="p-3 pt-0">{whatsappUrl ? <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex w-full items-center justify-center gap-1.5 rounded-card bg-graphite-900 px-2 py-2.5 text-[11px] font-semibold text-white transition hover:bg-graphite-800 dark:bg-white dark:text-graphite-900 dark:hover:bg-graphite-100"><MessageCircle className="h-3.5 w-3.5" />Chat on WhatsApp</a> : <Link href={`/products/${product.slug}`} className="flex w-full items-center justify-center gap-1.5 rounded-card border border-graphite-300 px-2 py-2.5 text-[11px] font-semibold text-graphite-900 transition hover:bg-cloud-100 dark:border-graphite-600 dark:text-white dark:hover:bg-graphite-800"><MessageCircle className="h-3.5 w-3.5" />Contact seller</Link>}</div>}
     {error && <p className="px-3 pb-3 text-[10px] font-medium text-ember-600">Couldn’t add this product. Please try again.</p>}
   </div>;
 }
