@@ -13,6 +13,8 @@ export type Product = {
   rating: number;
   reviewCount: number;
   sellingMethod: "checkout" | "external" | "whatsapp";
+  whatsappNumber?: string | null;
+  externalUrl?: string | null;
   sponsored?: boolean;
   estimatedDeliveryDays?: number;
   comingSoon?: boolean;
