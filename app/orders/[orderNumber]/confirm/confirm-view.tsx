@@ -7,7 +7,7 @@ import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import { useCart } from "@/lib/cart-context";
 import type { ApiOrder } from "@/lib/api-types";
-import { getStoredAffiliateCode } from "@/components/affiliate-tracker";
+import { getStoredAffiliateCode, getStoredAffiliateSession } from "@/components/affiliate-tracker";
 
 type PaymentStatusResponse = {
   reference: string;
@@ -48,9 +48,15 @@ export function OrderConfirmView() {
     setStatus("success");
     setPaymentReceived(true);
     cart.clear();
+
     const code = getStoredAffiliateCode();
-    if (code) {
-      void api.post("/api/affiliates/convert", { orderNumber: confirmedOrder.orderNumber, code }).catch((err) => {
+    const sessionId = getStoredAffiliateSession();
+    if (code && sessionId) {
+      void api.post("/api/affiliates/convert", {
+        orderNumber: confirmedOrder.orderNumber,
+        code,
+        sessionId,
+      }).catch((err) => {
         console.error("Affiliate conversion failed", err);
       });
     }
