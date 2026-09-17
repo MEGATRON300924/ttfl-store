@@ -1,113 +1,41 @@
 "use client";
-
 import { useEffect, useState } from "react";
+import { Pencil, Plus, Trash2, X } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import { TextField } from "@/components/text-field";
-import type { ApiCategory } from "@/lib/api-types";
+import type { ApiCategory, ApiCategoryVariation, ApiCategoryVariationConfig, CategoryVariationType } from "@/lib/api-types";
+
+type Editor = { id?: string; name: string; icon: string; parentSlug: string; config: ApiCategoryVariationConfig };
+const types: { value: CategoryVariationType; label: string; hint: string }[] = [
+  { value: "PRODUCT", label: "Product", hint: "Size, Weight, Colour, RAM, Storage, Capacity, Material" },
+  { value: "CLOTHING", label: "Clothing", hint: "Size, Colour, Fabric, Fit, Length, Pattern" },
+  { value: "OTHER", label: "Other", hint: "Yards, Pack Size, Model, Edition, custom options" },
+];
+const newId = (p: string) => `${p}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+const blankConfig = (): ApiCategoryVariationConfig => ({ enabled: false, variations: [] });
 
 export default function AdminCategoriesPage() {
-  const [categories, setCategories] = useState<ApiCategory[] | null>(null);
-  const [form, setForm] = useState({ name: "", icon: "", parentSlug: "" });
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [categories, setCategories] = useState<ApiCategory[] | null>(null); const [editor, setEditor] = useState<Editor | null>(null); const [error, setError] = useState<string | null>(null); const [busy, setBusy] = useState(false);
+  async function load() { try { const { categories } = await api.get<{ categories: ApiCategory[] }>("/api/categories"); setCategories(categories); } catch (e) { setError(e instanceof ApiError ? e.message : "Unable to load categories"); } }
+  useEffect(() => { void load(); }, []);
+  function edit(c: ApiCategory) { setError(null); setEditor({ id: c.id, name: c.name, icon: c.icon ?? "", parentSlug: "", config: JSON.parse(JSON.stringify(c.variationConfig ?? blankConfig())) }); }
+  function create() { setError(null); setEditor({ name: "", icon: "", parentSlug: "", config: blankConfig() }); }
+  async function save(e: React.FormEvent) { e.preventDefault(); if (!editor?.name.trim()) return setError("Category name is required."); if (editor.config.enabled && editor.config.variations.some(v => !v.name.trim() || !v.options.length)) return setError("Complete every variation with a name and at least one option."); setBusy(true); setError(null); try { const payload = { name: editor.name.trim(), icon: editor.icon.trim() || null, ...(editor.id ? {} : { parentSlug: editor.parentSlug || undefined }), variationConfig: { ...editor.config, enabled: editor.config.enabled && editor.config.variations.length > 0 } }; if (editor.id) await api.patch(`/api/categories/${editor.id}`, payload); else await api.post("/api/categories", payload); setEditor(null); await load(); } catch (e) { setError(e instanceof ApiError ? e.message : "Unable to save category"); } finally { setBusy(false); } }
+  async function remove(c: ApiCategory) { if (!confirm(`Delete ${c.name}? This is only allowed when it has no products or subcategories.`)) return; setBusy(true); setError(null); try { await api.delete(`/api/categories/${c.id}`); await load(); } catch (e) { setError(e instanceof ApiError ? e.message : "Unable to delete category"); } finally { setBusy(false); } }
+  const all = categories?.flatMap(c => [c, ...(c.children ?? [])]) ?? [];
+  return <div className="shell max-w-4xl py-8"><div className="flex items-end justify-between gap-3"><div><h1 className="text-xl font-bold text-graphite-900 dark:text-white">Categories</h1><p className="mt-1 text-sm text-graphite-600 dark:text-graphite-400">Create categories and define the structured variations vendors will use.</p></div>{!editor && <button onClick={create} className="inline-flex items-center gap-1.5 rounded-card bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white"><Plus className="h-4 w-4" />Create category</button>}</div>{editor && <EditorForm editor={editor} setEditor={setEditor} categories={all} save={save} cancel={() => setEditor(null)} busy={busy} error={error} />}{!editor && error && <p className="mt-4 rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}<div className="mt-6 flex flex-col gap-3">{categories === null ? <p className="text-sm text-graphite-600">Loading…</p> : categories.map(c => <div key={c.id} className="rounded-card border border-graphite-200 p-4 dark:border-graphite-700"><div className="flex items-start justify-between gap-3"><div><p className="text-sm font-semibold text-graphite-900 dark:text-white">{c.name}</p><p className="text-xs text-graphite-500">/{c.slug}</p>{c.variationConfig?.enabled && <div className="mt-2 flex flex-wrap gap-1.5">{c.variationConfig.variations.map(v => <span key={v.id} className="rounded-tag bg-cloud-100 px-2 py-1 text-xs text-graphite-700 dark:bg-graphite-800 dark:text-graphite-200">{v.name} · {v.options.length}</span>)}</div>}{c.children?.length ? <div className="mt-2 flex flex-wrap gap-1.5">{c.children.map(ch => <span key={ch.id} className="rounded-tag bg-cloud-100 px-2 py-1 text-xs text-graphite-700 dark:bg-graphite-800 dark:text-graphite-200">{ch.name}</span>)}</div> : null}</div><div className="flex gap-1"><button onClick={() => edit(c)} className="inline-flex items-center gap-1 rounded-[7px] border border-graphite-200 px-2.5 py-1.5 text-xs font-semibold dark:border-graphite-700"><Pencil className="h-3.5 w-3.5" />Edit</button><button onClick={() => remove(c)} className="grid h-8 w-8 place-items-center rounded-[7px] text-graphite-400 hover:text-ember-600"><Trash2 className="h-4 w-4" /></button></div></div></div>)}</div></div>;
+}
 
-  async function load() {
-    const { categories } = await api.get<{ categories: ApiCategory[] }>("/api/categories");
-    setCategories(categories);
-  }
+function EditorForm({ editor, setEditor, categories, save, cancel, busy, error }: { editor: Editor; setEditor: React.Dispatch<React.SetStateAction<Editor | null>>; categories: ApiCategory[]; save: (e: React.FormEvent) => void; cancel: () => void; busy: boolean; error: string | null }) {
+  const patch = (p: Partial<Editor>) => setEditor(c => c ? { ...c, ...p } : c); const config = editor.config;
+  const update = (i: number, p: Partial<ApiCategoryVariation>) => patch({ config: { ...config, variations: config.variations.map((v, n) => n === i ? { ...v, ...p } : v) } });
+  const addVariation = () => patch({ config: { enabled: true, variations: [...config.variations, { id: newId("variation"), key: "option", name: "", type: "PRODUCT", options: [] }] } });
+  const delVariation = (i: number) => patch({ config: { ...config, variations: config.variations.filter((_, n) => n !== i) } });
+  const addOption = (i: number, text: string) => { const value = text.trim(); if (!value) return; update(i, { options: [...config.variations[i].options, { id: newId("option"), label: value, value }] }); };
+  return <form onSubmit={save} className="mt-6 rounded-card border border-graphite-200 bg-white p-5 dark:border-graphite-700 dark:bg-graphite-950"><div className="flex justify-between"><div><h2 className="text-base font-bold text-graphite-900 dark:text-white">{editor.id ? "Edit category" : "Create category"}</h2><p className="mt-1 text-xs text-graphite-500">Configure the exact variation fields and options vendors should see.</p></div><button type="button" onClick={cancel}><X className="h-5 w-5" /></button></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><TextField label="Category name" value={editor.name} onChange={name => patch({ name })} /><TextField label="Icon name (optional)" value={editor.icon} onChange={icon => patch({ icon })} optional /></div>{!editor.id && <label className="mt-4 flex flex-col gap-1 text-sm"><span className="font-medium">Parent category (optional)</span><select value={editor.parentSlug} onChange={e => patch({ parentSlug: e.target.value })} className="rounded-[7px] border border-graphite-200 px-3 py-2.5 text-sm dark:border-graphite-700 dark:bg-graphite-900"><option value="">None — top-level</option>{categories.map(c => <option key={c.id} value={c.slug}>{c.name}</option>)}</select></label>}<div className="mt-6 rounded-[10px] border border-graphite-200 p-4 dark:border-graphite-700"><div className="flex justify-between gap-3"><div><h3 className="text-sm font-bold">Product variations</h3><p className="mt-1 text-xs text-graphite-500">Enable this for structured choices like Size, Weight, Colour or fabric yardage.</p></div><button type="button" onClick={() => patch({ config: { ...config, enabled: !config.enabled } })} className={`relative h-6 w-11 rounded-full ${config.enabled ? "bg-ember-600" : "bg-graphite-300"}`}><span className={`absolute top-1 h-4 w-4 rounded-full bg-white ${config.enabled ? "left-6" : "left-1"}`} /></button></div>{config.enabled && <><div className="mt-4 flex flex-col gap-3">{config.variations.map((v, i) => <VariationEditor key={v.id} v={v} i={i} update={update} remove={() => delVariation(i)} addOption={addOption} />)}</div><button type="button" onClick={addVariation} className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-ember-700"><Plus className="h-3.5 w-3.5" />Add variation</button>{!config.variations.length && <p className="mt-3 text-xs text-graphite-500">Example for <strong>Fabrics</strong>: add a Clothing or Other variation named <strong>Yardage</strong>, then options 1 Yard, 2 Yards, 5 Yards, 10 Yards.</p>}</>}</div>{error && <p className="mt-4 rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}<div className="mt-5 flex justify-end gap-2"><button type="button" onClick={cancel} className="rounded-card border border-graphite-200 px-4 py-2 text-sm">Cancel</button><button disabled={busy} className="rounded-card bg-ember-600 px-5 py-2 text-sm font-semibold text-white">{busy ? "Saving…" : editor.id ? "Save category" : "Create category"}</button></div></form>;
+}
 
-  useEffect(() => {
-    void load();
-  }, []);
-
-  async function create(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setSubmitting(true);
-    try {
-      await api.post("/api/categories", {
-        name: form.name,
-        icon: form.icon || undefined,
-        parentSlug: form.parentSlug || undefined,
-      });
-      setForm({ name: "", icon: "", parentSlug: "" });
-      await load();
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't create category");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <div className="shell max-w-2xl py-8">
-      <h1 className="text-xl font-bold text-graphite-900">Categories</h1>
-      <p className="mt-1 text-sm text-graphite-600">
-        Products can only be assigned to a category that exists here — this is where you create them.
-      </p>
-
-      <form onSubmit={create} className="mt-6 flex flex-col gap-4 rounded-card border border-graphite-200 p-4">
-        <TextField label="Category name" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
-        <TextField
-          label="Icon name (optional — a lucide-react icon name, e.g. Smartphone)"
-          value={form.icon}
-          onChange={(v) => setForm({ ...form, icon: v })}
-          optional
-        />
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-graphite-700">Parent category (optional — leave blank for a top-level category)</span>
-          <select
-            value={form.parentSlug}
-            onChange={(e) => setForm({ ...form, parentSlug: e.target.value })}
-            className="rounded-[7px] border border-graphite-200 bg-white px-3 py-2.5 text-sm"
-          >
-            <option value="">None — top-level category</option>
-            {categories
-              ?.filter((c) => !c.children || c.children.length >= 0)
-              .map((c) => (
-                <option key={c.id} value={c.slug}>
-                  {c.name}
-                </option>
-              ))}
-          </select>
-        </label>
-
-        {error && <p className="rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}
-
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-card bg-ember-600 py-2.5 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-60"
-        >
-          {submitting ? "Creating…" : "Create category"}
-        </button>
-      </form>
-
-      <div className="mt-6 flex flex-col gap-3">
-        {categories === null ? (
-          <p className="text-sm text-graphite-600">Loading…</p>
-        ) : categories.length === 0 ? (
-          <p className="text-sm text-graphite-600">
-            No categories yet — create one above. Vendors can't assign a category to a product until at least
-            one exists.
-          </p>
-        ) : (
-          categories.map((c) => (
-            <div key={c.id} className="rounded-card border border-graphite-200 p-3">
-              <p className="text-sm font-semibold text-graphite-900">{c.name}</p>
-              {c.children && c.children.length > 0 && (
-                <ul className="mt-1.5 flex flex-wrap gap-1.5">
-                  {c.children.map((child) => (
-                    <li key={child.id} className="rounded-tag bg-cloud-100 px-2 py-1 text-xs text-graphite-700">
-                      {child.name}
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
+function VariationEditor({ v, i, update, remove, addOption }: { v: ApiCategoryVariation; i: number; update: (i: number, p: Partial<ApiCategoryVariation>) => void; remove: () => void; addOption: (i: number, text: string) => void }) {
+  const [text, setText] = useState(""); const hint = types.find(t => t.value === v.type)?.hint;
+  return <div className="rounded-[10px] border border-graphite-200 p-3 dark:border-graphite-700"><div className="grid gap-3 sm:grid-cols-[1fr_150px_auto]"><TextField label="Variation name" value={v.name} onChange={name => update(i, { name, key: name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-") || "option" })} hint={hint} /><label className="flex flex-col gap-1 text-sm"><span className="font-medium">Variation type</span><select value={v.type} onChange={e => update(i, { type: e.target.value as CategoryVariationType })} className="rounded-[7px] border border-graphite-200 px-3 py-2.5 text-sm dark:border-graphite-700 dark:bg-graphite-900">{types.map(t => <option key={t.value} value={t.value}>{t.label}</option>)}</select></label><button type="button" onClick={remove} className="mt-6"><Trash2 className="h-4 w-4 text-graphite-400" /></button></div><div className="mt-3 flex flex-wrap gap-2">{v.options.map((o, oi) => <button type="button" key={o.id} onClick={() => update(i, { options: v.options.filter((_, n) => n !== oi) })} className="rounded-full bg-cloud-100 px-3 py-1 text-xs dark:bg-graphite-800">{o.label} ×</button>)}<input value={text} onChange={e => setText(e.target.value)} onKeyDown={e => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); addOption(i, text); setText(""); } }} placeholder={`Add ${v.name || "option"} value`} className="min-w-[180px] flex-1 rounded-full border border-dashed border-graphite-300 px-3 py-1.5 text-xs dark:bg-graphite-900" /></div></div>;
 }
