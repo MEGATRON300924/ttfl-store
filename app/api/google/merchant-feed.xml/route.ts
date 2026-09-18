@@ -31,7 +31,8 @@ function spec(product: Product, ...keys: string[]): string | undefined {
 }
 function primaryImage(product: Product): string | undefined {
   return [...product.images].sort((a, b) => Number(Boolean(b.isPrimary)) - Number(Boolean(a.isPrimary)) || (a.position ?? 0) - (b.position ?? 0))[0]?.url;
-}\nfunction normalize(value?: string): string {
+}
+function normalize(value?: string): string {
   return String(value ?? "").trim().toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ");
 }
 function specOrVariation(product: Product, variation: { options?: Record<string, string> } | null, ...keys: string[]): string | undefined {
@@ -73,7 +74,8 @@ function parseVariations(product: Product): Array<{ key: string; label: string; 
       key: String(item.key ?? ""),
       label: String(item.label ?? ""),
       options: item.options as Record<string, string>,
-      price: item.price ? String(item.price) : undefined,\n      imageUrl: item.imageUrl ? String(item.imageUrl) : undefined,
+      price: item.price ? String(item.price) : undefined,
+      imageUrl: item.imageUrl ? String(item.imageUrl) : undefined,
     }));
   } catch {
     return [];
@@ -99,6 +101,7 @@ export async function GET() {
     const items = eligible.flatMap((product) => {
       const image = primaryImage(product)!;
       const productUrl = `${SITE_URL}/products/${encodeURIComponent(product.slug)}`;
+      const itemGroupId = product.publicProductId || product.id;
       const brand = spec(product, "brand", "manufacturer");
       const gtin = spec(product, "gtin", "ean", "upc", "isbn");
       const mpn = spec(product, "mpn", "manufacturer part number", "part number");
@@ -116,23 +119,39 @@ export async function GET() {
         const gender = specOrVariation(product, variation, "gender");
         const ageGroup = specOrVariation(product, variation, "age_group", "age group");
         const pattern = specOrVariation(product, variation, "pattern");
-        const variantId = variation.key ? `${product.publicProductId || product.id}-${variation.key}` : (product.publicProductId || product.id);
+        const variantId = variation.key ? `${itemGroupId}-${variation.key}` : itemGroupId;
+        const variantUrl = variation.key ? `${productUrl}?variant=${encodeURIComponent(variation.key)}` : productUrl;
+        const variantGtin = specOrVariation(product, variation, "gtin", "ean", "upc", "isbn");
+        const variantMpn = specOrVariation(product, variation, "mpn", "manufacturer part number", "part number");
+        const variantOption = Object.entries(variation.options).filter(([name, value]) => String(name).trim() && String(value).trim()).map(([name, value]) => `${normalize(name)}:${String(value).trim()}`).join(",");
         const variantTitle = variation.label && variation.label !== product.name ? `${product.name} - ${variation.label}` : product.name;
         const price = variation.price && Number(variation.price) > 0 ? variation.price : product.price;
         return `
     <item>
       <g:id>${xml(variantId)}</g:id>
-      <g:item_group_id>${xml(product.publicProductId || product.id)}</g:item_group_id>
+      <g:item_group_id>${xml(itemGroupId)}</g:item_group_id>
+      <g:item_group_title>${xml(text(product.name, 150))}</g:item_group_title>
       <g:title>${xml(text(variantTitle, 150))}</g:title>
       <g:description>${xml(text(product.description))}</g:description>
-      <link>${xml(productUrl)}</link>
+      <link>${xml(variantUrl)}</link>
       <g:image_link>${xml(variation.imageUrl || image)}</g:image_link>
       <g:availability>${availability}</g:availability>
       <g:condition>${condition}</g:condition>
       <g:price>${xml(`${price} ${product.currency}`)}</g:price>
       <g:canonical_link>${xml(productUrl)}</g:canonical_link>
-      <g:product_type>${xml(product.category.name)}</g:product_type>${category ? `\n      <g:google_product_category>${xml(category)}</g:google_product_category>` : ""}
-      <g:identifier_exists>${gtin || (brand && mpn) ? "yes" : "no"}</g:identifier_exists>${brand ? `\n      <g:brand>${xml(text(brand, 70))}</g:brand>` : ""}${gtin ? `\n      <g:gtin>${xml(text(gtin, 70))}</g:gtin>` : ""}${mpn ? `\n      <g:mpn>${xml(text(mpn, 70))}</g:mpn>` : ""}${color ? `\n      <g:color>${xml(text(color, 100))}</g:color>` : ""}${size ? `\n      <g:size>${xml(text(size, 100))}</g:size>` : ""}${material ? `\n      <g:material>${xml(text(material, 100))}</g:material>` : ""}${gender ? `\n      <g:gender>${xml(text(gender, 50))}</g:gender>` : ""}${ageGroup ? `\n      <g:age_group>${xml(text(ageGroup, 50))}</g:age_group>` : ""}${pattern ? `\n      <g:pattern>${xml(text(pattern, 100))}</g:pattern>` : ""}${tags ? `\n      <g:custom_label_0>${xml(text(tags, 100))}</g:custom_label_0>` : ""}
+      <g:product_type>${xml(product.category.name)}</g:product_type>${category ? `
+      <g:google_product_category>${xml(category)}</g:google_product_category>` : ""}
+      <g:identifier_exists>${gtin || (brand && mpn) ? "yes" : "no"}</g:identifier_exists>${brand ? `
+      <g:brand>${xml(text(brand, 70))}</g:brand>` : ""}${gtin ? `
+      <g:gtin>${xml(text(gtin, 70))}</g:gtin>` : ""}${mpn ? `
+      <g:mpn>${xml(text(mpn, 70))}</g:mpn>` : ""}${color ? `
+      <g:color>${xml(text(color, 100))}</g:color>` : ""}${size ? `
+      <g:size>${xml(text(size, 100))}</g:size>` : ""}${material ? `
+      <g:material>${xml(text(material, 100))}</g:material>` : ""}${gender ? `
+      <g:gender>${xml(text(gender, 50))}</g:gender>` : ""}${ageGroup ? `
+      <g:age_group>${xml(text(ageGroup, 50))}</g:age_group>` : ""}${pattern ? `
+      <g:pattern>${xml(text(pattern, 100))}</g:pattern>` : ""}${tags ? `
+      <g:custom_label_0>${xml(text(tags, 100))}</g:custom_label_0>` : ""}
       <g:custom_label_1>${xml(product.vendor.storeName)}</g:custom_label_1>
       <g:custom_label_2>${xml(product.vendor.storeSlug)}</g:custom_label_2>
     </item>`;
