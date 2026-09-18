@@ -12,7 +12,7 @@ function parseVariations(value: Record<string, string> | null): ProductVariation
   try {
     const parsed = JSON.parse(value._variations);
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter((item) => item && typeof item.key === "string" && item.options && typeof item.options === "object").map((item) => ({ key: String(item.key), label: String(item.label ?? Object.values(item.options).join(" / ")), options: item.options as Record<string, string>, price: String(item.price ?? "") }));
+    return parsed.filter((item) => item && typeof item.key === "string" && item.options && typeof item.options === "object").map((item) => ({ key: String(item.key), label: String(item.label ?? Object.values(item.options).join(" / ")), options: item.options as Record<string, string>, price: String(item.price ?? ""), imageUrl: item.imageUrl ? String(item.imageUrl) : undefined }));
   } catch { return []; }
 }
 
