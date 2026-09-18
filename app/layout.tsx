@@ -9,6 +9,7 @@ import { AuthProvider } from "@/lib/auth-context";
 import { CartProvider } from "@/lib/cart-context";
 import { SiteStructuredData } from "@/components/site-structured-data";
 import { SiteLoadingScreen } from "@/components/site-loading-screen";
+import { WaitlistLaunchAlert } from "@/components/my-waitlist";
 
 const SITE_URL = "https://ttflstore.name.ng";
 const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
@@ -30,5 +31,5 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="en-NG" className={`${jakarta.variable} ${mono.variable}`}><body><SiteLoadingScreen /><SiteStructuredData /><AuthProvider><CartProvider><AffiliateTracker /><SiteHeader /><main>{children}</main><SiteFooter /><BroadcastPopup /></CartProvider></AuthProvider></body></html>;
+  return <html lang="en-NG" className={`${jakarta.variable} ${mono.variable}`}><body><SiteLoadingScreen /><SiteStructuredData /><AuthProvider><CartProvider><AffiliateTracker /><SiteHeader /><main>{children}</main><SiteFooter /><BroadcastPopup /><WaitlistLaunchAlert /></CartProvider></AuthProvider></body></html>;
 }
