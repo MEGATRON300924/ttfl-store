@@ -17,7 +17,7 @@ export function WaitlistLaunchAlert() {
     void api.get<{ items: ApiWaitlistItem[] }>("/api/products/alerts/waitlist/mine")
       .then((result) => {
         if (!active) return;
-        const unseen = result.items.filter((item) => !item.seenAt);
+        const unseen = result.items.filter((item) => Boolean(item.notifiedAt) && !item.seenAt);
         setItems(unseen);
         setOpen(unseen.length > 0);
       })
