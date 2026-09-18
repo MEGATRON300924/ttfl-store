@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { ApiProductVariation } from "@/lib/api-types";
 
 export function ProductVariationSelector({ variations, basePrice, onChange }: { variations: ApiProductVariation[]; basePrice: number; onChange: (variant: ApiProductVariation | null) => void }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
   const groups = useMemo(() => {
     const map = new Map<string, string[]>();
     for (const variant of variations) for (const [name, value] of Object.entries(variant.options)) {
@@ -13,10 +18,12 @@ export function ProductVariationSelector({ variations, basePrice, onChange }: { 
     }
     return Array.from(map.entries());
   }, [variations]);
-  const [selected, setSelected] = useState<Record<string, string>>(() => Object.fromEntries(groups.map(([name, values]) => [name, values[0] ?? ""])));
-  useEffect(() => { setSelected(Object.fromEntries(groups.map(([name, values]) => [name, values[0] ?? ""]))); }, [groups]);
+  const initialVariantKey = searchParams.get("variant");
+  const initialVariant = variations.find((item) => item.key === initialVariantKey) ?? null;
+  const [selected, setSelected] = useState<Record<string, string>>(() => initialVariant ? initialVariant.options : Object.fromEntries(groups.map(([name, values]) => [name, values[0] ?? ""])));
+  useEffect(() => { const requested = searchParams.get("variant"); const requestedVariant = requested ? variations.find((item) => item.key === requested) : null; setSelected(requestedVariant ? requestedVariant.options : Object.fromEntries(groups.map(([name, values]) => [name, values[0] ?? ""]))); }, [groups, searchParams, variations]);
   const variant = useMemo(() => variations.find((item) => groups.every(([name]) => item.options[name] === selected[name])) ?? null, [groups, selected, variations]);
-  useEffect(() => { onChange(variant); }, [onChange, variant]);
+  useEffect(() => { onChange(variant); if (!variant) return; const current = searchParams.get("variant"); if (current === variant.key) return; const params = new URLSearchParams(searchParams.toString()); params.set("variant", variant.key); router.replace(pathname + "?" + params.toString(), { scroll: false }); }, [onChange, pathname, router, searchParams, variant]);
   if (!variations.length || !groups.length) return null;
   const displayPrice = variant?.price ? Number(variant.price) : basePrice;
   return <div className="rounded-card border border-graphite-200 bg-white p-4 dark:border-graphite-700 dark:bg-graphite-950">
