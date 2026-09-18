@@ -141,10 +141,11 @@ export async function GET() {
       <g:canonical_link>${xml(productUrl)}</g:canonical_link>
       <g:product_type>${xml(product.category.name)}</g:product_type>${category ? `
       <g:google_product_category>${xml(category)}</g:google_product_category>` : ""}
-      <g:identifier_exists>${gtin || (brand && mpn) ? "yes" : "no"}</g:identifier_exists>${brand ? `
-      <g:brand>${xml(text(brand, 70))}</g:brand>` : ""}${gtin ? `
-      <g:gtin>${xml(text(gtin, 70))}</g:gtin>` : ""}${mpn ? `
-      <g:mpn>${xml(text(mpn, 70))}</g:mpn>` : ""}${color ? `
+      <g:identifier_exists>${variantGtin || (brand && variantMpn) ? "yes" : "no"}</g:identifier_exists>${brand ? `
+      <g:brand>${xml(text(brand, 70))}</g:brand>` : ""}${variantGtin ? `
+      <g:gtin>${xml(text(variantGtin, 70))}</g:gtin>` : ""}${variantMpn ? `
+      <g:mpn>${xml(text(variantMpn, 70))}</g:mpn>` : ""}${variantOption ? `
+      <g:variant_option>${xml(text(variantOption, 500))}</g:variant_option>` : ""}${color ? `
       <g:color>${xml(text(color, 100))}</g:color>` : ""}${size ? `
       <g:size>${xml(text(size, 100))}</g:size>` : ""}${material ? `
       <g:material>${xml(text(material, 100))}</g:material>` : ""}${gender ? `
