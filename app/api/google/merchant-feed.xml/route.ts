@@ -45,23 +45,52 @@ function specOrVariation(product: Product, variation: { options?: Record<string,
   return spec(product, ...keys);
 }
 function googleProductCategory(product: Product): string | undefined {
-  const value = normalize(product.category.slug || product.category.name);
-  const name = normalize(product.category.name);
-  const textValue = value + " " + name;
-  if (/laptop|notebook/.test(textValue)) return "Electronics > Computers > Laptops";
-  if (/desktop|computer|pc/.test(textValue)) return "Electronics > Computers";
-  if (/monitor|display/.test(textValue)) return "Electronics > Computers > Computer Monitors";
-  if (/phone|smartphone|mobile/.test(textValue)) return "Electronics > Communications > Telephony > Mobile Phones";
-  if (/tablet|ipad/.test(textValue)) return "Electronics > Computers > Tablet Computers";
-  if (/headphone|earbud|earphone|speaker|audio/.test(textValue)) return "Electronics > Audio";
-  if (/camera|photography/.test(textValue)) return "Cameras & Optics";
-  if (/gaming|video game|console|playstation|xbox|nintendo/.test(textValue)) return "Electronics > Video Game Consoles";
-  if (/television|tv/.test(textValue)) return "Electronics > Video";
-  if (/fashion|clothing|apparel|shirt|shoe|dress|bag/.test(textValue)) return "Apparel & Accessories";
-  if (/beauty|cosmetic|skincare|makeup|hair/.test(textValue)) return "Health & Beauty";
-  if (/home|living|furniture|kitchen|garden/.test(textValue)) return "Home & Garden";
-  if (/sport|fitness|gym/.test(textValue)) return "Sporting Goods";
-  if (/vehicle|automotive|car|motorcycle|bike/.test(textValue)) return "Vehicles & Parts";
+  const category = normalize(product.category.slug || product.category.name);
+  const name = normalize(product.name);
+  const specs = Object.entries(product.specifications ?? {})
+    .filter(([key]) => !key.startsWith("_"))
+    .map(([key, value]) => normalize(key) + " " + normalize(value))
+    .join(" ");
+  const haystack = [category, name, specs].join(" ");
+
+  // Specific product types first; broader categories come last.
+  if (/laptop|notebook|macbook|chromebook/.test(haystack)) return "Electronics > Computers > Laptops";
+  if (/desktop|desktop computer|all in one|all-in-one|tower pc|gaming pc/.test(haystack)) return "Electronics > Computers > Desktop Computers";
+  if (/computer monitor|gaming monitor|monitor|display/.test(haystack)) return "Electronics > Computers > Computer Monitors";
+  if (/keyboard|mouse|webcam|computer accessory|computer accessories/.test(haystack)) return "Electronics > Computers > Computer Accessories";
+  if (/iphone|smartphone|mobile phone|cell phone|android phone|feature phone/.test(haystack)) return "Electronics > Communications > Telephony > Mobile Phones";
+  if (/tablet|ipad|ipad pro|ipad air/.test(haystack)) return "Electronics > Computers > Tablet Computers";
+  if (/headphone|headphones|earbud|earbuds|earphone|earphones|speaker|soundbar|microphone|audio/.test(haystack)) return "Electronics > Audio";
+  if (/camera|camcorder|digital camera|photography|lens/.test(haystack)) return "Cameras & Optics";
+  if (/playstation|xbox|nintendo|gaming console|video game console/.test(haystack)) return "Electronics > Video Game Consoles";
+  if (/video game|gaming game|game disc|game cartridge/.test(haystack)) return "Media > Video Game Software";
+  if (/television|smart tv|smart television|\btv\b|oled tv|qled tv/.test(haystack)) return "Electronics > Video > Televisions";
+  if (/smartwatch|smart watch|fitness tracker|wearable/.test(haystack)) return "Apparel & Accessories > Jewelry > Watches";
+
+  if (/running shoe|running shoes|sneaker|sneakers|trainer|trainers|football boot|soccer cleat|basketball shoe/.test(haystack)) return "Apparel & Accessories > Shoes";
+  if (/shoe|shoes|footwear|boots|sandals|slippers|heels/.test(haystack)) return "Apparel & Accessories > Shoes";
+  if (/t-shirt|tshirt|shirt|blouse|top|hoodie|sweatshirt|jacket|coat|dress|skirt|trouser|pants|jeans|shorts|clothing|apparel/.test(haystack)) return "Apparel & Accessories > Clothing";
+  if (/handbag|purse|backpack|wallet|luggage|suitcase|bag/.test(haystack)) return "Apparel & Accessories > Handbags, Wallets & Cases";
+  if (/jewelry|jewellery|necklace|bracelet|earring|ring/.test(haystack)) return "Apparel & Accessories > Jewelry";
+  if (/watch|wristwatch/.test(haystack)) return "Apparel & Accessories > Jewelry > Watches";
+
+  if (/makeup|cosmetic|skincare|skin care|foundation|lipstick|mascara|perfume|fragrance|beauty/.test(haystack)) return "Health & Beauty";
+  if (/shampoo|conditioner|hair care|haircare|wig|hair extension/.test(haystack)) return "Health & Beauty > Personal Care > Hair Care";
+
+  if (/sofa|couch|bed|mattress|wardrobe|cabinet|table|chair|desk|furniture/.test(haystack)) return "Home & Garden > Furniture";
+  if (/kitchen|cookware|pot|pan|blender|kettle|air fryer|utensil/.test(haystack)) return "Home & Garden > Kitchen & Dining";
+  if (/garden|outdoor|lawn|plant pot|gardening/.test(haystack)) return "Home & Garden > Lawn & Garden";
+
+  if (/running|football|soccer|basketball|tennis|gym|fitness|sports|sporting/.test(haystack)) return "Sporting Goods";
+
+  if (/car part|auto part|automotive part|motorcycle part|vehicle part|tyre|tire|wheel|engine part/.test(haystack)) return "Vehicles & Parts";
+  if (/car|automobile|motorcycle|vehicle/.test(haystack)) return "Vehicles & Parts";
+  if (/bicycle|bike|cycling/.test(haystack)) return "Sporting Goods > Outdoor Recreation > Cycling";
+
+  if (/toy|toys|doll|action figure|puzzle|board game/.test(haystack)) return "Toys & Games";
+  if (/book|novel|textbook|comic|magazine/.test(haystack)) return "Media > Books";
+  if (/office|stationery|notebook paper|printer|school supplies/.test(haystack)) return "Office Supplies";
+
   return undefined;
 }
 function parseVariations(product: Product): Array<{ key: string; label: string; options: Record<string, string>; price?: string; imageUrl?: string }> {
