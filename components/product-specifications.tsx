@@ -56,7 +56,7 @@ export function ProductSpecifications({ categoryName, productName, specification
   </div>;
 
   return <section className="rounded-card border border-graphite-200 p-4 dark:border-graphite-700">
-    googleFields
+    {googleFields}
 
     <div className="mb-4"><h2 className="text-sm font-semibold text-graphite-900 dark:text-white">Product specifications</h2><p className="mt-1 text-xs leading-5 text-graphite-500 dark:text-graphite-400">Add the details customers need. TTFL automatically converts relevant information such as category, brand, size, colour, material and variants into search-friendly product data.</p></div>
 
