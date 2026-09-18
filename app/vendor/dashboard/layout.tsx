@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { VendorDashboardBackButton } from "@/components/vendor-dashboard-back-button";
 
 export const metadata: Metadata = {
   title: { default: "Vendor Dashboard", template: "%s | TTFL Vendor Dashboard" },
@@ -6,4 +7,13 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function VendorDashboardLayout({ children }: { children: React.ReactNode }) { return children; }
+export default function VendorDashboardLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <div className="shell pt-6">
+        <VendorDashboardBackButton />
+      </div>
+      {children}
+    </>
+  );
+}
