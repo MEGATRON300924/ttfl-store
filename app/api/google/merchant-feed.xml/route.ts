@@ -123,7 +123,7 @@ export async function GET() {
         const variantUrl = variation.key ? `${productUrl}?variant=${encodeURIComponent(variation.key)}` : productUrl;
         const variantGtin = specOrVariation(product, variation, "gtin", "ean", "upc", "isbn");
         const variantMpn = specOrVariation(product, variation, "mpn", "manufacturer part number", "part number");
-        const variantOption = Object.entries(variation.options).filter(([name, value]) => String(name).trim() && String(value).trim()).map(([name, value]) => `${normalize(name)}:${String(value).trim()}`).join(",");
+        const variantOptions = Object.entries(variation.options).filter(([name, value]) => String(name).trim() && String(value).trim()).map(([name, value]) => ({ name: String(name).trim(), value: String(value).trim() }));
         const variantTitle = variation.label && variation.label !== product.name ? `${product.name} - ${variation.label}` : product.name;
         const price = variation.price && Number(variation.price) > 0 ? variation.price : product.price;
         return `
