@@ -35,4 +35,4 @@ export type TrackingEvent = { id: string; checkpoint: number; title: string; des
 export type ApiTrackedVendorOrder = { id: string; status: OrderStatus; estimatedDeliveryAt: string | null; vendor: { id: string; storeName: string; storeSlug: string; verified: boolean }; items: { id: string; productId: string; publicProductId: string; productName: string; quantity: number; variantKey?: string | null; variantLabel?: string | null; variantOptions?: Record<string, string> | null; estimatedDeliveryDays?: number }[]; currentCheckpoint: number; checkpoints: { checkpoint: number; title: string; event: TrackingEvent | null }[] };
 export type ApiTrackingResult = { orderNumber: string; createdAt: string; paymentStatus: PaymentStatus; vendorOrders: ApiTrackedVendorOrder[] };
 
-export type ApiWaitlistItem = { id: string; productId: string; name: string; slug: string; price: string; image: string | null; launchAt: string | null; seenAt: string | null };
+export type ApiWaitlistItem = { id: string; productId: string; name: string; slug: string; price: string; image: string | null; launchAt: string | null; notifiedAt: string | null; seenAt: string | null };
