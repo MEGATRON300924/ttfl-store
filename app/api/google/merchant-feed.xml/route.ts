@@ -54,6 +54,7 @@ export async function GET() {
       const brand = spec(product, "brand", "manufacturer");
       const gtin = spec(product, "gtin", "ean", "upc", "isbn");
       const mpn = spec(product, "mpn", "manufacturer part number", "part number");
+      const googleProductCategory = spec(product, "google_product_category", "google product category", "google category");
       const availability = product.stock > 0 && product.status === "ACTIVE" ? "in_stock" : "out_of_stock";
       const condition = product.condition === "USED" ? "used" : "new";
       const tags = (product.tags ?? []).filter(Boolean).join(", ");
@@ -68,8 +69,8 @@ export async function GET() {
       <g:condition>${condition}</g:condition>
       <g:price>${xml(`${product.price} ${product.currency}`)}</g:price>
       <g:canonical_link>${xml(productUrl)}</g:canonical_link>
-      <g:product_type>${xml(product.category.name)}</g:product_type>
-      <g:identifier_exists>${gtin || mpn ? "yes" : "no"}</g:identifier_exists>${brand ? `\n      <g:brand>${xml(text(brand, 70))}</g:brand>` : ""}${gtin ? `\n      <g:gtin>${xml(text(gtin, 70))}</g:gtin>` : ""}${mpn ? `\n      <g:mpn>${xml(text(mpn, 70))}</g:mpn>` : ""}${tags ? `\n      <g:custom_label_0>${xml(text(tags, 100))}</g:custom_label_0>` : ""}
+      <g:product_type>${xml(product.category.name)}</g:product_type>${googleProductCategory ? `\n      <g:google_product_category>${xml(text(googleProductCategory, 250))}</g:google_product_category>` : ""}
+      <g:identifier_exists>${gtin || (brand && mpn) ? "yes" : "no"}</g:identifier_exists>${brand ? `\n      <g:brand>${xml(text(brand, 70))}</g:brand>` : ""}${gtin ? `\n      <g:gtin>${xml(text(gtin, 70))}</g:gtin>` : ""}${mpn ? `\n      <g:mpn>${xml(text(mpn, 70))}</g:mpn>` : ""}${tags ? `\n      <g:custom_label_0>${xml(text(tags, 100))}</g:custom_label_0>` : ""}
       <g:custom_label_1>${xml(product.vendor.storeName)}</g:custom_label_1>
       <g:custom_label_2>${xml(product.vendor.storeSlug)}</g:custom_label_2>
     </item>`;
