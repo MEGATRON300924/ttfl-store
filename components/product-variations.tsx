@@ -6,7 +6,7 @@ import { api } from "@/lib/api-client";
 import type { ApiCategory, ApiCategoryVariationConfig } from "@/lib/api-types";
 
 export type ProductVariationGroup = { name: string; values: string[] };
-export type ProductVariation = { key: string; label: string; options: Record<string, string>; price: string };
+export type ProductVariation = { key: string; label: string; options: Record<string, string>; price: string; imageUrl?: string };
 
 function keyOf(o: Record<string, string>) {
   return Object.entries(o).sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => `${k}:${v}`).join("|");
@@ -54,13 +54,13 @@ export function ProductVariations({ categoryName, categoryConfig, value, onChang
   useEffect(() => {
     if (!enabled) return;
     const old = new Map(value.map((v) => [v.key, v]));
-    const next = generated.map((v) => ({ ...v, price: old.get(v.key)?.price ?? "" }));
+    const next = generated.map((v) => ({ ...v, price: old.get(v.key)?.price ?? "", imageUrl: old.get(v.key)?.imageUrl }));
     const same = next.length === value.length && next.every((v, i) => v.key === value[i]?.key && v.label === value[i]?.label && v.price === value[i]?.price && JSON.stringify(v.options) === JSON.stringify(value[i]?.options));
     if (!same) onChange(next);
   }, [generated, enabled, value, onChange]);
 
   const updateGroup = (i: number, p: Partial<ProductVariationGroup>) => setGroups((c) => c.map((g, n) => n === i ? { ...g, ...p } : g));
-  const sync = () => { const old = new Map(value.map((v) => [v.key, v])); onChange(generated.map((v) => ({ ...v, price: old.get(v.key)?.price ?? "" }))); };
+  const sync = () => { const old = new Map(value.map((v) => [v.key, v])); onChange(generated.map((v) => ({ ...v, price: old.get(v.key)?.price ?? "", imageUrl: old.get(v.key)?.imageUrl }))); };
   const toggle = (next: boolean) => { setEnabled(next); setOpen(next); if (!next) onChange([]); else sync(); };
 
   return <section className="rounded-card border border-graphite-200 bg-white dark:border-graphite-700 dark:bg-graphite-950">
@@ -79,7 +79,7 @@ export function ProductVariations({ categoryName, categoryConfig, value, onChang
       <div className="mb-3"><p className="text-sm font-bold text-graphite-900 dark:text-white">Step 1: Add what customers can choose</p><p className="mt-1 text-xs text-graphite-500">Example: add <strong>Size</strong>, then add Small, Medium and Large.</p></div>
       <div className="flex flex-col gap-3">{groups.map((g, i) => <Group key={i} group={g} index={i} update={updateGroup} remove={() => setGroups((c) => c.filter((_, n) => n !== i))} addValue={(raw) => { const v = raw.trim(); if (v && !g.values.includes(v)) updateGroup(i, { values: [...g.values, v] }); }} removeValue={(v) => updateGroup(i, { values: g.values.filter((x) => x !== v) })} />)}</div>
       <button type="button" onClick={() => setGroups((c) => [...c, { name: "", values: [] }])} className="mt-3 inline-flex items-center gap-1.5 rounded-[8px] border border-dashed border-graphite-300 px-3 py-2 text-xs font-semibold text-ember-700 hover:bg-cloud-50 dark:border-graphite-600"><Plus className="h-3.5 w-3.5"/>Add another variation</button>
-      {generated.length > 0 && <div className="mt-6"><div className="mb-3"><p className="text-sm font-bold text-graphite-900 dark:text-white">Step 2: Set prices</p><p className="mt-1 text-xs text-graphite-500">If every option costs the same, leave the price boxes empty.</p></div><div className="divide-y divide-graphite-200 rounded-[10px] border border-graphite-200 dark:divide-graphite-700 dark:border-graphite-700">{generated.map((v) => { const current = value.find((x) => x.key === v.key) ?? v; return <div key={v.key} className="grid gap-2 px-3 py-3 sm:grid-cols-[1fr_150px]"><div><p className="text-sm font-semibold">{v.label}</p><p className="text-[11px] text-graphite-400">Optional custom price</p></div><input aria-label={`Price for ${v.label}`} type="number" min="0" step="0.01" value={current.price} onChange={(e) => onChange(generated.map((x) => x.key === v.key ? { ...x, price: e.target.value } : (value.find((s) => s.key === x.key) ?? x)))} placeholder="Main price" className="rounded-[7px] border border-graphite-200 px-3 py-2 text-sm dark:border-graphite-700 dark:bg-graphite-950"/></div> })}</div></div>}
+      {generated.length > 0 && <div className="mt-6"><div className="mb-3"><p className="text-sm font-bold text-graphite-900 dark:text-white">Step 2: Set prices</p><p className="mt-1 text-xs text-graphite-500">If every option costs the same, leave the price boxes empty.</p></div><div className="divide-y divide-graphite-200 rounded-[10px] border border-graphite-200 dark:divide-graphite-700">{generated.map((v) => { const current = value.find((x) => x.key === v.key) ?? v; return <VariantRow key={v.key} variant={v} current={current} value={value} generated={generated} onChange={onChange}/> })}</div></div>}
     </div>}
     {!enabled && <div className="border-t border-graphite-200 px-4 py-3 text-xs text-graphite-500 dark:border-graphite-700 dark:text-graphite-400">No variations? Leave this turned off. Your product will simply have one price and no options to choose.</div>}
   </section>;
@@ -92,4 +92,19 @@ function Group({ group, index, update, remove, addValue, removeValue }: { group:
     <p className="ml-8 mt-2 text-[11px] text-graphite-500">Add the choices customers will see for this variation.</p>
     <div className="ml-8 mt-2 flex flex-wrap gap-2">{group.values.map((v) => <button type="button" key={v} onClick={() => removeValue(v)} className="rounded-full bg-white px-3 py-1.5 text-xs font-medium shadow-sm dark:bg-graphite-800">{v} <span className="ml-1 text-graphite-400">×</span></button>)}<div className="flex min-w-[210px] flex-1 rounded-full border border-dashed border-graphite-300 bg-white dark:border-graphite-600 dark:bg-graphite-950"><input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === ",") { e.preventDefault(); if (input.trim()) { addValue(input); setInput(""); } } }} placeholder={group.name ? `Add ${group.name} choice` : "Add a choice"} className="min-w-0 flex-1 rounded-full bg-transparent px-3 py-2 text-xs outline-none"/><button type="button" onClick={() => { if (input.trim()) { addValue(input); setInput(""); } }} className="grid h-8 w-8 place-items-center"><Plus className="h-3.5 w-3.5"/></button></div></div>
   </div>;
+}
+
+
+function VariantRow({ variant, current, value, generated, onChange }: { variant: ProductVariation; current: ProductVariation; value: ProductVariation[]; generated: ProductVariation[]; onChange: (value: ProductVariation[]) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const upload = async (file: File) => {
+    setUploading(true);
+    try {
+      const formData = new FormData(); formData.append("image", file);
+      const res = await fetch("/api/uploads/product-image", { method: "POST", credentials: "include", body: formData });
+      const json = await res.json(); if (!res.ok) throw new Error(json?.error?.message ?? "Upload failed");
+      onChange(generated.map((x) => x.key === variant.key ? { ...x, imageUrl: json.url } : (value.find((s) => s.key === x.key) ?? x)));
+    } finally { setUploading(false); }
+  };
+  return <div className="grid gap-3 px-3 py-3 sm:grid-cols-[1fr_150px_180px]"><div><p className="text-sm font-semibold">{variant.label}</p><p className="text-[11px] text-graphite-400">Optional custom price and image</p></div><input aria-label={`Price for ${variant.label}`} type="number" min="0" step="0.01" value={current.price} onChange={(e) => onChange(generated.map((x) => x.key === variant.key ? { ...x, price: e.target.value } : (value.find((s) => s.key === x.key) ?? x)))} placeholder="Main price" className="rounded-[7px] border border-graphite-200 px-3 py-2 text-sm dark:border-graphite-700 dark:bg-graphite-950"/><label className="flex cursor-pointer items-center gap-2 rounded-[7px] border border-dashed border-graphite-300 px-2 py-2 text-xs font-semibold text-graphite-600 hover:border-ember-500 hover:text-ember-600 dark:border-graphite-600 dark:text-graphite-300">{current.imageUrl ? <img src={current.imageUrl} alt="" className="h-8 w-8 rounded object-cover"/> : <span className="grid h-8 w-8 place-items-center rounded bg-cloud-100 dark:bg-graphite-800">+</span>}<span>{uploading ? "Uploading…" : current.imageUrl ? "Change image" : "Add image"}</span><input type="file" accept="image/jpeg,image/png,image/webp,image/avif" className="hidden" disabled={uploading} onChange={(e) => { const file=e.target.files?.[0]; if(file) void upload(file); e.currentTarget.value=""; }}/></label></div>;
 }
