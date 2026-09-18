@@ -44,7 +44,21 @@ export function ProductSpecifications({ categoryName, productName, specification
   const computerType = specifications.productType || (product.includes("laptop") ? "Laptop" : "");
   const phoneType = specifications.productType || (product.includes("tablet") ? "Tablet" : product.includes("phone") || product.includes("iphone") || product.includes("galaxy") ? "Phone" : "");
 
+  const googleFields = <div className="mb-5 rounded-[10px] border border-blue-200 bg-blue-50/60 p-4 dark:border-blue-900/60 dark:bg-blue-950/20">
+    <div className="mb-3">
+      <h3 className="text-sm font-semibold text-graphite-900 dark:text-white">Google &amp; search details</h3>
+      <p className="mt-1 text-xs leading-5 text-graphite-500 dark:text-graphite-400">Optional identifiers help Google match your product to searches. Only enter official manufacturer values.</p>
+    </div>
+    <div className="grid gap-3 sm:grid-cols-2">
+      <Field label="GTIN / Barcode" value={specifications.gtin} onChange={(value) => set("gtin", value)} hint="UPC, EAN, ISBN or another official GTIN. Do not guess." />
+      <Field label="MPN / Manufacturer Part Number" value={specifications.mpn} onChange={(value) => set("mpn", value)} hint="Use the manufacturer's exact part number when available." />
+      <Field label="Google Product Category" value={specifications.google_product_category} onChange={(value) => set("google_product_category", value)} hint="Optional. Example: Electronics > Computers > Laptops." />
+    </div>
+  </div>;
+
   return <section className="rounded-card border border-graphite-200 p-4 dark:border-graphite-700">
+    googleFields
+
     <div className="mb-4"><h2 className="text-sm font-semibold text-graphite-900 dark:text-white">Product specifications</h2><p className="mt-1 text-xs leading-5 text-graphite-500 dark:text-graphite-400">These fields help customers understand the product and give TTFL Store useful structured information for search and SEO. Every field here is optional.</p></div>
 
     {isComputer && <div className="flex flex-col gap-3">
