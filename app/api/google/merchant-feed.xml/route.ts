@@ -63,7 +63,7 @@ function googleProductCategory(product: Product): string | undefined {
   if (/vehicle|automotive|car|motorcycle|bike/.test(textValue)) return "Vehicles & Parts";
   return undefined;
 }
-function parseVariations(product: Product): Array<{ key: string; label: string; options: Record<string, string>; price?: string }> {
+function parseVariations(product: Product): Array<{ key: string; label: string; options: Record<string, string>; price?: string; imageUrl?: string }> {
   const raw = product.specifications?._variations;
   if (!raw) return [];
   try {
@@ -73,7 +73,7 @@ function parseVariations(product: Product): Array<{ key: string; label: string; 
       key: String(item.key ?? ""),
       label: String(item.label ?? ""),
       options: item.options as Record<string, string>,
-      price: item.price ? String(item.price) : undefined,
+      price: item.price ? String(item.price) : undefined,\n      imageUrl: item.imageUrl ? String(item.imageUrl) : undefined,
     }));
   } catch {
     return [];
@@ -126,7 +126,7 @@ export async function GET() {
       <g:title>${xml(text(variantTitle, 150))}</g:title>
       <g:description>${xml(text(product.description))}</g:description>
       <link>${xml(productUrl)}</link>
-      <g:image_link>${xml(image)}</g:image_link>
+      <g:image_link>${xml(variation.imageUrl || image)}</g:image_link>
       <g:availability>${availability}</g:availability>
       <g:condition>${condition}</g:condition>
       <g:price>${xml(`${price} ${product.currency}`)}</g:price>
