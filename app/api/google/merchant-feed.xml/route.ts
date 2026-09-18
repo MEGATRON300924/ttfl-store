@@ -21,10 +21,10 @@ function xml(value: unknown): string {
 function text(value: string | undefined | null, max = 5000): string {
   return String(value ?? "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim().slice(0, max);
 }
-function spec(product: Product, ...keys: string[]): string | undefined {
+function canonicalAttribute(value: string): string {\n  const key = normalize(value);\n  if (/^(color|colour)$/.test(key)) return "color";\n  if (/^(size|sizes)$/.test(key)) return "size";\n  if (/^(material|materials|fabric)$/.test(key)) return "material";\n  if (/^(gender|sex)$/.test(key)) return "gender";\n  if (/^(age group|agegroup|age)$/.test(key)) return "age_group";\n  if (/^(pattern|design)$/.test(key)) return "pattern";\n  if (/^(brand|manufacturer|make)$/.test(key)) return "brand";\n  if (/^(gtin|ean|upc|isbn|barcode)$/.test(key)) return "gtin";\n  if (/^(mpn|manufacturer part number|part number|model number)$/.test(key)) return "mpn";\n  return key;\n}\nfunction spec(product: Product, ...keys: string[]): string | undefined {
   const entries = Object.entries(product.specifications ?? {});
   for (const key of keys) {
-    const found = entries.find(([name]) => name.trim().toLowerCase() === key.toLowerCase());
+    const found = entries.find(([name]) => canonicalAttribute(name) === canonicalAttribute(key));
     if (found?.[1]) return String(found[1]).trim();
   }
   return undefined;
