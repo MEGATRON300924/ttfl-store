@@ -1,4 +1,16 @@
-import type { ApiProduct, ApiProductVariation } from "@/lib/api-types";
+import type { ApiProductVariation } from "@/lib/api-types";
+
+type GoogleProduct = {
+  specifications?: Record<string, string> | null;
+};
+
+type GoogleCategoryProduct = GoogleProduct & {
+  name: string;
+  category: {
+    slug?: string;
+    name?: string;
+  };
+};
 
 export function normalizeGoogleAttribute(value?: string): string {
   return String(value ?? "").trim().toLowerCase().replace(/[_-]+/g, " ").replace(/\s+/g, " ");
@@ -18,7 +30,7 @@ export function canonicalGoogleAttribute(value: string): string {
   return key;
 }
 
-export function getGoogleSpec(product: Pick<ApiProduct, "specifications">, ...keys: string[]): string | undefined {
+export function getGoogleSpec(product: GoogleProduct, ...keys: string[]): string | undefined {
   const entries = Object.entries(product.specifications ?? {});
   for (const key of keys) {
     const wanted = canonicalGoogleAttribute(key);
@@ -28,7 +40,11 @@ export function getGoogleSpec(product: Pick<ApiProduct, "specifications">, ...ke
   return undefined;
 }
 
-export function getGoogleVariantSpec(variation: Pick<ApiProductVariation, "options"> | null, product: Pick<ApiProduct, "specifications">, ...keys: string[]): string | undefined {
+export function getGoogleVariantSpec(
+  variation: Pick<ApiProductVariation, "options"> | null,
+  product: GoogleProduct,
+  ...keys: string[]
+): string | undefined {
   const options = variation?.options ?? {};
   for (const key of keys) {
     const wanted = canonicalGoogleAttribute(key);
@@ -38,19 +54,19 @@ export function getGoogleVariantSpec(variation: Pick<ApiProductVariation, "optio
   return getGoogleSpec(product, ...keys);
 }
 
-export function getGoogleBrand(product: Pick<ApiProduct, "specifications">): string | undefined {
+export function getGoogleBrand(product: GoogleProduct): string | undefined {
   return getGoogleSpec(product, "brand", "manufacturer", "make");
 }
 
-export function getGoogleGtin(product: Pick<ApiProduct, "specifications">): string | undefined {
+export function getGoogleGtin(product: GoogleProduct): string | undefined {
   return getGoogleSpec(product, "gtin", "ean", "upc", "isbn", "barcode");
 }
 
-export function getGoogleMpn(product: Pick<ApiProduct, "specifications">): string | undefined {
+export function getGoogleMpn(product: GoogleProduct): string | undefined {
   return getGoogleSpec(product, "mpn", "manufacturer part number", "part number", "model number");
 }
 
-export function getGoogleProductCategory(product: Pick<ApiProduct, "name" | "category" | "specifications">): string | undefined {
+export function getGoogleProductCategory(product: GoogleCategoryProduct): string | undefined {
   const category = normalizeGoogleAttribute(product.category.slug || product.category.name);
   const name = normalizeGoogleAttribute(product.name);
   const specs = Object.entries(product.specifications ?? {})
