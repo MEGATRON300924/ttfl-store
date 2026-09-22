@@ -2,7 +2,7 @@
 
 import { useEffect,useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarDays, Check, Gift, Plus, RefreshCw, Trash2, X } from "lucide-react";
+import { ArrowLeft, CalendarDays, Check, Gift, RefreshCw, Trash2, X } from "lucide-react";
 import { api,ApiError } from "@/lib/api-client";
 
 export default function AdminEventsPage(){
