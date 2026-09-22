@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Package, LogOut, Pencil, Heart, Loader2, Plus, Trash2, MapPin, Camera } from "lucide-react";
+import { Package, LogOut, Pencil, Heart, Loader2, Plus, Trash2, MapPin, Camera, Gift, Truck, UserRound, Store, ChevronRight, Sparkles } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api-client";
 import { formatNaira } from "@/lib/mock-data";
@@ -22,7 +22,13 @@ export default function AccountPage() {
   const { user, loading, logout, refresh } = useAuth();
   const router = useRouter();
   const [orders, setOrders] = useState<ApiOrder[] | null>(null);
-  useEffect(() => { if (user) api.get<{ orders: ApiOrder[] }>("/api/orders/me").then((r) => setOrders(r.orders)); }, [user]);
+  const [rewardPoints, setRewardPoints] = useState(0);
+  const [rewardLevel, setRewardLevel] = useState("BRONZE");
+  useEffect(() => {
+    if (!user) return;
+    api.get<{ orders: ApiOrder[] }>("/api/orders/me").then((r) => setOrders(r.orders)).catch(() => setOrders([]));
+    api.get<{ wallet: { pointsBalance: number; level: string } }>("/api/rewards/me").then((r) => { setRewardPoints(Number(r.wallet?.pointsBalance) || 0); setRewardLevel(r.wallet?.level || "BRONZE"); }).catch(() => undefined);
+  }, [user]);
   async function handleLogout() { await logout(); router.push("/"); }
   if (!loading && !user) return <div className="shell py-16 text-center"><h1 className="text-lg font-bold text-graphite-900">Log in to view your account</h1><Link href="/login?next=/account" className="mt-6 inline-block rounded-card bg-ember-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-ember-700">Log in</Link></div>;
   return <div className="shell py-8">
