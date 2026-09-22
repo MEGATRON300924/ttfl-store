@@ -24,47 +24,137 @@ export default function AccountPage() {
   const [orders, setOrders] = useState<ApiOrder[] | null>(null);
   const [rewardPoints, setRewardPoints] = useState(0);
   const [rewardLevel, setRewardLevel] = useState("BRONZE");
+
   useEffect(() => {
     if (!user) return;
     api.get<{ orders: ApiOrder[] }>("/api/orders/me").then((r) => setOrders(r.orders)).catch(() => setOrders([]));
-    api.get<{ wallet: { pointsBalance: number; level: string } }>("/api/rewards/me").then((r) => { setRewardPoints(Number(r.wallet?.pointsBalance) || 0); setRewardLevel(r.wallet?.level || "BRONZE"); }).catch(() => undefined);
+    api.get<{ wallet: { pointsBalance: number; level: string } }>("/api/rewards/me")
+      .then((r) => {
+        setRewardPoints(Number(r.wallet?.pointsBalance) || 0);
+        setRewardLevel(r.wallet?.level || "BRONZE");
+      })
+      .catch(() => undefined);
   }, [user]);
-  async function handleLogout() { await logout(); router.push("/"); }
-  if (!loading && !user) return <div className="shell py-16 text-center"><h1 className="text-lg font-bold text-graphite-900">Log in to view your account</h1><Link href="/login?next=/account" className="mt-6 inline-block rounded-card bg-ember-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-ember-700">Log in</Link></div>;
-  return <div className="shell py-8">
-    <div className="flex flex-wrap items-center justify-between gap-3"><h1 className="text-xl font-bold text-graphite-900">{user ? `Hi, ${user.firstName}` : "My account"}</h1><div className="flex items-center gap-2"><Link href="/wishlist" className="flex items-center gap-1.5 rounded-card border border-graphite-300 px-3 py-2 text-sm font-medium text-graphite-900 hover:bg-cloud-100"><Heart className="h-4 w-4" />Wishlist</Link><button onClick={handleLogout} className="flex items-center gap-1.5 rounded-card border border-graphite-300 px-3 py-2 text-sm font-medium text-graphite-900 hover:bg-cloud-100"><LogOut className="h-4 w-4" />Log out</button></div></div>
-    <div className="mt-6 grid gap-3 sm:grid-cols-3">
-      <Link href="/orders" className="group rounded-card border border-graphite-200 p-4 hover:border-ember-300 hover:bg-cloud-50">
-        <div className="flex items-center justify-between"><Package className="h-5 w-5 text-ember-600" /><ChevronRight className="h-4 w-4 text-graphite-300 transition-transform group-hover:translate-x-0.5" /></div>
-        <p className="mt-3 text-sm font-bold text-graphite-900">My orders</p><p className="mt-1 text-xs text-graphite-500">{orders?.length ?? "—"} order{orders?.length === 1 ? "" : "s"}</p>
-      </Link>
-      <Link href="/rewards" className="group rounded-card border border-graphite-200 p-4 hover:border-ember-300 hover:bg-cloud-50">
-        <div className="flex items-center justify-between"><Gift className="h-5 w-5 text-ember-600" /><ChevronRight className="h-4 w-4 text-graphite-300 transition-transform group-hover:translate-x-0.5" /></div>
-        <p className="mt-3 text-sm font-bold text-graphite-900">TTFL Rewards</p><p className="mt-1 text-xs text-graphite-500">{rewardPoints.toLocaleString()} points · {rewardLevel}</p>
-      </Link>
-      <Link href="/wishlist" className="group rounded-card border border-graphite-200 p-4 hover:border-ember-300 hover:bg-cloud-50">
-        <div className="flex items-center justify-between"><Heart className="h-5 w-5 text-ember-600" /><ChevronRight className="h-4 w-4 text-graphite-300 transition-transform group-hover:translate-x-0.5" /></div>
-        <p className="mt-3 text-sm font-bold text-graphite-900">Wishlist</p><p className="mt-1 text-xs text-graphite-500">Saved products</p>
-      </Link>
-    </div>
-    <section className="mt-6 rounded-card border border-graphite-200 bg-white p-5">
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div><div className="flex items-center gap-2"><Gift className="h-5 w-5 text-ember-600" /><h2 className="font-bold text-graphite-900">TTFL Rewards</h2></div><p className="mt-1 text-sm text-graphite-600">Use your points to reduce eligible orders at checkout.</p></div>
-        <Link href="/rewards" className="text-sm font-semibold text-ember-600 hover:text-ember-700">View rewards</Link>
+
+  async function handleLogout() {
+    await logout();
+    router.push("/");
+  }
+
+  if (!loading && !user) {
+    return (
+      <div className="shell py-16 text-center">
+        <h1 className="text-lg font-bold text-graphite-900">Log in to view your account</h1>
+        <Link href="/login?next=/account" className="mt-6 inline-block rounded-card bg-ember-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-ember-700">
+          Log in
+        </Link>
       </div>
-      <div className="mt-4 flex flex-wrap items-end justify-between gap-4 rounded-card bg-cloud-100 p-4"><div><p className="text-xs font-bold uppercase tracking-wide text-graphite-500">Available points</p><p className="mt-1 font-mono text-2xl font-bold text-graphite-900">{rewardPoints.toLocaleString()}</p></div><div className="text-right"><p className="text-xs text-graphite-500">Current level</p><p className="mt-1 flex items-center justify-end gap-1.5 text-sm font-bold text-graphite-900"><Sparkles className="h-4 w-4 text-gold-600" />{rewardLevel}</p></div></div>
-    </section>
-    <section className="mt-6"><h2 className="text-sm font-bold uppercase tracking-wide text-graphite-600">Quick actions</h2><div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-      <Link href="/orders/track" className="flex items-center gap-3 rounded-card border border-graphite-200 p-3 text-sm font-semibold text-graphite-800 hover:bg-cloud-100"><Truck className="h-4 w-4 text-ember-600" />Track an order</Link>
-      <Link href="/sell" className="flex items-center gap-3 rounded-card border border-graphite-200 p-3 text-sm font-semibold text-graphite-800 hover:bg-cloud-100"><Store className="h-4 w-4 text-ember-600" />Start selling</Link>
-      <Link href="/wishlist" className="flex items-center gap-3 rounded-card border border-graphite-200 p-3 text-sm font-semibold text-graphite-800 hover:bg-cloud-100"><Heart className="h-4 w-4 text-ember-600" />Saved products</Link>
-      <Link href="/support" className="flex items-center gap-3 rounded-card border border-graphite-200 p-3 text-sm font-semibold text-graphite-800 hover:bg-cloud-100"><UserRound className="h-4 w-4 text-ember-600" />Get support</Link>
-    </div></section>
-    <ProfileSection onUpdated={refresh} /><AddressBook /><MyWaitlistSection />
-    <h2 className="mb-3 mt-8 text-sm font-bold uppercase tracking-wide text-graphite-600">Recent orders</h2>
-    {orders === null ? <p className="text-sm text-graphite-600">Loading orders…</p> : orders.length === 0 ? <div className="rounded-card border border-dashed border-graphite-200 p-10 text-center text-sm text-graphite-600"><Package className="mx-auto mb-2 h-8 w-8 text-graphite-300" />You haven't placed any orders yet.</div> : <div className="flex flex-col gap-3">{orders.map((order) => <div key={order.id} className="rounded-card border border-graphite-200 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><div><p className="font-mono text-sm font-semibold text-graphite-900">{order.orderNumber}</p><p className="text-xs text-graphite-400">{new Date(order.createdAt).toLocaleDateString("en-NG", { dateStyle: "medium" })}</p></div><span className="font-mono text-sm font-semibold text-graphite-900">{formatNaira(Number(order.totalAmount))}</span></div><div className="mt-3 flex flex-wrap items-center justify-between gap-3"><div className="flex flex-wrap gap-2">{order.vendorOrders.map((vo) => <span key={vo.id} className={`rounded-tag px-2 py-1 text-xs font-medium ${STATUS_STYLES[vo.status]}`}>{vo.items.length} item(s) · {vo.status.replace(/_/g, " ").toLowerCase()}</span>)}{order.paymentStatus !== "PAID" && <span className="rounded-tag bg-ember-100 px-2 py-1 text-xs font-medium text-ember-700">Payment {order.paymentStatus.toLowerCase()}</span>}</div><div className="flex gap-2"><Link href={`/orders/${order.orderNumber}`} className="rounded-card border border-graphite-300 px-3 py-1.5 text-xs font-semibold text-graphite-800 hover:bg-cloud-100">View order</Link><Link href={`/orders/track?order=${encodeURIComponent(order.orderNumber)}`} className="rounded-card bg-graphite-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-graphite-800">Track</Link></div></div>)}</div>}
-    <AccountDangerZone />
-  </div>;
+    );
+  }
+
+  return (
+    <div className="shell py-8">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-600">TTFL Store</p>
+          <h1 className="mt-1 text-xl font-bold text-graphite-900">{user ? `Hi, ${user.firstName}` : "My account"}</h1>
+        </div>
+        <div className="flex items-center gap-2">
+          <Link href="/wishlist" className="flex items-center gap-1.5 rounded-card border border-graphite-300 px-3 py-2 text-sm font-medium text-graphite-900 hover:bg-cloud-100">
+            <Heart className="h-4 w-4" /> Wishlist
+          </Link>
+          <button onClick={handleLogout} className="flex items-center gap-1.5 rounded-card border border-graphite-300 px-3 py-2 text-sm font-medium text-graphite-900 hover:bg-cloud-100">
+            <LogOut className="h-4 w-4" /> Log out
+          </button>
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-3 sm:grid-cols-3">
+        <Link href="/orders" className="group rounded-card border border-graphite-200 p-4 hover:border-ember-300 hover:bg-cloud-50">
+          <div className="flex items-center justify-between"><Package className="h-5 w-5 text-ember-600" /><ChevronRight className="h-4 w-4 text-graphite-300" /></div>
+          <p className="mt-3 text-sm font-bold text-graphite-900">My orders</p>
+          <p className="mt-1 text-xs text-graphite-500">{orders?.length ?? "—"} order{orders?.length === 1 ? "" : "s"}</p>
+        </Link>
+        <Link href="/rewards" className="group rounded-card border border-graphite-200 p-4 hover:border-ember-300 hover:bg-cloud-50">
+          <div className="flex items-center justify-between"><Gift className="h-5 w-5 text-ember-600" /><ChevronRight className="h-4 w-4 text-graphite-300" /></div>
+          <p className="mt-3 text-sm font-bold text-graphite-900">TTFL Rewards</p>
+          <p className="mt-1 text-xs text-graphite-500">{rewardPoints.toLocaleString()} points · {rewardLevel}</p>
+        </Link>
+        <Link href="/wishlist" className="group rounded-card border border-graphite-200 p-4 hover:border-ember-300 hover:bg-cloud-50">
+          <div className="flex items-center justify-between"><Heart className="h-5 w-5 text-ember-600" /><ChevronRight className="h-4 w-4 text-graphite-300" /></div>
+          <p className="mt-3 text-sm font-bold text-graphite-900">Wishlist</p>
+          <p className="mt-1 text-xs text-graphite-500">Saved products</p>
+        </Link>
+      </div>
+
+      <section className="mt-6 rounded-card border border-graphite-200 bg-white p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2"><Gift className="h-5 w-5 text-ember-600" /><h2 className="font-bold text-graphite-900">TTFL Rewards</h2></div>
+            <p className="mt-1 text-sm text-graphite-600">Use your points to reduce eligible orders at checkout.</p>
+          </div>
+          <Link href="/rewards" className="text-sm font-semibold text-ember-600 hover:text-ember-700">View rewards</Link>
+        </div>
+        <div className="mt-4 flex flex-wrap items-end justify-between gap-4 rounded-card bg-cloud-100 p-4">
+          <div><p className="text-xs font-bold uppercase tracking-wide text-graphite-500">Available points</p><p className="mt-1 font-mono text-2xl font-bold text-graphite-900">{rewardPoints.toLocaleString()}</p></div>
+          <div className="text-right"><p className="text-xs text-graphite-500">Current level</p><p className="mt-1 flex items-center justify-end gap-1.5 text-sm font-bold text-graphite-900"><Sparkles className="h-4 w-4 text-gold-600" />{rewardLevel}</p></div>
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-graphite-600">Quick actions</h2>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+          <Link href="/orders/track" className="flex items-center gap-3 rounded-card border border-graphite-200 p-3 text-sm font-semibold text-graphite-800 hover:bg-cloud-100"><Truck className="h-4 w-4 text-ember-600" />Track an order</Link>
+          <Link href="/sell" className="flex items-center gap-3 rounded-card border border-graphite-200 p-3 text-sm font-semibold text-graphite-800 hover:bg-cloud-100"><Store className="h-4 w-4 text-ember-600" />Start selling</Link>
+          <Link href="/wishlist" className="flex items-center gap-3 rounded-card border border-graphite-200 p-3 text-sm font-semibold text-graphite-800 hover:bg-cloud-100"><Heart className="h-4 w-4 text-ember-600" />Saved products</Link>
+          <Link href="/support" className="flex items-center gap-3 rounded-card border border-graphite-200 p-3 text-sm font-semibold text-graphite-800 hover:bg-cloud-100"><UserRound className="h-4 w-4 text-ember-600" />Get support</Link>
+        </div>
+      </section>
+
+      <ProfileSection onUpdated={refresh} />
+      <AddressBook />
+      <MyWaitlistSection />
+
+      <h2 className="mb-3 mt-8 text-sm font-bold uppercase tracking-wide text-graphite-600">Recent orders</h2>
+      {orders === null ? (
+        <p className="text-sm text-graphite-600">Loading orders…</p>
+      ) : orders.length === 0 ? (
+        <div className="rounded-card border border-dashed border-graphite-200 p-10 text-center text-sm text-graphite-600">
+          <Package className="mx-auto mb-2 h-8 w-8 text-graphite-300" />You haven't placed any orders yet.
+        </div>
+      ) : (
+        <div className="flex flex-col gap-3">
+          {orders.map((order) => (
+            <div key={order.id} className="rounded-card border border-graphite-200 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="font-mono text-sm font-semibold text-graphite-900">{order.orderNumber}</p>
+                  <p className="text-xs text-graphite-400">{new Date(order.createdAt).toLocaleDateString("en-NG", { dateStyle: "medium" })}</p>
+                </div>
+                <span className="font-mono text-sm font-semibold text-graphite-900">{formatNaira(Number(order.totalAmount))}</span>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex flex-wrap gap-2">
+                  {order.vendorOrders.map((vo) => (
+                    <span key={vo.id} className={`rounded-tag px-2 py-1 text-xs font-medium ${STATUS_STYLES[vo.status]}`}>
+                      {vo.items.length} item(s) · {vo.status.replace(/_/g, " ").toLowerCase()}
+                    </span>
+                  ))}
+                  {order.paymentStatus !== "PAID" && <span className="rounded-tag bg-ember-100 px-2 py-1 text-xs font-medium text-ember-700">Payment {order.paymentStatus.toLowerCase()}</span>}
+                </div>
+                <div className="flex gap-2">
+                  <Link href={`/orders/${order.orderNumber}`} className="rounded-card border border-graphite-300 px-3 py-1.5 text-xs font-semibold text-graphite-800 hover:bg-cloud-100">View order</Link>
+                  <Link href={`/orders/track?order=${encodeURIComponent(order.orderNumber)}`} className="rounded-card bg-graphite-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-graphite-800">Track</Link>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <AccountDangerZone />
+    </div>
+  );
 }
 
 function ProfileSection({ onUpdated }: { onUpdated: () => Promise<void> }) {
