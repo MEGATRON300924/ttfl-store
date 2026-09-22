@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowRight, Building2, CalendarDays, CheckCircle2, Clock3, Plus } from "lucide-react";
+import { ArrowRight, Building2, CalendarDays, CheckCircle2, Clock3 } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 
