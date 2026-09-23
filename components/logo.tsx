@@ -6,14 +6,15 @@ export function Logo({ variant = "dark" }: { variant?: "dark" | "light" }) {
   const sub = variant === "dark" ? "text-graphite-600" : "text-graphite-200";
 
   return (
-    <Link href="/" className="flex min-w-0 shrink-0 items-center gap-1.5 sm:gap-2" aria-label="TTFL Store home">
+    <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2" aria-label="TTFL Store home">
       <Image
         src="/ttflstore.png"
         alt="TTFL Store"
-        width={90}
-        height={22}
+        width={98}
+        height={24}
         priority
-        className="h-[18px] w-[74px] sm:h-[22px] sm:w-[90px]"
+        sizes="(max-width: 639px) 90px, 98px"
+        className="h-[22px] w-[90px] object-contain sm:h-[24px] sm:w-[98px]"
       />
       <span className="hidden min-w-0 flex-col leading-none sm:flex">
         <span className={`font-sans text-[15px] font-bold tracking-tight ${text}`}>TTFL Store</span>
