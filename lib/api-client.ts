@@ -7,11 +7,13 @@ const REQUEST_BASE = typeof window === "undefined" ? API_URL : "";
 export class ApiError extends Error {
   status: number;
   code?: string;
+  referenceCode?: string;
 
-  constructor(status: number, message: string, code?: string) {
-    super(message);
+  constructor(status: number, message: string, code?: string, referenceCode?: string) {
+    super(referenceCode ? `${message} (TTFL error code: ${referenceCode})` : message);
     this.status = status;
     this.code = code;
+    this.referenceCode = referenceCode;
   }
 }
 
@@ -37,7 +39,8 @@ async function refreshSession(): Promise<void> {
           throw new ApiError(
             res.status,
             json?.error?.message ?? "Session expired",
-            json?.error?.code
+            json?.error?.code,
+            json?.error?.referenceCode
           );
         }
       })
@@ -83,7 +86,8 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
     throw new ApiError(
       res.status,
       json?.error?.message ?? "Something went wrong",
-      json?.error?.code
+      json?.error?.code,
+      json?.error?.referenceCode
     );
   }
 
