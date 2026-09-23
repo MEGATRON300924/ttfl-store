@@ -103,7 +103,7 @@ export default function AdminErrorLogsPage() {
                 {selected.vendorName && <div><p className="text-xs text-graphite-500">Vendor</p><p className="font-semibold">{selected.vendorName}</p><p className="font-mono text-[11px] text-graphite-500">{selected.vendorId}</p></div>}
                 <div><p className="text-xs text-graphite-500">Request</p><p className="font-mono text-xs">{selected.method} {selected.path}</p></div>
                 {selected.stack && <details><summary className="cursor-pointer text-xs font-semibold text-graphite-600">Server stack trace</summary><pre className="mt-2 max-h-64 overflow-auto rounded-[7px] bg-graphite-950 p-3 text-[10px] leading-5 text-white">{selected.stack}</pre></details>}
-                {selected.metadata && <details><summary className="cursor-pointer text-xs font-semibold text-graphite-600">Metadata</summary><pre className="mt-2 max-h-48 overflow-auto rounded-[7px] bg-cloud-50 p-3 text-[10px] leading-5 text-graphite-700">{JSON.stringify(selected.metadata, null, 2)}</pre></details>}
+                {selected.metadata != null && <details><summary className="cursor-pointer text-xs font-semibold text-graphite-600">Metadata</summary><pre className="mt-2 max-h-48 overflow-auto rounded-[7px] bg-cloud-50 p-3 text-[10px] leading-5 text-graphite-700">{JSON.stringify(selected.metadata, null, 2)}</pre></details>}
               </div>
             </>
           )}
