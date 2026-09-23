@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
+import Link from "next/link";
 
 type AuditLogRow = {
   id: string;
@@ -21,8 +22,8 @@ export default function AdminAuditLogsPage() {
 
   return (
     <div className="shell py-8">
-      <h1 className="text-xl font-bold text-graphite-900">Audit logs</h1>
-      <p className="mt-1 text-sm text-graphite-600">Sensitive admin actions — approvals, suspensions, changes.</p>
+      <div className="flex flex-wrap items-center justify-between gap-3"><div><h1 className="text-xl font-bold text-graphite-900">Audit logs</h1>
+      <p className="mt-1 text-sm text-graphite-600">Sensitive admin actions — approvals, suspensions, changes.</p></div><Link href="/admin/error-logs" className="rounded-card bg-ember-600 px-4 py-2 text-sm font-semibold text-white">Search error codes</Link></div>
 
       {logs === null ? (
         <p className="mt-6 text-sm text-graphite-600">Loading…</p>
