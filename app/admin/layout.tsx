@@ -1,27 +1,10 @@
-"use client";
+import type { Metadata } from "next";
 
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { usePathname } from "next/navigation";
+export const metadata: Metadata = {
+  title: "Admin Dashboard",
+  description: "Manage TTFL Store users, vendors, products, orders, payouts, events, support, rewards, analytics, and settings.",
+  robots: { index: false, follow: false },
+  alternates: { canonical: `https://ttflstore.name.ng/admin` },
+};
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const showBackButton = pathname !== "/admin";
-
-  return (
-    <>
-      {showBackButton && (
-        <div className="shell pt-6">
-          <Link
-            href="/admin"
-            className="inline-flex items-center gap-2 rounded-card border border-graphite-200 bg-white px-3 py-2 text-sm font-semibold text-graphite-700 transition hover:border-ember-600 hover:text-ember-700"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back to dashboard
-          </Link>
-        </div>
-      )}
-      {children}
-    </>
-  );
-}
+export default function Layout({ children }: { children: React.ReactNode }) { return children; }
