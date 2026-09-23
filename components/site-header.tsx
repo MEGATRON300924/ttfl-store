@@ -47,21 +47,19 @@ export function SiteHeader() {
             <Gift className="h-5 w-5" /><span className="hidden text-sm font-semibold lg:inline">Rewards</span>
           </Link>
 
-          <Link href="/wishlist" className="hidden h-9 w-9 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 dark:text-graphite-200 dark:hover:bg-graphite-800 sm:grid" aria-label={`Wishlist${wishlistIds.size ? ` (${wishlistIds.size})` : ""}`}>
-            <Heart className="h-5 w-5" />
-          </Link>
+          <Link href="/wishlist" className="hidden h-9 w-9 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 dark:text-graphite-200 dark:hover:bg-graphite-800 sm:grid" aria-label={`Wishlist${wishlistIds.size ? ` (${wishlistIds.size})` : ""}`}><Heart className="h-5 w-5" /></Link>
 
           {isVendor && (
-            <Link href="/vendor/dashboard" className="hidden h-9 w-9 place-items-center rounded-card text-ember-600 hover:bg-ember-100 md:flex md:h-9 md:w-auto md:items-center md:gap-1.5 md:px-2.5" aria-label="Vendor dashboard">
-              <Store className="h-5 w-5" /><span className="hidden text-sm font-semibold md:inline">Vendor dashboard</span>
+            <Link href="/vendor/dashboard" className="flex h-9 shrink-0 items-center gap-1 rounded-card px-1.5 text-ember-600 hover:bg-ember-100 sm:gap-1.5 sm:px-2.5" aria-label="Vendor dashboard">
+              <Store className="h-5 w-5" /><span className="hidden text-sm font-semibold sm:inline">Vendor</span>
             </Link>
           )}
 
-          <Link href={accountHref} className="grid h-9 w-9 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 dark:text-graphite-200 dark:hover:bg-graphite-800" aria-label="Profile">
+          <Link href={accountHref} className="grid h-9 w-9 shrink-0 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 dark:text-graphite-200 dark:hover:bg-graphite-800" aria-label="Profile">
             <User className="h-5 w-5" />
           </Link>
 
-          <Link href="/cart" className="relative grid h-9 w-9 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 dark:text-graphite-200 dark:hover:bg-graphite-800 sm:flex sm:h-9 sm:w-auto sm:items-center sm:gap-1.5 sm:px-2.5" aria-label="Cart">
+          <Link href="/cart" className="relative grid h-9 w-9 shrink-0 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 dark:text-graphite-200 dark:hover:bg-graphite-800 sm:flex sm:h-9 sm:w-auto sm:items-center sm:gap-1.5 sm:px-2.5" aria-label="Cart">
             <ShoppingCart className="h-5 w-5" /><span className="hidden text-sm font-medium sm:inline">Cart</span>
             {totalItems > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-ember-600 px-1 font-mono text-[10px] font-medium text-white">{totalItems}</span>}
           </Link>
