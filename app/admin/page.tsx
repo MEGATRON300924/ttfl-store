@@ -20,7 +20,11 @@ export default function AdminDashboardPage() {
   const [partners, setPartners] = useState<any[]>([]);
   const [eventAdminMessage, setEventAdminMessage] = useState<string | null>(null);
   const [eventAdminError, setEventAdminError] = useState<string | null>(null);
-  const [grantingPartnerId, setGrantingPartnerId] = useState<string | null>(null);\n  const [resetEmail, setResetEmail] = useState("");\n  const [resetLoading, setResetLoading] = useState(false);\n  const [resetMessage, setResetMessage] = useState<string | null>(null);\n  const [resetError, setResetError] = useState<string | null>(null);
+  const [grantingPartnerId, setGrantingPartnerId] = useState<string | null>(null);
+  const [resetEmail, setResetEmail] = useState("");
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState<string | null>(null);
+  const [resetError, setResetError] = useState<string | null>(null);
 
   useEffect(() => { void refresh(); }, [refresh]);
   async function loadAdmins() { try { const result = await api.get<{ admins: AdminUser[] }>("/api/admin/admins"); setAdmins(result.admins); } catch { setAdminError("Could not load administrators."); } }
