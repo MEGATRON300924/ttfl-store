@@ -88,7 +88,20 @@ function cleanDescription(value: string | null, fallback: string) {
   return (text || fallback).slice(0, 155);
 }
 
-async function getReviewSummary(slug: string): Promise<{ rating: number | null; reviewCount: number }> {\n  try { const data = await api.get<{ rating: number | null; reviewCount: number }>("/api/reviews/store/" + encodeURIComponent(slug)); return { rating: data.rating == null ? null : Number(data.rating), reviewCount: Number(data.reviewCount ?? 0) }; } catch { return { rating: null, reviewCount: 0 }; }\n}\n\nfunction formatCount(value: number) { return new Intl.NumberFormat("en-NG", { notation: value >= 1000 ? "compact" : "standard", maximumFractionDigits: 1 }).format(value); }\n\nfunction getDisplayBadges(vendor: PublicVendor): StoreBadge[] {
+async function getReviewSummary(slug: string): Promise<{ rating: number | null; reviewCount: number }> {
+  try {
+    const data = await api.get<{ rating: number | null; reviewCount: number }>("/api/reviews/store/" + encodeURIComponent(slug));
+    return { rating: data.rating == null ? null : Number(data.rating), reviewCount: Number(data.reviewCount ?? 0) };
+  } catch {
+    return { rating: null, reviewCount: 0 };
+  }
+}
+
+function formatCount(value: number) {
+  return new Intl.NumberFormat("en-NG", { notation: value >= 1000 ? "compact" : "standard", maximumFractionDigits: 1 }).format(value);
+}
+
+function getDisplayBadges(vendor: PublicVendor): StoreBadge[] {
   const badges = new Set<StoreBadge>(vendor.badges ?? []);
   if (vendor.verified) badges.add("VERIFIED");
   if (vendor.tier === "BUSINESS") badges.add("BUSINESS");
