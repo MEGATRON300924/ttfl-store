@@ -68,7 +68,78 @@ const commonQuestions = [
   ["What should I do if payment or delivery has a problem?", "Keep your order number and use the support/report tools. Do not send passwords, card details, OTPs, or other private credentials to support."],
 ];
 
-function FeatureCard({ feature }: { feature: Feature }) {
+
+const errorCodes = [
+  ["AUTH-001","Invalid credentials","The email or password is incorrect.","Check the login details or use Forgot Password."],
+  ["AUTH-002","Account not found","No matching TTFL Store account was found.","Check the email address or create an account."],
+  ["AUTH-003","Account disabled","The account cannot authenticate while disabled.","Contact TTFL Store support."],
+  ["AUTH-004","Session expired","The current login session has expired.","Sign in again."],
+  ["AUTH-005","Unauthorized","The requested feature requires authentication.","Sign in and try again."],
+  ["AUTH-006","Forbidden","The account does not have permission for the requested action.","Check the account role or contact support."],
+  ["PASS-001","Reset request failed","The password reset request could not be completed.","Try requesting the reset link again."],
+  ["PASS-002","Reset token invalid","The password reset link or token is invalid.","Request a new password reset link."],
+  ["PASS-003","Reset token expired","The password reset link has expired.","Request a new password reset link."],
+  ["PASS-004","Password mismatch","The new password fields do not match.","Enter the same password in both fields."],
+  ["PASS-005","Password rejected","The new password does not meet the password requirements.","Choose a stronger valid password."],
+  ["EMAIL-001","Email not sent","A requested TTFL Store email could not be sent.","Try again and check the email address."],
+  ["EMAIL-002","Email delivery delayed","An email may have been accepted for delivery but has not arrived yet.","Check inbox, spam, and promotions folders."],
+  ["EMAIL-003","Invalid email","The supplied email address is invalid.","Enter a valid email address."],
+  ["ACC-001","Registration failed","Account creation could not be completed.","Review the information and try again."],
+  ["ACC-002","Email already registered","An account already uses that email address.","Sign in or use Forgot Password."],
+  ["ACC-003","Verification required","Email verification is required before the requested action can continue.","Check the verification email and verify the account."],
+  ["VEN-001","Vendor account not found","The requested vendor account could not be found.","Check the account details or contact support."],
+  ["VEN-002","Vendor registration failed","Vendor registration could not be completed.","Review the information and try again."],
+  ["VEN-003","Vendor access denied","The account does not have vendor access.","Use the correct vendor account or contact support."],
+  ["VEN-004","Storefront unavailable","The vendor storefront is currently unavailable.","Retry later or contact the vendor/support."],
+  ["VEN-005","Product creation failed","A vendor could not create the product listing.","Review the product information and try again."],
+  ["VEN-006","Product update failed","A vendor could not update the product listing.","Review the information and try again."],
+  ["VEN-007","Product deletion failed","A vendor could not delete the product listing.","Retry or contact support."],
+  ["VEN-008","Insufficient vendor permissions","The vendor account lacks permission for the requested action.","Check the vendor role/plan or contact support."],
+  ["PROD-001","Product not found","The requested product does not exist or is no longer available.","Search the marketplace for the product again."],
+  ["PROD-002","Product unavailable","The product exists but cannot currently be purchased.","Try again later or choose another product."],
+  ["PROD-004","Inventory unavailable","The requested quantity is not available.","Reduce the quantity or choose another product."],
+  ["CART-001","Cart unavailable","The shopping cart could not be loaded.","Refresh the page and try again."],
+  ["CART-002","Add to cart failed","The product could not be added to the cart.","Retry and check product availability."],
+  ["CART-003","Remove from cart failed","The cart item could not be removed.","Refresh the cart and retry."],
+  ["CART-004","Invalid quantity","The requested quantity is invalid.","Enter a valid quantity."],
+  ["CART-005","Item unavailable","A cart item is no longer available.","Remove the unavailable item and continue."],
+  ["CHECK-001","Checkout unavailable","Checkout could not be started.","Refresh and try again later."],
+  ["CHECK-002","Invalid checkout information","Required checkout information is missing or invalid.","Review and correct the checkout details."],
+  ["CHECK-003","Order creation failed","The order could not be created.","Do not make another payment until the order/payment status is confirmed."],
+  ["PAY-001","Payment initialization failed","A payment session could not be created.","Start checkout again."],
+  ["PAY-002","Payment failed","The payment provider reported a failed payment.","Confirm whether money was deducted before trying again."],
+  ["PAY-003","Payment cancelled","The payment process was cancelled.","Return to checkout and retry if needed."],
+  ["PAY-004","Payment pending","The payment has not reached a final state.","Wait for confirmation and avoid an immediate duplicate payment."],
+  ["PAY-005","Payment verification failed","TTFL could not verify the payment result.","If money was deducted, keep the transaction reference and contact support; do not pay again yet."],
+  ["PAY-006","Payment reference missing","A required payment reference is missing.","If money was deducted, contact support with the available transaction details."],
+  ["PAY-007","Payment amount mismatch","The payment amount does not match the expected order amount.","Do not retry the payment; contact support."],
+  ["PAY-008","Payment already processed","The payment reference has already been processed.","Do not pay again; check the order/payment status."],
+  ["PAY-009","Payment timeout","The payment operation took too long to complete.","Check whether money was deducted before retrying."],
+  ["PAY-010","Payment provider unavailable","The payment provider is temporarily unavailable.","Try again later."],
+  ["ORD-001","Order not found","The requested order could not be found.","Check the order number and account."],
+  ["ORD-002","Order creation failed","The order could not be created.","Check the payment/order status before trying again."],
+  ["ORD-004","Order cancellation failed","The order could not be cancelled through the requested action.","Contact support."],
+  ["ORD-005","Order already cancelled","The order is already cancelled.","No further cancellation is required."],
+  ["ORD-006","Order already completed","The order is already marked completed.","Contact support if that status appears incorrect."],
+  ["API-001","Invalid request","The request sent to the TTFL Store service is invalid.","Review the action and try again."],
+  ["API-002","Missing required field","A required field was not supplied.","Complete the required information and retry."],
+  ["API-005","Rate limit exceeded","Too many requests were made in a short period.","Wait briefly before trying again."],
+  ["API-006","Internal server error","The service encountered an unexpected server-side error.","Retry later; contact support if it persists."],
+  ["API-007","Service unavailable","A required service is temporarily unavailable.","Retry later."],
+  ["API-008","Request timeout","The service did not respond within the expected time.","Check the connection and retry."],
+  ["DB-001","Database connection failed","The application could not connect to its database.","Retry later; escalate to technical support if persistent."],
+  ["DB-003","Database timeout","A database operation took too long.","Retry later."],
+  ["SEC-001","Security validation failed","A security validation check failed.","Retry normally or contact support if it continues."],
+  ["SEC-002","Invalid authentication token","The authentication token is invalid.","Sign in again."],
+  ["SEC-003","Authentication token expired","The authentication token has expired.","Sign in again."],
+  ["SEC-004","Suspicious request blocked","A security control blocked the request.","Retry normally; contact support if a legitimate request is repeatedly blocked."],
+  ["SYS-001","Unexpected error","An unexpected application error occurred.","Retry and contact support if it persists."],
+  ["SYS-002","Service temporarily unavailable","The requested service is temporarily unavailable.","Try again later."],
+  ["SYS-003","Maintenance mode","The requested service is under maintenance.","Try again after maintenance is complete."],
+  ["SYS-004","Network error","The connection to the service failed.","Check the internet connection and retry."],
+  ["SYS-005","Request timeout","The operation timed out before completion.","Retry the operation."],
+] as const;
+\nfunction FeatureCard({ feature }: { feature: Feature }) {
   const Icon = feature.icon;
   return (
     <div className="rounded-card border border-graphite-200 bg-white p-5 dark:border-graphite-700 dark:bg-graphite-900">
@@ -268,6 +339,86 @@ export default function DocsPage() {
                 <p className="mt-2 text-sm leading-6 text-graphite-600 dark:text-graphite-400">{answer}</p>
               </details>
             ))}
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-card border border-graphite-200 bg-white p-6 dark:border-graphite-700 dark:bg-graphite-900">
+          <div className="flex items-start gap-3">
+            <Activity className="mt-0.5 h-5 w-5 text-ember-600" />
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-600">07 · Error codes & troubleshooting</p>
+              <h2 className="mt-1 text-2xl font-bold text-graphite-900 dark:text-white">TTFL Store error code reference</h2>
+              <p className="mt-2 max-w-4xl text-sm leading-6 text-graphite-600 dark:text-graphite-400">
+                This section is designed as a customer-support reference and can also be supplied to an AI assistant. When a customer gives an error code, use the exact code below, explain its meaning in plain language, and give the listed next step. Do not invent a meaning for an unknown code.
+              </p>
+            </div>
+          </div>
+          <div className="mt-5 overflow-x-auto">
+            <table className="w-full min-w-[860px] border-collapse text-left text-sm">
+              <thead>
+                <tr className="border-b border-graphite-200 dark:border-graphite-700">
+                  <th className="px-3 py-3 font-bold text-graphite-900 dark:text-white">Code</th>
+                  <th className="px-3 py-3 font-bold text-graphite-900 dark:text-white">Meaning</th>
+                  <th className="px-3 py-3 font-bold text-graphite-900 dark:text-white">What it means</th>
+                  <th className="px-3 py-3 font-bold text-graphite-900 dark:text-white">Recommended action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {errorCodes.map(([code, title, meaning, action]) => (
+                  <tr key={code} className="border-b border-graphite-100 align-top dark:border-graphite-800">
+                    <td className="px-3 py-3 font-mono text-xs font-bold text-ember-700 dark:text-ember-300">{code}</td>
+                    <td className="px-3 py-3 font-semibold text-graphite-900 dark:text-white">{title}</td>
+                    <td className="px-3 py-3 leading-5 text-graphite-600 dark:text-graphite-400">{meaning}</td>
+                    <td className="px-3 py-3 leading-5 text-graphite-600 dark:text-graphite-400">{action}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-2">
+            <div className="rounded-card bg-cloud-100 p-4 dark:bg-graphite-950">
+              <p className="text-sm font-bold text-graphite-900 dark:text-white">For MAX / Meta AI customer support</p>
+              <ul className="mt-2 space-y-1.5 text-sm leading-6 text-graphite-600 dark:text-graphite-400">
+                <li>• Quote the exact error code the customer provided.</li>
+                <li>• Explain the documented meaning without adding unsupported causes.</li>
+                <li>• Give the documented next step and link to the TTFL Store Error Code Checker when appropriate.</li>
+                <li>• If the code is unknown, ask for the exact code/message instead of guessing.</li>
+              </ul>
+            </div>
+            <div className="rounded-card bg-cloud-100 p-4 dark:bg-graphite-950">
+              <p className="text-sm font-bold text-graphite-900 dark:text-white">Security and payment rules</p>
+              <ul className="mt-2 space-y-1.5 text-sm leading-6 text-graphite-600 dark:text-graphite-400">
+                <li>• Never ask for a password, OTP, PIN, CVV, full card number, authentication token, or other secret.</li>
+                <li>• For payment errors, first determine whether the customer's money was deducted.</li>
+                <li>• If money may have been deducted, do not tell the customer to make a duplicate payment until the status is confirmed.</li>
+                <li>• Safe support references include an order number, transaction reference, or Product ID when needed.</li>
+              </ul>
+            </div>
+          </div>
+          <div className="mt-5 rounded-card border border-graphite-200 p-4 dark:border-graphite-700">
+            <p className="text-sm font-bold text-graphite-900 dark:text-white">Customer support escalation</p>
+            <p className="mt-1 text-sm leading-6 text-graphite-600 dark:text-graphite-400">
+              If the documented recovery step does not resolve the issue, collect the non-sensitive reference needed to investigate (for example order number or transaction reference), describe what happened, and direct the customer to TTFL Store support. Never claim that a refund, payment reversal, delivery update, account change, or other administrative action has happened unless the system confirms it.
+            </p>
+          </div>
+        </section>
+
+        <section className="mt-10 rounded-card border border-graphite-200 bg-graphite-950 p-6 text-white">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-400">08 · AI knowledge-base guidance</p>
+          <h2 className="mt-1 text-2xl font-bold">TTFL Store information for AI assistants</h2>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            <div>
+              <h3 className="font-bold">Use this documentation as the TTFL Store reference</h3>
+              <p className="mt-1 text-sm leading-6 text-white/70">An AI assistant answering TTFL Store customer questions should use the documented features, workflows, error codes, and security rules on this page. It should not invent policies, prices, refunds, delivery promises, product availability, or backend actions that are not documented or confirmed by the live system.</p>
+            </div>
+            <div>
+              <h3 className="font-bold">When information is missing</h3>
+              <p className="mt-1 text-sm leading-6 text-white/70">Ask a focused follow-up question or direct the customer to support. For an unknown error code, request the exact code and message. For order or payment issues, request only safe references such as the order number or transaction reference.</p>
+            </div>
+          </div>
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link href="/error-codes" className="rounded-card bg-white px-4 py-2.5 text-sm font-semibold text-graphite-900 hover:bg-cloud-100">Open Error Code Checker</Link>
+            <Link href="/support" className="rounded-card border border-white/20 px-4 py-2.5 text-sm font-semibold text-white hover:bg-white/10">Open Support</Link>
           </div>
         </section>
 
