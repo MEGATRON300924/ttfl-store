@@ -139,7 +139,7 @@ const errorCodes = [
   ["SYS-004","Network error","The connection to the service failed.","Check the internet connection and retry."],
   ["SYS-005","Request timeout","The operation timed out before completion.","Retry the operation."],
 ] as const;
-\nfunction FeatureCard({ feature }: { feature: Feature }) {
+function FeatureCard({ feature }: { feature: Feature }) {
   const Icon = feature.icon;
   return (
     <div className="rounded-card border border-graphite-200 bg-white p-5 dark:border-graphite-700 dark:bg-graphite-900">
