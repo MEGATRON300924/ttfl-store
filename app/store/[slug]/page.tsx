@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { MapPin, MessageCircle, Store as StoreIcon } from "lucide-react";
+import { CalendarDays, ChevronRight, Eye, MapPin, MessageCircle, ShieldCheck, Sparkles, Star, Store as StoreIcon } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import type { ApiProduct } from "@/lib/api-types";
 import { ProductCard } from "@/components/product-card";
 import { StoreBadges, type StoreBadge } from "@/components/store-badges";
+import { StoreProfileActions } from "@/components/store-profile-actions";
 
 const SITE_URL = "https://ttflstore.name.ng";
 const DEFAULT_SEO_IMAGE = "/ttflstore.png";
@@ -84,61 +85,75 @@ async function getStoreProducts(slug: string): Promise<ApiProduct[]> {
 
 function cleanDescription(value: string | null, fallback: string) {
   const text = (value ?? "").replace(/\s+/g, " ").trim();
-  return (text || fallback).slice(0, 155);
-}
-
-function getDisplayBadges(vendor: PublicVendor): StoreBadge[] {
-  const badges = new Set<StoreBadge>(vendor.badges ?? []);
-  if (vendor.verified) badges.add("VERIFIED");
-  if (vendor.tier === "BUSINESS") badges.add("BUSINESS");
-  if (vendor.tier === "ENTERPRISE") {
-    badges.add("ENTERPRISE");
-    badges.add("PLATINUM");
-  }
-  return Array.from(badges);
-}
-
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const vendor = await getVendor(params.slug);
-  if (!vendor) return { title: "Store not found", description: "This store could not be found on TTFL Store.", openGraph: { title: "Store not found | TTFL Store", description: "This store could not be found on TTFL Store.", images: [{ url: DEFAULT_SEO_IMAGE, width: 1200, height: 630, alt: "TTFL Store" }] }, twitter: { card: "summary_large_image", images: [DEFAULT_SEO_IMAGE] } };
-  const title = `${vendor.storeName} | TTFL Store`;
-  const description = cleanDescription(vendor.description ?? vendor.bio, `Shop ${vendor.storeName} on TTFL Store.`);
-  const image = vendor.bannerUrl || vendor.logoUrl || DEFAULT_SEO_IMAGE;
-  const publicSlug = vendor.customUrl || vendor.storeSlug;
-  const canonical = `${SITE_URL}/store/${publicSlug}`;
-  return { title, description, alternates: { canonical }, openGraph: { type: "website", siteName: "TTFL Store", title, description, url: canonical, images: [{ url: image, width: 1200, height: 630, alt: `${vendor.storeName} on TTFL Store` }] }, twitter: { card: "summary_large_image", title, description, images: [image] } };
-}
-
-export default async function StorePage({ params }: { params: { slug: string } }) {
-  const vendor = await getVendor(params.slug);
-  if (!vendor) notFound();
-  const items = await getStoreProducts(vendor.storeSlug);
-  const badges = getDisplayBadges(vendor);
-  const enterprise = badges.includes("ENTERPRISE") || vendor.tier === "ENTERPRISE";
-  const dark = vendor.theme === "DARK";
-  const surface = dark ? "bg-graphite-900 text-white" : "bg-white text-graphite-900";
-  const muted = dark ? "text-graphite-200" : "text-graphite-600";
-
   return (
-    <div className={dark ? "min-h-screen bg-graphite-950" : "min-h-screen bg-cloud-50"}>
+    <main className={dark ? "min-h-screen bg-graphite-950 text-white" : "min-h-screen bg-cloud-50 text-graphite-900"}>
       <div className="shell py-5 sm:py-8">
-        <div className={`overflow-hidden rounded-card border border-graphite-200 ${surface}`}>
-          {vendor.bannerUrl ? <div className="relative h-36 w-full sm:h-56"><Image src={vendor.bannerUrl} alt="" fill sizes="100vw" className="object-cover" priority /></div> : <div className="h-24 w-full sm:h-32" style={vendor.theme === "MINIMAL" ? undefined : { backgroundColor: vendor.accentColor }} />}
-          <div className="relative px-4 pb-5 sm:px-8 sm:pb-7">
-            <div className="-mt-7 flex flex-col gap-3 sm:-mt-9 sm:flex-row sm:items-end sm:justify-between">
-              <div className="flex min-w-0 flex-col gap-2.5 sm:flex-row sm:items-end">
-                {vendor.logoUrl ? <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full border-4 border-white bg-white shadow-card sm:h-20 sm:w-20"><Image src={vendor.logoUrl} alt={`${vendor.storeName} logo`} fill sizes="80px" className="object-cover" /></div> : <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full border-4 border-white bg-graphite-900 text-xl font-bold text-white shadow-card sm:h-20 sm:w-20">{vendor.storeName.charAt(0).toUpperCase()}</div>}
-                <div className="min-w-0"><h1 className="truncate text-xl font-bold sm:text-2xl">{vendor.storeName}</h1><div className="mt-1.5"><StoreBadges badges={badges} /></div>{vendor.location && <p className={`mt-1.5 flex items-center gap-1.5 text-sm ${muted}`}><MapPin className="h-4 w-4" />{vendor.location}</p>}</div>
+        <section className={"overflow-hidden rounded-[28px] border shadow-card " + panel}>
+          <div className="relative h-52 sm:h-72">
+            {vendor.bannerUrl ? <Image src={vendor.bannerUrl} alt="" fill sizes="100vw" className="object-cover" priority /> : <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, " + accent + ", " + (dark ? "#111827" : "#1F2937") + ")" }} />}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
+            <div className="absolute right-4 top-4 sm:right-6 sm:top-6"><StoreProfileActions storeName={vendor.storeName} url={storeUrl} whatsappNumber={vendor.whatsappNumber} /></div>
+            <div className="absolute bottom-5 left-4 right-4 sm:bottom-7 sm:left-7 sm:right-7">
+              <div className="flex min-w-0 items-end gap-4">
+                {vendor.logoUrl ? <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg sm:h-24 sm:w-24"><Image src={vendor.logoUrl} alt={vendor.storeName + " logo"} fill sizes="96px" className="object-cover" /></div> : <div className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl border-4 border-white bg-graphite-900 text-2xl font-bold text-white shadow-lg sm:h-24 sm:w-24">{vendor.storeName.charAt(0).toUpperCase()}</div>}
+                <div className="min-w-0 text-white">
+                  <div className="flex flex-wrap items-center gap-2"><h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">{vendor.storeName}</h1>{vendor.verified && <ShieldCheck className="h-5 w-5 shrink-0" aria-label="Verified store" />}</div>
+                  {vendor.headline && <p className="mt-1 max-w-2xl text-sm font-medium text-white/90 sm:text-base">{vendor.headline}</p>}
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/85 sm:text-sm">
+                    {vendor.location && <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" />{vendor.location}</span>}
+                    <span className="inline-flex items-center gap-1.5"><Star className="h-4 w-4 fill-current" />{reviews.rating == null ? "New store" : reviews.rating.toFixed(1) + " · " + reviews.reviewCount + " review" + (reviews.reviewCount === 1 ? "" : "s")}</span>
+                  </div>
+                </div>
               </div>
-              {vendor.whatsappNumber && <a href={`https://wa.me/${vendor.whatsappNumber.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" className="inline-flex w-full items-center justify-center gap-2 rounded-card bg-verified-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-verified-700 sm:w-auto"><MessageCircle className="h-4 w-4" />Contact store</a>}
             </div>
-            <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_auto]"><div>{vendor.headline && <p className="text-lg font-semibold">{vendor.headline}</p>}<p className={`mt-1 max-w-3xl text-sm leading-6 ${muted}`}>{vendor.description ?? vendor.bio ?? "Welcome to our TTFL Store."}</p></div><div className={`flex gap-5 text-sm ${muted}`}><span><strong className={dark ? "text-white" : "text-graphite-900"}>{vendor.productCount}</strong> products</span><span><strong className={dark ? "text-white" : "text-graphite-900"}>{vendor.viewCount}</strong> visits</span></div></div>
           </div>
+          <div className="px-4 pb-5 pt-5 sm:px-7 sm:pb-7">
+            <div className="flex flex-wrap items-center gap-2"><StoreBadges badges={badges} />{vendor.tier !== "FREE" && <span className="rounded-full border border-graphite-200 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-graphite-500">{vendor.tier} store</span>}</div>
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                ["Products", formatCount(vendor.productCount), "Available on the storefront"],
+                ["Customer rating", reviews.rating == null ? "—" : reviews.rating.toFixed(1) + " ★", reviews.reviewCount + " customer review" + (reviews.reviewCount === 1 ? "" : "s")],
+                ["Store since", String(new Date(vendor.createdAt).getFullYear()), "Part of TTFL Store"],
+                ["Profile views", formatCount(vendor.viewCount), "Public storefront visits"],
+              ].map(([label, value, hint]) => <div key={label} className={"rounded-2xl border p-4 " + (dark ? "border-white/10 bg-white/5" : "border-graphite-200 bg-cloud-50")}><p className={"text-xs font-medium " + muted}>{label}</p><p className="mt-1 text-xl font-bold">{value}</p><p className={"mt-1 text-xs " + muted}>{hint}</p></div>)}
+            </div>
+          </div>
+        </section>
+
+        <div className={"mt-6 grid gap-6 " + (vendor.layout === "EDITORIAL" ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,.85fr)]" : "lg:grid-cols-[minmax(0,1fr)_300px]")}>
+          <div className="min-w-0">
+            {(vendor.description || vendor.bio || vendor.headline) && <section className={"rounded-card border p-5 sm:p-6 " + panel}>
+              <div className="flex items-center gap-2"><Sparkles className="h-4 w-4" style={{ color: accent }} /><h2 className="font-bold">About this store</h2></div>
+              <p className={"mt-3 text-sm leading-7 " + muted}>{vendor.description ?? vendor.bio ?? vendor.headline}</p>
+              <div className={"mt-5 flex flex-wrap gap-2 text-xs " + muted}>{vendor.location && <span className="inline-flex items-center gap-1.5 rounded-full border border-graphite-200 px-3 py-1.5"><MapPin className="h-3.5 w-3.5" />{vendor.location}</span>}<span className="inline-flex items-center gap-1.5 rounded-full border border-graphite-200 px-3 py-1.5"><CalendarDays className="h-3.5 w-3.5" />Since {new Date(vendor.createdAt).getFullYear()}</span></div>
+            </section>}
+
+            {enterprise && vendor.gallery.length > 0 && <section className={"mt-6 rounded-card border p-5 sm:p-6 " + panel}>
+              <div className="flex items-end justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[.16em]" style={{ color: accent }}>Store gallery</p><h2 className="mt-1 text-xl font-bold">A closer look at {vendor.storeName}</h2></div><span className={"hidden text-xs sm:block " + muted}>{vendor.gallery.length} photos</span></div>
+              <div className={"mt-4 grid gap-2.5 " + (vendor.layout === "EDITORIAL" ? "grid-cols-2 md:grid-cols-3" : "grid-cols-2 md:grid-cols-4")}>{vendor.gallery.map((image, index) => <div key={image.id} className={"relative overflow-hidden rounded-2xl bg-cloud-100 " + (index === 0 && vendor.layout === "EDITORIAL" ? "aspect-[16/10] md:col-span-2" : "aspect-[4/3]")}><Image src={image.url} alt={vendor.storeName + " gallery photo " + (index + 1)} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover transition duration-300 hover:scale-[1.03]" /></div>)}</div>
+            </section>}
+
+            <section className="mt-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"><div><div className="flex items-center gap-2"><StoreIcon className="h-5 w-5" style={{ color: accent }} /><h2 className="text-xl font-bold">{vendor.layout === "CATALOG" ? "Store catalogue" : "Shop this store"}</h2></div><p className={"mt-1 text-sm " + muted}>{items.length ? items.length + " products currently visible" : "This store has not listed any products yet."}</p></div><Link href={"/stores/" + encodeURIComponent(vendor.storeSlug) + "/reviews"} className="inline-flex items-center gap-1 text-sm font-semibold" style={{ color: accent }}>Reviews <ChevronRight className="h-4 w-4" /></Link></div>
+              {items.length === 0 ? <div className={"mt-4 rounded-card border border-dashed p-10 text-center " + (dark ? "border-white/10" : "border-graphite-200")}><StoreIcon className="mx-auto h-8 w-8 opacity-30" /><p className="mt-3 font-semibold">Nothing listed yet</p><p className={"mt-1 text-sm " + muted}>Check back later for products from this store.</p></div> : <div className={"mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 " + (vendor.layout === "CATALOG" ? "lg:grid-cols-4 xl:grid-cols-5" : "lg:grid-cols-4")}>{items.map((p) => <ProductCard key={p.id} product={{ id: p.id, slug: p.slug, name: p.name, price: Number(p.price), previousPrice: p.previousPrice ? Number(p.previousPrice) : undefined, image: p.images[0]?.url ?? "", vendor: p.vendor.storeName, vendorSlug: p.vendor.storeSlug, verified: p.vendor.verified, location: p.location ?? "", rating: Number(p.avgRating ?? 0), reviewCount: p.reviewCount ?? 0, sellingMethod: p.sellingMethod === "EXTERNAL_LINK" ? "external" : p.sellingMethod === "WHATSAPP" ? "whatsapp" : "checkout" }} />)}</div>}
+            </section>
+          </div>
+
+          <aside className="space-y-4 lg:sticky lg:top-5 lg:self-start">
+            <section className={"rounded-card border p-5 " + panel}>
+              <p className="text-xs font-semibold uppercase tracking-[.16em]" style={{ color: accent }}>Store at a glance</p>
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center justify-between gap-4 text-sm"><span className={muted}>Visibility</span><span className="inline-flex items-center gap-1.5 font-semibold"><span className="h-2 w-2 rounded-full bg-verified-500" />Public</span></div>
+                <div className="flex items-center justify-between gap-4 text-sm"><span className={muted}>Ordering</span><span className="text-right font-semibold">{items.some((item) => item.sellingMethod === "CHECKOUT") ? "TTFL checkout" : items.some((item) => item.sellingMethod === "WHATSAPP") ? "WhatsApp" : "Product links"}</span></div>
+                <div className="flex items-center justify-between gap-4 text-sm"><span className={muted}>Location</span><span className="max-w-[170px] truncate text-right font-semibold">{vendor.location || "Nigeria"}</span></div>
+              </div>
+              <div className="mt-5 flex flex-col gap-2">{vendor.whatsappNumber && <a href={"https://wa.me/" + vendor.whatsappNumber.replace(/\D/g, "")} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-card bg-verified-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-verified-700"><MessageCircle className="h-4 w-4" />Chat on WhatsApp</a>}<Link href={"/stores/" + encodeURIComponent(vendor.storeSlug) + "/reviews"} className="inline-flex items-center justify-center gap-2 rounded-card border border-graphite-200 px-4 py-2.5 text-sm font-semibold"><Star className="h-4 w-4" />Read customer reviews</Link></div>
+            </section>
+            <section className={"rounded-card border p-5 " + panel}><div className="flex items-start gap-3"><div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl" style={{ backgroundColor: accent + "18", color: accent }}><ShieldCheck className="h-5 w-5" /></div><div><h3 className="font-semibold">Shop with confidence</h3><p className={"mt-1 text-xs leading-5 " + muted}>{vendor.verified ? "This store has a verified vendor profile on TTFL Store." : "Use the store details, product information, and customer reviews to make an informed purchase."}</p></div></div></section>
+            {vendor.viewCount > 0 && <div className={"flex items-center gap-2 px-1 text-xs " + muted}><Eye className="h-3.5 w-3.5" />{formatCount(vendor.viewCount)} public profile views</div>}
+          </aside>
         </div>
-        {enterprise && vendor.gallery.length > 0 && <section className="mt-7 sm:mt-8"><div className="mb-4"><p className="text-xs font-semibold uppercase tracking-wide text-ember-600">Store gallery</p><h2 className={`mt-1 text-xl font-bold ${dark ? "text-white" : "text-graphite-900"}`}>Inside {vendor.storeName}</h2></div><div className="grid grid-cols-2 gap-2.5 md:grid-cols-4 md:gap-3">{vendor.gallery.map((image) => <div key={image.id} className="relative aspect-[4/3] overflow-hidden rounded-card border border-graphite-200 bg-white"><Image src={image.url} alt={`${vendor.storeName} gallery`} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover" /></div>)}</div></section>}
-        <div className="mt-7 flex items-center gap-2 sm:mt-8"><StoreIcon className="h-5 w-5 text-ember-600" /><h2 className={`text-xl font-bold ${dark ? "text-white" : "text-graphite-900"}`}>Products from this store</h2></div>
-        {items.length === 0 ? <div className="mt-4 rounded-card border border-dashed border-graphite-200 p-8 text-center text-sm text-graphite-600">This store hasn't listed any products yet.</div> : <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">{items.map((p) => <ProductCard key={p.id} product={{ id: p.id, slug: p.slug, name: p.name, price: Number(p.price), previousPrice: p.previousPrice ? Number(p.previousPrice) : undefined, image: p.images[0]?.url ?? "", vendor: p.vendor.storeName, vendorSlug: p.vendor.storeSlug, verified: p.vendor.verified, location: p.location ?? "", rating: 0, reviewCount: 0, sellingMethod: p.sellingMethod === "EXTERNAL_LINK" ? "external" : p.sellingMethod === "WHATSAPP" ? "whatsapp" : "checkout" }} />)}</div>}
       </div>
-    </div>
+    </main>
   );
 }
