@@ -130,8 +130,11 @@ export default async function StorePage({ params }: { params: { slug: string } }
   const badges = getDisplayBadges(vendor);
   const enterprise = badges.includes("ENTERPRISE") || vendor.tier === "ENTERPRISE";
   const dark = vendor.theme === "DARK";
-  const surface = dark ? "bg-graphite-900 text-white" : "bg-white text-graphite-900";
-  const muted = dark ? "text-graphite-200" : "text-graphite-600";
+  const accent = vendor.theme === "MINIMAL" ? "#111827" : vendor.accentColor || "#E8622C";
+  const publicSlug = vendor.customUrl || vendor.storeSlug;
+  const storeUrl = SITE_URL + "/store/" + publicSlug;
+  const muted = dark ? "text-graphite-300" : "text-graphite-600";
+  const panel = dark ? "border-white/10 bg-graphite-900" : "border-graphite-200 bg-white";
 
   return (
     <main className={dark ? "min-h-screen bg-graphite-950 text-white" : "min-h-screen bg-cloud-50 text-graphite-900"}>
