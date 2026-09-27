@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Users, Package, BarChart3, Wallet, Ticket, Megaphone, Layers, MessageCircle, Settings, FileText, Mail, ShoppingBag, Send, UserPlus, MessageSquare, UserMinus, BellRing,CalendarDays,Gift,AlertTriangle } from "lucide-react";
+import { Users, Package, BarChart3, Wallet, Ticket, Megaphone, Layers, MessageCircle, Settings, FileText, Mail, ShoppingBag, Send, UserPlus, MessageSquare, UserMinus, BellRing, CalendarDays, Gift, AlertTriangle, KeyRound } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api-client";
 
@@ -20,7 +20,7 @@ export default function AdminDashboardPage() {
   const [partners, setPartners] = useState<any[]>([]);
   const [eventAdminMessage, setEventAdminMessage] = useState<string | null>(null);
   const [eventAdminError, setEventAdminError] = useState<string | null>(null);
-  const [grantingPartnerId, setGrantingPartnerId] = useState<string | null>(null);
+  const [grantingPartnerId, setGrantingPartnerId] = useState<string | null>(null);\n  const [resetEmail, setResetEmail] = useState("");\n  const [resetLoading, setResetLoading] = useState(false);\n  const [resetMessage, setResetMessage] = useState<string | null>(null);\n  const [resetError, setResetError] = useState<string | null>(null);
 
   useEffect(() => { void refresh(); }, [refresh]);
   async function loadAdmins() { try { const result = await api.get<{ admins: AdminUser[] }>("/api/admin/admins"); setAdmins(result.admins); } catch { setAdminError("Could not load administrators."); } }
@@ -33,6 +33,26 @@ export default function AdminDashboardPage() {
     try { const result = await api.post<{ admin: AdminUser }>("/api/admin/admins", { email: adminEmail.trim() }); setAdmins((current) => current.some((item) => item.id === result.admin.id) ? current : [...current, result.admin]); setAdminEmail(""); setAdminMessage(`${result.admin.email} is now an administrator.`); await refresh(); }
     catch (error) { setAdminError(error instanceof ApiError ? error.message : "Could not add administrator."); }
     finally { setAdminLoading(false); }
+  }
+
+  async function sendPasswordReset(event: React.FormEvent) {
+    event.preventDefault();
+    const email = resetEmail.trim().toLowerCase();
+    if (!email) return;
+
+    setResetLoading(true);
+    setResetMessage(null);
+    setResetError(null);
+
+    try {
+      await api.post("/api/auth/forgot-password", { email });
+      setResetEmail("");
+      setResetMessage(`If an account exists for ${email}, a secure password reset link has been sent.`);
+    } catch (error) {
+      setResetError(error instanceof ApiError ? error.message : "Could not send the password reset link.");
+    } finally {
+      setResetLoading(false);
+    }
   }
 
   async function removeAdmin(admin: AdminUser) {
@@ -54,6 +74,23 @@ export default function AdminDashboardPage() {
       <form onSubmit={addAdmin} className="mt-4 flex flex-col gap-2 sm:flex-row"><input type="email" required value={adminEmail} onChange={(event) => setAdminEmail(event.target.value)} placeholder="admin@example.com" className="min-w-0 flex-1 rounded-card border border-graphite-200 bg-white px-3 py-2.5 text-sm text-graphite-900 outline-none focus:border-ember-600"/><button disabled={adminLoading} className="inline-flex items-center justify-center gap-2 rounded-card bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"><UserPlus className="h-4 w-4"/>{adminLoading ? "Adding..." : "Add admin"}</button></form>
       {adminMessage&&<p className="mt-3 rounded-card bg-verified-100 px-3 py-2 text-sm text-verified-700">{adminMessage}</p>}{adminError&&<p className="mt-3 rounded-card bg-ember-100 px-3 py-2 text-sm text-ember-700">{adminError}</p>}
       <div className="mt-4 divide-y divide-graphite-200 border-t border-graphite-200">{admins.map((admin)=><div key={admin.id} className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-sm font-semibold text-graphite-900">{admin.firstName} {admin.lastName}</p><p className="text-xs text-graphite-600">{admin.email}</p></div><div className="flex flex-wrap items-center gap-2 text-xs text-graphite-600"><span className="rounded-[4px] bg-verified-100 px-2 py-1 font-semibold text-verified-700">Admin</span>{admin.emailVerified?<span>Verified email</span>:<span>Unverified email</span>}<button type="button" onClick={() => void removeAdmin(admin)} disabled={removingAdminId === admin.id || admin.id === user.id} title={admin.id === user.id ? "You cannot remove your own administrator access" : "Remove administrator access"} className="inline-flex items-center gap-1 rounded-[4px] border border-ember-200 px-2 py-1 font-semibold text-ember-700 disabled:cursor-not-allowed disabled:opacity-50"><UserMinus className="h-3.5 w-3.5"/>{removingAdminId === admin.id ? "Removing..." : "Remove admin"}</button></div></div>)}</div>
+    </section>
+    <section className="mt-6 rounded-card border border-graphite-200 bg-white p-5">
+      <div className="flex items-start gap-3">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-card bg-cloud-100 text-graphite-700"><KeyRound className="h-5 w-5"/></span>
+        <div>
+          <h2 className="font-bold text-graphite-900">User password recovery</h2>
+          <p className="mt-0.5 text-sm text-graphite-600">Send a secure password reset link to a TTFL Store user who cannot log in. The existing password-reset email flow will deliver the link.</p>
+        </div>
+      </div>
+      <form onSubmit={sendPasswordReset} className="mt-4 flex flex-col gap-2 sm:flex-row">
+        <input type="email" required value={resetEmail} onChange={(event) => setResetEmail(event.target.value)} placeholder="user@example.com" autoComplete="email" className="min-w-0 flex-1 rounded-card border border-graphite-200 bg-white px-3 py-2.5 text-sm text-graphite-900 outline-none focus:border-ember-600"/>
+        <button type="submit" disabled={resetLoading} className="inline-flex items-center justify-center gap-2 rounded-card bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">
+          <KeyRound className="h-4 w-4"/>{resetLoading ? "Sending..." : "Send reset link"}
+        </button>
+      </form>
+      {resetMessage && <p className="mt-3 rounded-card bg-verified-100 px-3 py-2 text-sm text-verified-700">{resetMessage}</p>}
+      {resetError && <p className="mt-3 rounded-card bg-ember-100 px-3 py-2 text-sm text-ember-700">{resetError}</p>}
     </section>
     <section className="mt-6 rounded-card border border-graphite-200 bg-white p-5"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-card bg-cloud-100 text-graphite-700"><MessageSquare className="h-5 w-5"/></span><div><h2 className="font-bold text-graphite-900">WhatsApp order notifications</h2><p className="mt-1 text-sm leading-6 text-graphite-600">Configure the WhatsApp numbers that receive new-order alerts. The notification adapter supports the Botpress WhatsApp webhook and can fall back to Meta Cloud API.</p><Link href="/admin/settings" className="mt-3 inline-flex rounded-card bg-graphite-900 px-4 py-2 text-xs font-semibold text-white">Manage WhatsApp numbers</Link></div></div></section>
     <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{LINKS.map(([href,Icon,title,desc])=><Link key={href} href={href} className="flex items-center gap-4 rounded-card border border-graphite-200 p-5 hover:border-ember-600"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-card bg-cloud-100 text-graphite-700"><Icon className="h-5 w-5"/></span><div><p className="font-semibold text-graphite-900">{title}</p><p className="text-sm text-graphite-600">{desc}</p></div></Link>)}</div>
