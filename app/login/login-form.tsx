@@ -10,7 +10,7 @@ import { GoogleSignIn } from "@/components/google-sign-in";
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { refresh } = useAuth();
+  const { setAuthenticatedUser } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -21,8 +21,8 @@ export function LoginForm() {
     setError(null);
     setSubmitting(true);
     try {
-      await api.post("/api/auth/login", { email, password });
-      await refresh();
+      const { user } = await api.post<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/login", { email, password });
+      setAuthenticatedUser(user);
       router.push(searchParams.get("next") ?? "/");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
@@ -30,9 +30,9 @@ export function LoginForm() {
     }
   }
 
-  async function handleGoogleSuccess() {
+  async function handleGoogleSuccess(user: import("@/lib/api-types").ApiUser) {
     setError(null);
-    await refresh();
+    setAuthenticatedUser(user);
     router.push(searchParams.get("next") ?? "/");
   }
 
