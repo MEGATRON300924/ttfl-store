@@ -45,6 +45,7 @@ async function proxyAuth(request: NextRequest, path: string[]) {
     });
 
     const responseHeaders = new Headers();
+    responseHeaders.set("cache-control", "no-store");
     const upstreamContentType = upstream.headers.get("content-type");
     if (upstreamContentType) responseHeaders.set("content-type", upstreamContentType);
 
