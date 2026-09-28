@@ -20,7 +20,7 @@ declare global {
 }
 
 type GoogleSignInProps = {
-  onSuccess?: () => Promise<void>;
+  onSuccess?: (user: import("@/lib/api-types").ApiUser) => Promise<void>;
   onError?: (message: string) => void;
 };
 
@@ -51,8 +51,8 @@ export function GoogleSignIn({ onSuccess = async () => {}, onError = () => {} }:
             callback: async ({ credential }) => {
               try {
                 setLoading(true);
-                await api.post("/api/auth/google", { credential });
-                await onSuccess();
+                const { user } = await api.post<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/google", { credential });
+                await onSuccess(user);
               } catch (error) {
                 onError(error instanceof ApiError ? error.message : "Google Sign-In failed. Please try again.");
               } finally {
