@@ -108,6 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, wishlistIds]);
 
   const logout = useCallback(async () => {
+    authEpoch.current += 1;
     try { await api.post("/api/auth/logout"); } catch {}
     setUser(null);
     setWishlistIds(new Set());
