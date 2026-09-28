@@ -111,7 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => { if (!loading) void refreshWishlist(); }, [loading, refreshWishlist]);
 
   return (
-    <AuthContext.Provider value={{ user, loading, wishlistIds, refresh, refreshWishlist, toggleWishlist, logout }}>
+    <AuthContext.Provider value={{ user, loading, wishlistIds, refresh, setAuthenticatedUser, refreshWishlist, toggleWishlist, logout }}>
       {children}
     </AuthContext.Provider>
   );
