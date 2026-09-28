@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, Mail } from "lucide-react";
@@ -32,15 +32,15 @@ export default function RegisterPage() {
     }
   }
 
-  async function handleGoogleSuccess(user: import("@/lib/api-types").ApiUser) {
+  const handleGoogleSuccess = useCallback(async (user: import("@/lib/api-types").ApiUser) => {
     setError(null);
     setAuthenticatedUser(user);
     router.push("/account");
-  }
+  }, [router, setAuthenticatedUser]);
 
-  function handleGoogleError(message: string) {
+  const handleGoogleError = useCallback((message: string) => {
     setError(message);
-  }
+  }, []);
 
   function continueToStore() {
     setVerificationNotice(false);
