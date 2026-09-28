@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { api, ApiError } from "@/lib/api-client";
@@ -30,15 +30,15 @@ export function LoginForm() {
     }
   }
 
-  async function handleGoogleSuccess(user: import("@/lib/api-types").ApiUser) {
+  const handleGoogleSuccess = useCallback(async (user: import("@/lib/api-types").ApiUser) => {
     setError(null);
     setAuthenticatedUser(user);
     router.push(searchParams.get("next") ?? "/");
-  }
+  }, [router, searchParams, setAuthenticatedUser]);
 
-  function handleGoogleError(message: string) {
+  const handleGoogleError = useCallback((message: string) => {
     setError(message);
-  }
+  }, []);
 
   return (
     <div className="shell flex min-h-[70vh] items-center justify-center py-12">
