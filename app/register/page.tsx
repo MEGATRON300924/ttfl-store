@@ -11,7 +11,7 @@ import { GoogleSignIn } from "@/components/google-sign-in";
 
 export default function RegisterPage() {
   const router = useRouter();
-  const { refresh } = useAuth();
+  const { setAuthenticatedUser } = useAuth();
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", password: "" });
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -23,8 +23,8 @@ export default function RegisterPage() {
     if (form.phone.trim().length < 7) return setError("A valid phone number is required so TTFL Store can send important WhatsApp notifications and announcements.");
     setSubmitting(true);
     try {
-      await api.post("/api/auth/register/customer", { ...form, phone: form.phone.trim() });
-      await refresh();
+      const { user: createdUser } = await api.post<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/register/customer", { ...form, phone: form.phone.trim() });
+      setAuthenticatedUser(createdUser);
       setVerificationNotice(true);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
@@ -32,9 +32,9 @@ export default function RegisterPage() {
     }
   }
 
-  async function handleGoogleSuccess() {
+  async function handleGoogleSuccess(user: import("@/lib/api-types").ApiUser) {
     setError(null);
-    await refresh();
+    setAuthenticatedUser(user);
     router.push("/account");
   }
 
