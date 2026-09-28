@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import type { ApiUser } from "@/lib/api-types";
 
@@ -16,12 +16,12 @@ type AuthState = {
 };
 
 const AuthContext = createContext<AuthState | null>(null);
-let authBootstrapPromise: Promise<void> | null = null;
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<ApiUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [wishlistIds, setWishlistIds] = useState<Set<string>>(new Set());
+  const authEpoch = useRef(0);
+  const bootstrapPromise = useRef<Promise<void> | null>(null);
 
   const refreshWishlist = useCallback(async () => {
     if (!user) {
@@ -37,40 +37,46 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user]);
 
   const setAuthenticatedUser = useCallback((authenticatedUser: ApiUser) => {
+    authEpoch.current += 1;
     setUser(authenticatedUser);
     setLoading(false);
   }, []);
 
   const refresh = useCallback(async () => {
-    if (!authBootstrapPromise) {
-      authBootstrapPromise = (async () => {
+    if (!bootstrapPromise.current) {
+      const epochAtStart = authEpoch.current;
+      bootstrapPromise.current = (async () => {
         try {
           try {
             const { user } = await api.get<{ user: ApiUser }>("/api/auth/me");
-            setUser(user);
+            if (authEpoch.current === epochAtStart) setUser(user);
             return;
           } catch (err) {
             if (!(err instanceof ApiError && err.status === 401)) {
-              console.error(err);
-              setUser(null);
+              if (authEpoch.current === epochAtStart) {
+                console.error(err);
+                setUser(null);
+              }
               return;
             }
           }
 
           await api.post("/api/auth/refresh");
           const { user } = await api.get<{ user: ApiUser }>("/api/auth/me");
-          setUser(user);
+          if (authEpoch.current === epochAtStart) setUser(user);
         } catch (err) {
-          if (!(err instanceof ApiError && err.status === 401)) console.error(err);
-          setUser(null);
+          if (authEpoch.current === epochAtStart) {
+            if (!(err instanceof ApiError && err.status === 401)) console.error(err);
+            setUser(null);
+          }
         } finally {
-          setLoading(false);
+          if (authEpoch.current === epochAtStart) setLoading(false);
         }
       })().finally(() => {
-        authBootstrapPromise = null;
+        bootstrapPromise.current = null;
       });
     }
-    return authBootstrapPromise;
+    return bootstrapPromise.current;
   }, []);
 
   const toggleWishlist = useCallback(async (productId: string) => {
