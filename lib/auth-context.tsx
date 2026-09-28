@@ -9,6 +9,7 @@ type AuthState = {
   loading: boolean;
   wishlistIds: Set<string>;
   refresh: () => Promise<void>;
+  setAuthenticatedUser: (user: ApiUser) => void;
   refreshWishlist: () => Promise<void>;
   toggleWishlist: (productId: string) => Promise<boolean>;
   logout: () => Promise<void>;
@@ -34,6 +35,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!(err instanceof ApiError && err.status === 401)) console.error(err);
     }
   }, [user]);
+
+  const setAuthenticatedUser = useCallback((authenticatedUser: ApiUser) => {
+    setUser(authenticatedUser);
+    setLoading(false);
+  }, []);
 
   const refresh = useCallback(async () => {
     if (!authBootstrapPromise) {
