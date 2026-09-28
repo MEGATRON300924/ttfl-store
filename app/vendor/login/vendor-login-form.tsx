@@ -10,7 +10,7 @@ import type { ApiUser } from "@/lib/api-types";
 
 export function VendorLoginForm() {
   const router = useRouter();
-  const { user, loading, refresh, logout } = useAuth();
+  const { user, loading, setAuthenticatedUser, logout } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +31,7 @@ export function VendorLoginForm() {
     setSubmitting(true);
     try {
       const { user: loggedInUser } = await api.post<{ user: ApiUser }>("/api/auth/login", { email, password });
-      await refresh();
+      setAuthenticatedUser(loggedInUser);
       redirectByRole(loggedInUser);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
