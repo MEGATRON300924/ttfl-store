@@ -1,4 +1,4 @@
-const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/$/, "");
+const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? (process.env.NODE_ENV === "production" ? "https://ttfl-store-backend.onrender.com" : "http://localhost:4000")).replace(/\/$/, "");
 
 // Browser requests stay on the TTFL Store origin. Vercel rewrites /api/* to
 // the Render backend, which makes authentication cookies first-party on iOS/Safari.
