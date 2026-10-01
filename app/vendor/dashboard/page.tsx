@@ -23,10 +23,14 @@ const LINKS = [
   { href: "/vendor/dashboard/launches", permission: "PRODUCTS", icon: Rocket, title: "Launch campaigns", desc: "Schedule and launch products" },
   { href: "/vendor/dashboard/coupons", permission: "MANAGER", icon: Ticket, title: "Coupons", desc: "Discount codes for your store" },
   { href: "/vendor/dashboard/store-settings", permission: "MANAGER", icon: Settings, title: "Store settings", desc: "Manage your store profile and branding" },
+  { href: "/vendor/dashboard/store-setup", permission: "MANAGER", icon: StoreIcon, title: "Store setup", desc: "Complete your store checkpoint and verification-ready profile" },
+  { href: "/vendor/dashboard/business-hours", permission: "MANAGER", icon: ClockIcon, title: "Business hours", desc: "Tell customers when your store is open" },
   { href: "/vendor/dashboard/notifications", permission: "MANAGER", icon: Bell, title: "Notifications", desc: "Choose email, WhatsApp, and marketing alerts" },
   { href: "/vendor/dashboard/public-profile", permission: "MANAGER", icon: Palette, title: "Public profile", desc: "Enterprise storefront appearance, visibility, and gallery" },
   { href: "/vendor/dashboard/team", ownerOnly: true, icon: Users, title: "Team", desc: "Invite staff and manage permissions" },
 ] as const;
+function StoreIcon(props: ComponentProps<"svg">) { return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 10h18M5 10v9h14v-9M4 10l2-5h12l2 5M9 19v-5h6v5"/></svg>; }
+function ClockIcon(props: ComponentProps<"svg">) { return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>; }
 function CalendarIcon(props: ComponentProps<"svg">) { return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>; }
 
 export default function VendorDashboardPage() {
