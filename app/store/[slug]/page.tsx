@@ -34,7 +34,7 @@ type PublicVendor = {
   productCount: number;
   badges: StoreBadge[];
   gallery: { id: string; url: string; position: number }[];
-  reviewHealth?: { windowDays: number; recentReviews: number; badReviews: number; caution: boolean; threshold: number };
+  reviewHealth?: { windowDays: number; recentReviews: number; recentOrders: number; problemOrders: number; badReviews: number; caution: boolean; threshold: number };
 };
 
 async function getVendor(slug: string): Promise<PublicVendor | null> {
@@ -156,7 +156,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
           </div>
         </section>
 
-        {vendor.reviewHealth?.caution && <section className={"mt-6 rounded-2xl border border-gold-300 bg-gold-50 p-5 dark:border-gold-500/30 dark:bg-gold-950/20"}><div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-gold-600"/><div><h2 className="font-bold text-graphite-900 dark:text-white">Order with caution</h2><p className="mt-1 text-sm leading-6 text-graphite-700 dark:text-graphite-300">According to recent verified customer reviews, this store has received {vendor.reviewHealth.badReviews} bad-review signals in the last {vendor.reviewHealth.windowDays} days. This does not automatically mean the store is fraudulent or that your order will have a problem, but we recommend reviewing the customer feedback and ordering with caution.</p><Link href={"/stores/" + encodeURIComponent(vendor.storeSlug) + "/reviews"} className="mt-3 inline-flex text-sm font-bold text-gold-700 hover:underline">Review recent customer feedback →</Link></div></div></section>}
+        {vendor.reviewHealth?.caution && <section className={"mt-6 rounded-2xl border border-gold-300 bg-gold-50 p-5 dark:border-gold-500/30 dark:bg-gold-950/20"}><div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-gold-600"/><div><h2 className="font-bold text-graphite-900 dark:text-white">Order with caution</h2><p className="mt-1 text-sm leading-6 text-graphite-700 dark:text-graphite-300">According to recent customer orders and verified reviews, this store has received {vendor.reviewHealth.badReviews} bad-review signals in the last {vendor.reviewHealth.windowDays} days This does not automatically mean the store is fraudulent or that your order will have a problem, but we recommend reviewing the customer feedback and ordering with caution.</p><Link href={"/stores/" + encodeURIComponent(vendor.storeSlug) + "/reviews"} className="mt-3 inline-flex text-sm font-bold text-gold-700 hover:underline">Review recent customer feedback →</Link></div></div></section>}
 
         <div className={"mt-6 grid gap-6 " + (vendor.layout === "EDITORIAL" ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,.85fr)]" : "lg:grid-cols-[minmax(0,1fr)_300px]")}>
           <div className="min-w-0">
