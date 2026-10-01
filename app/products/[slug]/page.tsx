@@ -122,7 +122,6 @@ export default async function ProductPage({ params }: { params: { slug: string }
   const isSponsoredDestination = sponsored.some(
     (c) => c.target_type === "PRODUCT" && c.productSlug === product.slug,
   );
-  const sponsoredRelevant = sponsored.filter(c => c.productSlug !== product.slug || c.target_type !== "PRODUCT").slice(0, 6); const isSponsoredDestination = sponsored.some(c => c.target_type === "PRODUCT" && c.productSlug === product.slug);
   return (<>
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: product.category.name, url: `/categories/${product.category.slug}` }, { name: product.name, url: `/products/${product.slug}` }]} />
       {ProductJsonLd({ data: jsonLd })}
