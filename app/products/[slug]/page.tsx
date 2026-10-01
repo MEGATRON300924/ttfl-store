@@ -63,7 +63,61 @@ export default async function ProductPage({ params }: { params: { slug: string }
     const gender = getOption("gender", "suggestedgender"); const age = getOption("age_group", "age group", "agegroup", "suggestedage");
     return { "@type": "Product", "@id": canonical + "#variant-" + encodeURIComponent(variant.key), name: product.name + " - " + variant.label, image: variantImage, sku: productGroupId + "-" + variant.key, ...(variantGtin ? { gtin: variantGtin } : {}), ...(variantMpn ? { mpn: variantMpn } : {}), ...(color ? { color } : {}), ...(size ? { size } : {}), ...(material ? { material } : {}), ...(pattern ? { pattern } : {}), ...(gender || age ? { audience: { "@type": "PeopleAudience", ...(gender ? { suggestedGender: gender } : {}), ...(age ? { suggestedAge: age } : {}) } } : {}), offers: { "@type": "Offer", priceCurrency: product.currency, price: variant.price || product.price, itemCondition: product.condition === "USED" ? "https://schema.org/UsedCondition" : "https://schema.org/NewCondition", availability: product.comingSoon ? "https://schema.org/PreOrder" : product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock", url: variantUrl, seller: { "@type": "Organization", name: storeName, url: SITE_URL + "/store/" + storeSlug } }, isVariantOf: { "@id": canonical + "#product-group" } };
   });
-  const jsonLd = variations.length ? { "@context": "https://schema.org", "@type": "ProductGroup", "@id": canonical + "#product-group", name: product.name, description: product.description, url: canonical, productGroupID: productGroupId, ...(brand ? { brand: { "@type": "Brand", name: brand } } : {}), ...(additionalProperties.length ? { additionalProperty: additionalProperties } : {}), ...(variesBy.length ? { variesBy } : {}), hasVariant: variantData } : { "@context": "https://schema.org", "@type": "Product", name: product.name, description: product.description, image: imageUrls.length ? imageUrls : [DEFAULT_SEO_IMAGE], sku: productGroupId, ...(gtin ? { gtin } : {}), ...(mpn ? { mpn } : {}), ...(brand ? { brand: { "@type": "Brand", name: brand } } : {}), ...(additionalProperties.length ? { additionalProperty: additionalProperties } : {}), ...(product.avgRating && product.reviewCount > 0 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: Number(product.avgRating), reviewCount: product.reviewCount } } : {}), offers: { "@type": "Offer", priceCurrency: product.currency, price: product.price, itemCondition: product.condition === "USED" ? "https://schema.org/UsedCondition" : "https://schema.org/NewCondition", availability: product.comingSoon ? "https://schema.org/PreOrder" : product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock", url: canonical, seller: { "@type": "Organization", name: storeName, url: SITE_URL + "/store/" + storeSlug } } };
+  const jsonLd: Record<string, unknown> = variations.length
+    ? {
+        "@context": "https://schema.org",
+        "@type": "ProductGroup",
+        "@id": canonical + "#product-group",
+        name: product.name,
+        description: product.description,
+        url: canonical,
+        productGroupID: productGroupId,
+        ...(brand ? { brand: { "@type": "Brand", name: brand } } : {}),
+        ...(additionalProperties.length ? { additionalProperty: additionalProperties } : {}),
+        ...(variesBy.length ? { variesBy } : {}),
+        hasVariant: variantData,
+      }
+    : {
+        "@context": "https://schema.org",
+        "@type": "Product",
+        name: product.name,
+        description: product.description,
+        image: imageUrls.length ? imageUrls : [DEFAULT_SEO_IMAGE],
+        sku: productGroupId,
+        ...(gtin ? { gtin } : {}),
+        ...(mpn ? { mpn } : {}),
+        ...(brand ? { brand: { "@type": "Brand", name: brand } } : {}),
+        ...(additionalProperties.length ? { additionalProperty: additionalProperties } : {}),
+        ...(product.avgRating && product.reviewCount > 0
+          ? {
+              aggregateRating: {
+                "@type": "AggregateRating",
+                ratingValue: Number(product.avgRating),
+                reviewCount: product.reviewCount,
+              },
+            }
+          : {}),
+        offers: {
+          "@type": "Offer",
+          priceCurrency: product.currency,
+          price: product.price,
+          itemCondition:
+            product.condition === "USED"
+              ? "https://schema.org/UsedCondition"
+              : "https://schema.org/NewCondition",
+          availability: product.comingSoon
+            ? "https://schema.org/PreOrder"
+            : product.stock > 0
+              ? "https://schema.org/InStock"
+              : "https://schema.org/OutOfStock",
+          url: canonical,
+          seller: {
+            "@type": "Organization",
+            name: storeName,
+            url: SITE_URL + "/store/" + storeSlug,
+          },
+        },
+      };
   const sponsoredRelevant = sponsored.filter(c => c.productSlug !== product.slug || c.target_type !== "PRODUCT").slice(0, 6); const isSponsoredDestination = sponsored.some(c => c.target_type === "PRODUCT" && c.productSlug === product.slug);
   return (<>
       <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: product.category.name, url: `/categories/${product.category.slug}` }, { name: product.name, url: `/products/${product.slug}` }]} />
