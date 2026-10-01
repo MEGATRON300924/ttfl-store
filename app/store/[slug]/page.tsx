@@ -34,7 +34,7 @@ type PublicVendor = {
   productCount: number;
   badges: StoreBadge[];
   gallery: { id: string; url: string; position: number }[];
-  reviewHealth?: { windowDays: number; recentReviews: number; recentOrders: number; problemOrders: number; badReviews: number; caution: boolean; threshold: number };
+  reviewHealth?: { windowDays: number; recentReviews: number; recentOrders: number; problemOrders: number; badReviews: number; caution: boolean; threshold: number }; businessHours?: {dayOfWeek:number;day:string;isOpen:boolean;openTime:string|null;closeTime:string|null}[]; openNow?: boolean;
 };
 
 async function getVendor(slug: string): Promise<PublicVendor | null> {
@@ -147,7 +147,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
           </div>
           <div className="px-4 pb-5 pt-5 sm:px-7 sm:pb-7">
             <div className="flex flex-wrap items-center gap-2"><StoreBadges badges={badges} />{vendor.tier !== "FREE" && <span className="rounded-full border border-graphite-200 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-graphite-500">{vendor.tier} store</span>}</div>
-            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{[
+            <div className="mt-4 rounded-xl border border-graphite-200 p-4 dark:border-graphite-700"><div className="flex items-center justify-between"><p className="text-sm font-bold">Business hours</p><span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${vendor.openNow ? "bg-verified-100 text-verified-700" : "bg-graphite-100 text-graphite-600"}`}>{vendor.openNow ? "Open now" : "Closed now"}</span></div><div className="mt-3 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">{(vendor.businessHours??[]).map(h=><div key={h.dayOfWeek} className="rounded-lg bg-cloud-50 p-2 dark:bg-graphite-800"><p className="font-semibold">{h.day.slice(0,3)}</p><p className="mt-1 text-graphite-500">{h.isOpen ? `${h.openTime}–${h.closeTime}` : "Closed"}</p></div>)}</div></div><div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{[
               ["Products", formatCount(vendor.productCount), "Available on the storefront"],
               ["Customer reviews", vendor.reviewHealth?.recentReviews?.toLocaleString() ?? "0", "Reviews in the last 90 days"],
               ["Store since", String(new Date(vendor.createdAt).getFullYear()), "Part of TTFL Store"],
