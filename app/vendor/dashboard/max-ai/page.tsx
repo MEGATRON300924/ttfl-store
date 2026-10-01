@@ -48,7 +48,11 @@ export default function MaxAiAnalyticsPage() {
         setStoreId(id);
       })
       .catch((err) => setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Couldn't identify your store."));
-  }, [load]);
+  }, []);
+
+  useEffect(() => {
+    if (storeId) void load(false);
+  }, [storeId, load]);
 
   async function copy(value: string) {
     await navigator.clipboard?.writeText(value);
