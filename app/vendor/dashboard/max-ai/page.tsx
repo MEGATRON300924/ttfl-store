@@ -20,6 +20,7 @@ type Analytics = {
 
 export default function MaxAiAnalyticsPage() {
   const [data, setData] = useState<Analytics | null>(null);
+  const [storeId, setStoreId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [question, setQuestion] = useState("Why hasn't my store made many sales?");
@@ -28,7 +29,8 @@ export default function MaxAiAnalyticsPage() {
     setError(null);
     setRefreshing(true);
     try {
-      const result = await api.get<{ analytics: Analytics }>(`/api/analytics/max-ai/store/${encodeURIComponent(window.__TTFL_STORE_ID__ ?? "")}${force ? "?refresh=1" : ""}`);
+      if (!storeId) throw new Error("No vendor store is connected to this account.");
+      const result = await api.get<{ analytics: Analytics }>(`/api/analytics/max-ai/store/${encodeURIComponent(storeId)}${force ? "?refresh=1" : ""}`);
       setData(result.analytics);
       window.history.replaceState(null, "", `/vendor/dashboard/max-ai?storeId=${encodeURIComponent(result.analytics.store.id)}`);
     } catch (err) {
@@ -36,15 +38,14 @@ export default function MaxAiAnalyticsPage() {
     } finally {
       setRefreshing(false);
     }
-  }, []);
+  }, [storeId]);
 
   useEffect(() => {
     void api.get<{ membership: { vendorId?: string } | null }>("/api/vendor-staff/me")
       .then(({ membership }) => {
         const id = membership?.vendorId;
         if (!id) throw new Error("No vendor store is connected to this account.");
-        window.__TTFL_STORE_ID__ = id;
-        return load(false);
+        setStoreId(id);
       })
       .catch((err) => setError(err instanceof ApiError ? err.message : err instanceof Error ? err.message : "Couldn't identify your store."));
   }, [load]);
