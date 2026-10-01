@@ -11,9 +11,7 @@ const nextConfig = {
     ],
   },
   async rewrites() {
-    const apiUrl = (process.env.NODE_ENV === "production"
-      ? "https://ttfl-store-backend-af5u.onrender.com"
-      : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000")).replace(/\/$/, "");
+    const apiUrl = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/$/, "");
     return [
       {
         source: "/api/:path*",
