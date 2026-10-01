@@ -12,7 +12,7 @@ type StoreReviewsResponse = {
   store: { id: string; storeName: string; storeSlug: string; bio: string | null; location: string | null; logoUrl: string | null; verified: boolean };
   rating: number | null;
   reviewCount: number;
-  health: { windowDays: number; recentReviews: number; badReviews: number; caution: boolean; threshold: number; categories: { delivery: number; customerService: number; productQuality: number; descriptionAccuracy: number; valueForMoney: number } };
+  health: { windowDays: number; recentReviews: number; recentOrders: number; problemOrders: number; badReviews: number; caution: boolean; threshold: number; categories: { delivery: number; customerService: number; productQuality: number; descriptionAccuracy: number; valueForMoney: number } };
   items: StoreReview[];
 };
 
