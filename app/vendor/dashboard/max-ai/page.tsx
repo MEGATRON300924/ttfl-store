@@ -13,7 +13,7 @@ type Analytics = {
   performance: { orders: number; grossSales: number; vendorEarnings: number; averageOrderValue: number; productViews: number; conversionRate: number; ordersByStatus: Record<string, number> };
   products: { total: number; views: number; byStatus: Record<string, number>; topSellers: Array<{ productId: string; productName: string; unitsSold: number; revenue: number }> };
   traffic: Array<{ type: string; source: string; count: number }>;
-  reviews: { averageRating: number | null; recentReviews: number; badReviews: number; caution: boolean; threshold: number; windowDays: number };
+  reviews: { averageRating: number | null; recentReviews: number; recentOrders: number; problemOrders: number; badReviews: number; caution: boolean; threshold: number; windowDays: number };
   recentSales: Array<{ id: string; orderNumber: string; status: string; subtotal: number; vendorEarnings: number; createdAt: string }>;
   interpretationSignals: { lowTraffic: boolean; lowConversion: boolean; noPaidOrders: boolean; hasRecentReviewCaution: boolean };
 };
