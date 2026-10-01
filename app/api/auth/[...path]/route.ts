@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? (process.env.NODE_ENV === "production"
-  ? "https://ttfl-store-backend.onrender.com"
+  ? "https://ttfl-store-backend-af5u.onrender.com"
   : "http://localhost:4000")).replace(/\/$/, "");
 
 function setCookieValues(headers: Headers): string[] {
