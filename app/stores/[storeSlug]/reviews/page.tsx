@@ -12,6 +12,7 @@ type StoreReviewsResponse = {
   store: { id: string; storeName: string; storeSlug: string; bio: string | null; location: string | null; logoUrl: string | null; verified: boolean };
   rating: number | null;
   reviewCount: number;
+  health: { windowDays: number; recentReviews: number; badReviews: number; caution: boolean; threshold: number; categories: { delivery: number; customerService: number; productQuality: number; descriptionAccuracy: number; valueForMoney: number } };
   items: StoreReview[];
 };
 
@@ -83,6 +84,13 @@ export default async function StoreReviewsPage({ params }: { params: { storeSlug
                   <Link href={`/products/${review.product.slug}`} className="text-right text-xs font-semibold text-ember-600 hover:underline">{review.product.name}</Link>
                 </div>
                 {review.comment && <p className="mt-4 text-sm leading-6 text-graphite-700">{review.comment}</p>}
+                {(review.deliveryRating || review.customerServiceRating || review.productQualityRating || review.descriptionAccuracyRating || review.valueForMoneyRating) && <div className="mt-4 flex flex-wrap gap-2">{[
+  ["Delivery", review.deliveryRating],
+  ["Customer service", review.customerServiceRating],
+  ["Product quality", review.productQualityRating],
+  ["Description accuracy", review.descriptionAccuracyRating],
+  ["Value for money", review.valueForMoneyRating],
+].map(([label,value]) => value ? <span key={label} className={`rounded-full px-2.5 py-1 text-[11px] font-semibold ${value === "BAD" ? "bg-ember-100 text-ember-700" : value === "GOOD" ? "bg-gold-100 text-gold-700" : "bg-verified-100 text-verified-700"}`}>{label}: {String(value).toLowerCase().replace("_"," ")}</span> : null)}</div>}
               </article>
             ))}
           </div>
