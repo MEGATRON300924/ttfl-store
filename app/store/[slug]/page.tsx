@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { CalendarDays, ChevronRight, Eye, MapPin, MessageCircle, ShieldCheck, Sparkles, Star, Store as StoreIcon, AlertTriangle } from "lucide-react";
+import { CalendarDays, ChevronRight, Eye, MapPin, MessageCircle, ShieldCheck, Sparkles, Star, Store as StoreIcon, AlertTriangle, ShieldAlert } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import type { ApiProduct } from "@/lib/api-types";
 import { ProductCard } from "@/components/product-card";
