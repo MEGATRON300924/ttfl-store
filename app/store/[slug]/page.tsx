@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { CalendarDays, ChevronRight, Eye, MapPin, MessageCircle, ShieldCheck, Sparkles, Star, Store as StoreIcon } from "lucide-react";
+import { CalendarDays, ChevronRight, Eye, MapPin, MessageCircle, ShieldCheck, Sparkles, Star, Store as StoreIcon, AlertTriangle } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import type { ApiProduct } from "@/lib/api-types";
 import { ProductCard } from "@/components/product-card";
@@ -34,6 +34,7 @@ type PublicVendor = {
   productCount: number;
   badges: StoreBadge[];
   gallery: { id: string; url: string; position: number }[];
+  reviewHealth?: { windowDays: number; recentReviews: number; badReviews: number; caution: boolean; threshold: number };
 };
 
 async function getVendor(slug: string): Promise<PublicVendor | null> {
@@ -89,15 +90,6 @@ function cleanDescription(value: string | null, fallback: string) {
   return (text || fallback).slice(0, 155);
 }
 
-async function getReviewSummary(slug: string): Promise<{ rating: number | null; reviewCount: number }> {
-  try {
-    const data = await api.get<{ rating: number | null; reviewCount: number }>("/api/reviews/store/" + encodeURIComponent(slug));
-    return { rating: data.rating == null ? null : Number(data.rating), reviewCount: Number(data.reviewCount ?? 0) };
-  } catch {
-    return { rating: null, reviewCount: 0 };
-  }
-}
-
 function formatCount(value: number) {
   return new Intl.NumberFormat("en-NG", { notation: value >= 1000 ? "compact" : "standard", maximumFractionDigits: 1 }).format(value);
 }
@@ -127,7 +119,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function StorePage({ params }: { params: { slug: string } }) {
   const vendor = await getVendor(params.slug);
   if (!vendor) notFound();
-  const [items, reviews] = await Promise.all([getStoreProducts(vendor.storeSlug), getReviewSummary(vendor.storeSlug)]);
+  const items = await getStoreProducts(vendor.storeSlug);
   const badges = getDisplayBadges(vendor);
   const enterprise = badges.includes("ENTERPRISE") || vendor.tier === "ENTERPRISE";
   const dark = vendor.theme === "DARK";
@@ -149,7 +141,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
               {vendor.logoUrl ? <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg sm:h-24 sm:w-24"><Image src={vendor.logoUrl} alt={vendor.storeName + " logo"} fill sizes="96px" className="object-cover" /></div> : <div className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl border-4 border-white bg-graphite-900 text-2xl font-bold text-white shadow-lg sm:h-24 sm:w-24">{vendor.storeName.charAt(0).toUpperCase()}</div>}
               <div className="min-w-0 text-white"><div className="flex flex-wrap items-center gap-2"><h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">{vendor.storeName}</h1>{vendor.verified && <ShieldCheck className="h-5 w-5 shrink-0" aria-label="Verified store" />}</div>
                 {vendor.headline && <p className="mt-1 max-w-2xl text-sm font-medium text-white/90 sm:text-base">{vendor.headline}</p>}
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/85 sm:text-sm">{vendor.location && <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" />{vendor.location}</span>}<span className="inline-flex items-center gap-1.5"><Star className="h-4 w-4 fill-current" />{reviews.rating == null ? "New store" : reviews.rating.toFixed(1) + " · " + reviews.reviewCount + " review" + (reviews.reviewCount === 1 ? "" : "s")}</span></div>
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-white/85 sm:text-sm">{vendor.location && <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4" />{vendor.location}</span>}<span className="inline-flex items-center gap-1.5"><Star className="h-4 w-4 fill-current" />{"See customer reviews"}</span></div>
               </div>
             </div></div>
           </div>
@@ -157,12 +149,14 @@ export default async function StorePage({ params }: { params: { slug: string } }
             <div className="flex flex-wrap items-center gap-2"><StoreBadges badges={badges} />{vendor.tier !== "FREE" && <span className="rounded-full border border-graphite-200 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wide text-graphite-500">{vendor.tier} store</span>}</div>
             <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">{[
               ["Products", formatCount(vendor.productCount), "Available on the storefront"],
-              ["Customer rating", reviews.rating == null ? "—" : reviews.rating.toFixed(1) + " ★", reviews.reviewCount + " customer review" + (reviews.reviewCount === 1 ? "" : "s")],
+              ["Customer reviews", vendor.reviewHealth?.recentReviews?.toLocaleString() ?? "0", "Reviews in the last 90 days"],
               ["Store since", String(new Date(vendor.createdAt).getFullYear()), "Part of TTFL Store"],
               ["Profile views", formatCount(vendor.viewCount), "Public storefront visits"],
             ].map(([label, value, hint]) => <div key={label} className={"rounded-2xl border p-4 " + (dark ? "border-white/10 bg-white/5" : "border-graphite-200 bg-cloud-50")}><p className={"text-xs font-medium " + muted}>{label}</p><p className="mt-1 text-xl font-bold">{value}</p><p className={"mt-1 text-xs " + muted}>{hint}</p></div>)}</div>
           </div>
         </section>
+
+        {vendor.reviewHealth?.caution && <section className={"mt-6 rounded-2xl border border-gold-300 bg-gold-50 p-5 dark:border-gold-500/30 dark:bg-gold-950/20"}><div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-gold-600"/><div><h2 className="font-bold text-graphite-900 dark:text-white">Order with caution</h2><p className="mt-1 text-sm leading-6 text-graphite-700 dark:text-graphite-300">According to recent verified customer reviews, this store has received {vendor.reviewHealth.badReviews} bad-review signals in the last {vendor.reviewHealth.windowDays} days. This does not automatically mean the store is fraudulent or that your order will have a problem, but we recommend reviewing the customer feedback and ordering with caution.</p><Link href={"/stores/" + encodeURIComponent(vendor.storeSlug) + "/reviews"} className="mt-3 inline-flex text-sm font-bold text-gold-700 hover:underline">Review recent customer feedback →</Link></div></div></section>}
 
         <div className={"mt-6 grid gap-6 " + (vendor.layout === "EDITORIAL" ? "lg:grid-cols-[minmax(0,1.15fr)_minmax(300px,.85fr)]" : "lg:grid-cols-[minmax(0,1fr)_300px]")}>
           <div className="min-w-0">
