@@ -7,6 +7,7 @@ import { ArrowLeft, Package, Truck, CheckCircle2 } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import { formatNaira } from "@/lib/mock-data";
 import type { ApiOrder, OrderStatus } from "@/lib/api-types";
+import { StoreReviewForm } from "@/components/store-review-form";
 
 const STATUS_STYLES: Record<OrderStatus, string> = {
   PENDING: "bg-cloud-100 text-graphite-700",
@@ -49,7 +50,7 @@ export default function OrderPage() {
 
     <section className="mt-6 rounded-card border border-graphite-200 bg-white p-5">
       <div className="flex items-start gap-3"><span className="grid h-10 w-10 place-items-center rounded-card bg-cloud-100 text-graphite-700"><Package className="h-5 w-5" /></span><div><h2 className="font-bold text-graphite-900">Order status</h2><p className="mt-1 text-sm text-graphite-600">Payment: <span className="font-semibold">{order.paymentStatus}</span></p></div></div>
-      <div className="mt-5 flex flex-col gap-3">{order.vendorOrders.map((vendorOrder) => <div key={vendorOrder.id} className="rounded-card border border-graphite-200 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><p className="font-semibold text-graphite-900">{vendorOrder.vendor?.storeName ?? "Vendor"}</p><span className={`rounded-tag px-2 py-1 text-xs font-semibold ${STATUS_STYLES[vendorOrder.status]}`}>{vendorOrder.status.replace(/_/g, " ")}</span></div><div className="mt-3 space-y-2">{vendorOrder.items.map((item) => <div key={item.id} className="flex items-center justify-between gap-3 text-sm"><span className="text-graphite-700">{item.productName} × {item.quantity}</span><span className="font-mono font-semibold text-graphite-900">{formatNaira(Number(item.lineTotal))}</span></div>)}</div></div>)}</div>
+      <div className="mt-5 flex flex-col gap-3">{order.vendorOrders.map((vendorOrder) => <div key={vendorOrder.id} className="rounded-card border border-graphite-200 p-4"><div className="flex flex-wrap items-center justify-between gap-2"><p className="font-semibold text-graphite-900">{vendorOrder.vendor?.storeName ?? "Vendor"}</p><span className={`rounded-tag px-2 py-1 text-xs font-semibold ${STATUS_STYLES[vendorOrder.status]}`}>{vendorOrder.status.replace(/_/g, " ")}</span></div><div className="mt-3 space-y-2">{vendorOrder.items.map((item) => <div key={item.id} className="rounded-lg border border-graphite-100 p-2 dark:border-graphite-800"><div className="flex items-center justify-between gap-3 text-sm"><span className="text-graphite-700 dark:text-graphite-300">{item.productName} × {item.quantity}</span><span className="font-mono font-semibold text-graphite-900 dark:text-white">{formatNaira(Number(item.lineTotal))}</span></div>{vendorOrder.status === "DELIVERED" && <StoreReviewForm productId={item.productId} orderItemId={item.id} productName={item.productName} />}</div>)}</div></div>)}</div>
     </section>
 
     <section className="mt-4 grid gap-4 sm:grid-cols-2">
