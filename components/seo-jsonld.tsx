@@ -7,6 +7,10 @@ export function BreadcrumbJsonLd({ items }: { items: Crumb[] }) {
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />;
 }
 
+export function ProductJsonLd({ data }: { data: Record<string, unknown> }) {
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+}
+
 export function ItemListJsonLd({ name, items }: { name: string; items: Array<{ name: string; url: string; image?: string }> }) {
   const jsonLd = { "@context": "https://schema.org", "@type": "ItemList", name, itemListElement: items.map((item, index) => ({ "@type": "ListItem", position: index + 1, name: item.name, url: `${SITE_URL}${item.url}`, ...(item.image ? { image: item.image } : {}) })) };
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />;
