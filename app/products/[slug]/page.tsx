@@ -73,6 +73,7 @@ async function getStoreProfile(slug: string) {
         storeName: string;
         storeSlug: string;
         logoUrl: string | null;
+        bannerUrl: string | null;
         verified: boolean;
         tier: string | null;
         badges: StoreBadge[];
@@ -507,8 +508,15 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
             <Link
               href={`/store/${storeSlug}`}
-              className="mt-6 block rounded-card border border-graphite-200 p-3 transition hover:border-ember-600"
+              className="mt-6 block overflow-hidden rounded-card border border-graphite-200 transition hover:border-ember-600"
             >
+              {store?.bannerUrl ? (
+                <div className="relative h-20 w-full overflow-hidden bg-cloud-100">
+                  <Image src={store.bannerUrl} alt="" fill sizes="(max-width: 1024px) 100vw, 600px" className="object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
+                </div>
+              ) : null}
+              <div className="p-3">
               <div className="flex items-center gap-3">
                 {storeLogo ? (
                   <span className="relative grid h-12 w-12 shrink-0 overflow-hidden rounded-full border border-graphite-200 bg-cloud-100">
@@ -529,6 +537,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                   <StoreBadges badges={storeBadges} />
                 </div>
               )}
+              </div>
             </Link>
           </div>
         </div>
