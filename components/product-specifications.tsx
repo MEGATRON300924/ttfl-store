@@ -10,7 +10,8 @@ type Props = {
 };
 
 const COMPUTER_BRANDS = ["Apple", "Acer", "ASUS", "Dell", "HP", "Lenovo", "Microsoft", "MSI", "Razer", "Samsung", "Toshiba", "Huawei", "Other"];
-const PHONE_BRANDS = ["Apple", "Samsung", "Google", "Xiaomi", "OnePlus", "Oppo", "Vivo", "Tecno", "Infinix", "Huawei", "Nokia", "Motorola", "Nothing", "Other"];\nconst SOUND_BRANDS = ["JBL", "Sony", "Oraimo", "Anker", "Soundcore", "Bose", "Marshall", "Harman Kardon", "LG", "Samsung", "Xiaomi", "Philips", "Hisense", "Audio-Technica", "Beats", "Sennheiser", "Ultimate Ears", "Tronsmart", "Other"];
+const PHONE_BRANDS = ["Apple", "Samsung", "Google", "Xiaomi", "OnePlus", "Oppo", "Vivo", "Tecno", "Infinix", "Huawei", "Nokia", "Motorola", "Nothing", "Other"];
+const SOUND_BRANDS = ["JBL", "Sony", "Oraimo", "Anker", "Soundcore", "Bose", "Marshall", "Harman Kardon", "LG", "Samsung", "Xiaomi", "Philips", "Hisense", "Audio-Technica", "Beats", "Sennheiser", "Ultimate Ears", "Tronsmart", "Other"];
 
 function normalize(value?: string) {
   return (value ?? "").trim().toLowerCase();
