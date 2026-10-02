@@ -50,10 +50,24 @@ export function ProductForm({ productId, initial, redirectTo }: { productId?: st
     setSubmitting(true);
     const images = form.images.map((image) => image.url).filter(Boolean); const videos = form.videos.map((video) => video.url).filter(Boolean); const tags = Array.from(new Set([...form.tags, ...tagInput.split(",").map((tag) => tag.trim().toLowerCase()).filter(Boolean)])).slice(0, 20);
     const specifications = { ...form.specifications };
-    if (form.brand.trim()) specifications.brand = form.brand.trim();
+    const selectedBrand = form.brand.trim();
+    const customBrand = String(specifications.customBrand ?? "").trim();
+    const effectiveBrand =
+      selectedBrand.toLowerCase() === "other"
+        ? customBrand
+        : selectedBrand || String(specifications.brand ?? "").trim();
+
+    if (effectiveBrand) specifications.brand = effectiveBrand;
+    else delete specifications.brand;
     if (form.variations.length) specifications._variations = JSON.stringify(form.variations);
     else delete specifications._variations;
-    const rawName = form.name.trim(); const brand = (specifications.brand ?? form.brand).trim(); const searchableName = brand && !rawName.toLowerCase().startsWith(`${brand.toLowerCase()} `) ? `${brand} ${rawName}` : rawName;
+
+    const rawName = form.name.trim();
+    const brand = effectiveBrand;
+    const searchableName =
+      brand && !rawName.toLowerCase().startsWith(`${brand.toLowerCase()} `)
+        ? `${brand} ${rawName}`
+        : rawName;
     const payload: Record<string, unknown> = { name: searchableName, description: form.description.trim(), categorySlug: form.categorySlug, price: form.price.trim() ? Number(form.price) : 0, condition: form.condition, stock: Number(form.stock), images, videos, tags, specifications, sellingMethod: form.sellingMethod, estimatedDeliveryDays: deliveryDays, comingSoon: form.comingSoon, availableAt: form.availableAt ? new Date(form.availableAt).toISOString() : null };
     if (form.previousPrice.trim()) payload.previousPrice = Number(form.previousPrice); if (form.location.trim()) payload.location = form.location.trim(); if (form.sellingMethod === "EXTERNAL_LINK") payload.externalUrl = form.externalUrl.trim(); if (form.sellingMethod === "WHATSAPP" && form.whatsappNumber.trim()) payload.whatsappNumber = form.whatsappNumber.trim();
     try { let savedProductId = productId; if (productId) await api.patch(`/api/products/${productId}`, payload); else { const response = await api.post<{ product: { id: string } }>("/api/products", payload); savedProductId = response.product.id; } if (savedProductId) await api.post(`/api/products/${savedProductId}/videos`, { videos }); router.push(redirectTo || "/vendor/dashboard/products"); }
