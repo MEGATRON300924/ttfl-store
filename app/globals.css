@@ -107,3 +107,57 @@ html.dark .shadow-card {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* Action-specific micro-interactions. Keep motion purposeful instead of using one generic hover effect. */
+@keyframes rewards-gift-bounce {
+  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+  35% { transform: translateY(-2px) rotate(-8deg) scale(1.08); }
+  65% { transform: translateY(0) rotate(7deg) scale(1.03); }
+}
+@keyframes rewards-spark {
+  0% { opacity: 0; transform: scale(.4) rotate(0deg); }
+  45% { opacity: 1; transform: scale(1) rotate(18deg); }
+  100% { opacity: 0; transform: scale(.7) rotate(35deg); }
+}
+@keyframes cart-pop {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.18) translateY(-1px); }
+  100% { transform: scale(1); }
+}
+@keyframes heart-beat {
+  0%, 100% { transform: scale(1); }
+  30% { transform: scale(1.18); }
+  55% { transform: scale(.94); }
+  75% { transform: scale(1.08); }
+}
+@keyframes bell-ring {
+  0%, 100% { transform: rotate(0); }
+  18% { transform: rotate(10deg); }
+  36% { transform: rotate(-9deg); }
+  54% { transform: rotate(6deg); }
+  72% { transform: rotate(-3deg); }
+}
+@media (hover: hover) and (pointer: fine) {
+  .rewards-action:hover { transform: translateY(-1px); }
+  .rewards-action:hover .rewards-icon { animation: rewards-gift-bounce 650ms cubic-bezier(.2,.8,.2,1); }
+  .rewards-action:hover .rewards-icon-wrap { position: relative; }
+  .rewards-action:hover .rewards-icon-wrap::after,
+  .rewards-action:hover .rewards-icon-wrap::before {
+    content: "✦";
+    position: absolute;
+    pointer-events: none;
+    font-size: 8px;
+    animation: rewards-spark 700ms ease-out forwards;
+  }
+  .rewards-action:hover .rewards-icon-wrap::before { top: -5px; right: -3px; }
+  .rewards-action:hover .rewards-icon-wrap::after { bottom: -3px; left: -4px; animation-delay: 90ms; }
+  a[href="/cart"]:hover svg { animation: cart-pop 420ms cubic-bezier(.2,.8,.2,1); }
+  a[href="/wishlist"]:hover svg { animation: heart-beat 520ms ease-out; }
+  a[aria-label="Profile"]:hover svg { transform: translateY(-1px) rotate(-4deg); }
+}
+
+/* A tap should still feel alive on touch devices. */
+.rewards-action:active .rewards-icon { transform: scale(.9); }
+a[href="/cart"]:active svg { animation: cart-pop 300ms ease-out; }
+a[href="/wishlist"]:active svg { animation: heart-beat 360ms ease-out; }
