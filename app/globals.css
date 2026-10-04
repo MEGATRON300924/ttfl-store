@@ -111,9 +111,11 @@ html.dark .shadow-card {
 
 /* Action-specific micro-interactions. Keep motion purposeful instead of using one generic hover effect. */
 @keyframes rewards-gift-bounce {
-  0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
-  35% { transform: translateY(-2px) rotate(-8deg) scale(1.08); }
-  65% { transform: translateY(0) rotate(7deg) scale(1.03); }
+  0% { transform: translateY(0) rotate(0) scale(1); }
+  22% { transform: translateY(-3px) rotate(-7deg) scale(1.12); }
+  45% { transform: translateY(0) rotate(6deg) scale(1.02); }
+  68% { transform: translateY(-1px) rotate(-3deg) scale(1.07); }
+  100% { transform: translateY(0) rotate(0) scale(1); }
 }
 @keyframes rewards-spark {
   0% { opacity: 0; transform: scale(.4) rotate(0deg); }
@@ -161,3 +163,30 @@ html.dark .shadow-card {
 .rewards-action:active .rewards-icon { transform: scale(.9); }
 a[href="/cart"]:active svg { animation: cart-pop 300ms ease-out; }
 a[href="/wishlist"]:active svg { animation: heart-beat 360ms ease-out; }
+
+
+@keyframes cart-fly-to-header {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(0deg); }
+  25% { opacity: 1; transform: translate(calc(-50% + 28px), calc(-50% - 34px)) scale(1.05) rotate(-8deg); }
+  100% { opacity: 0; transform: translate(calc(-50vw + 46vw), calc(-50vh + 46vh)) scale(.35) rotate(18deg); }
+}
+@keyframes add-cart-shoot {
+  0% { transform: translateX(0) scale(1); }
+  45% { transform: translateX(2px) scale(1.16); }
+  100% { transform: translateX(7px) scale(1); }
+}
+@keyframes reward-box-pop {
+  0%, 100% { transform: scaleY(1); }
+  40% { transform: scaleY(.82) translateY(2px); }
+  70% { transform: scaleY(1.05) translateY(-1px); }
+}
+@media (hover: hover) and (pointer: fine) {
+  .rewards-action:hover .rewards-icon { animation: rewards-gift-bounce 760ms cubic-bezier(.2,.8,.2,1); }
+  .rewards-action:hover .rewards-icon-wrap { animation: reward-box-pop 760ms cubic-bezier(.2,.8,.2,1); }
+  .rewards-action:hover .rewards-icon-wrap::before { box-shadow: 0 0 0 3px rgba(245,158,11,.08), 0 0 12px rgba(245,158,11,.18); }
+  .add-to-cart-action:hover .add-to-cart-icon { animation: add-cart-shoot 500ms cubic-bezier(.2,.8,.2,1); }
+}
+.cart-fly { color: #ea580c; animation: cart-fly-to-header 650ms cubic-bezier(.2,.7,.2,1) forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .cart-fly { animation: none; opacity: 0; }
+}
