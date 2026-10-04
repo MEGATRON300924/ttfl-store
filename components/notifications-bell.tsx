@@ -29,7 +29,7 @@ export function NotificationsBell() {
   if (!user) return null;
 
   return (
-    <Link href="/notifications" className="relative grid h-8 w-8 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 dark:text-graphite-200 dark:hover:bg-graphite-800" aria-label={unread ? "Notifications (" + unread + " unread)" : "Notifications"}>
+    <Link href="/notifications" className="notifications-action relative grid h-8 w-8 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 dark:text-graphite-200 dark:hover:bg-graphite-800" aria-label={unread ? "Notifications (" + unread + " unread)" : "Notifications"}>
       <Bell className="h-4 w-4" />
       {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-3.5 min-w-3.5 place-items-center rounded-full bg-ember-600 px-1 font-mono text-[9px] font-bold text-white">{unread > 99 ? "99+" : unread}</span>}
     </Link>
