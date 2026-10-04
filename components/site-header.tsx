@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Heart, ShoppingCart, User, Menu, X, MapPin, Store, Gift, Wrench } from "lucide-react";
+import { NotificationsBell } from "@/components/notifications-bell";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SearchAutocomplete } from "@/components/search-autocomplete";
@@ -48,6 +49,8 @@ export function SiteHeader() {
           </Link>
 
           <Link href="/wishlist" className="hidden h-9 w-9 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 dark:text-graphite-200 dark:hover:bg-graphite-800 sm:grid" aria-label={`Wishlist${wishlistIds.size ? ` (${wishlistIds.size})` : ""}`}><Heart className="h-5 w-5" /></Link>
+
+          <NotificationsBell />
 
           {isVendor && (
             <Link href="/vendor/dashboard" className="flex h-9 shrink-0 items-center gap-1 rounded-card px-1.5 text-ember-600 hover:bg-ember-100 sm:gap-1.5 sm:px-2.5" aria-label="Vendor dashboard">
