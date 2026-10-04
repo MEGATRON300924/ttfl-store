@@ -20,7 +20,7 @@ const VEHICLE_ASSETS: Record<string, { light: string; dark: string; label: strin
   sportscar: { light: "/sportscar-blue.svg", dark: "/sportscar-white.svg", label: "Sportscar" },
   suv: { light: "/suv-blue.svg", dark: "/suv-white.svg", label: "SUV" },
   pickup: { light: "/pickup-blue.svg", dark: "/pickup-white.svg", label: "Pickup" },
-  truck: { light: "/truck-blue.svg", dark: "/truck-white.svg", label: "Truck" },
+  truck: { light: "/pickup-blue.svg", dark: "/pickup-white.svg", label: "Truck" },
   bus: { light: "/bus-blue.svg", dark: "/bus-white.svg", label: "Bus" },
   plane: { light: "/plane-blue.svg", dark: "/plane-white.svg", label: "Flight" },
   helicopter: { light: "/helicopter-blue.svg", dark: "/helicopter-white.svg", label: "Helicopter" },
