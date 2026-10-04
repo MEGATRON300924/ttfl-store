@@ -45,7 +45,7 @@ export function SiteHeader() {
           <div className="hidden md:block"><ThemeToggle /></div>
 
           <Link href="/rewards" className="hidden h-9 items-center gap-1.5 rounded-card px-2.5 text-ember-600 hover:bg-ember-50 sm:flex" aria-label="TTFL Rewards">
-            <Gift className="h-5 w-5" /><span className="hidden text-sm font-semibold lg:inline">Rewards</span>
+            <span className="rewards-icon-wrap"><Gift className="rewards-icon h-5 w-5" /></span><span className="hidden text-sm font-semibold lg:inline">Rewards</span>
           </Link>
 
           <Link href="/wishlist" className="hidden h-9 w-9 place-items-center rounded-card text-graphite-700 hover:bg-cloud-100 dark:text-graphite-200 dark:hover:bg-graphite-800 sm:grid" aria-label={`Wishlist${wishlistIds.size ? ` (${wishlistIds.size})` : ""}`}><Heart className="h-5 w-5" /></Link>
@@ -91,7 +91,7 @@ export function SiteHeader() {
               {categories.map((c) => <Link key={c.id} href={`/categories/${c.slug}`} className="rounded-card px-2 py-2.5 hover:bg-cloud-100 dark:hover:bg-graphite-800" onClick={() => setMenuOpen(false)}>{c.name}</Link>)}
             </div>
             <div className="mt-auto flex flex-col gap-1 border-t border-graphite-200 pt-4 text-sm text-graphite-700 dark:border-graphite-700 dark:text-graphite-300">
-              <Link href="/rewards" className="flex items-center gap-2 py-2 font-semibold text-ember-600" onClick={() => setMenuOpen(false)}><Gift className="h-4 w-4" />TTFL Rewards</Link>
+              <Link href="/rewards" className="rewards-action flex items-center gap-2 py-2 font-semibold text-ember-600" onClick={() => setMenuOpen(false)}><Gift className="h-4 w-4" />TTFL Rewards</Link>
               <Link href={accountHref} className="py-2 font-semibold text-ember-600" onClick={() => setMenuOpen(false)}>My account</Link>
               {isVendor && <Link href="/vendor/dashboard" className="flex items-center gap-2 py-2 font-semibold text-ember-600" onClick={() => setMenuOpen(false)}><Store className="h-4 w-4" />Vendor dashboard</Link>}
               <Link href="/sell" className="py-2" onClick={() => setMenuOpen(false)}>Sell on TTFL Store</Link>
