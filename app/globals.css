@@ -3,6 +3,19 @@
 @tailwind utilities;
 
 @layer base {
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+  }
+  button:not(:disabled):hover, a:hover {
+    transform: translateY(-1px);
+  }
+  button:not(:disabled):active, a:active {
+    transform: translateY(0) scale(0.98);
+  }
+  button:disabled { cursor: not-allowed; }
+
   :root { color-scheme: light; }
   html.dark { color-scheme: dark; }
   html { -webkit-text-size-adjust: 100%; }
