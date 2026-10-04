@@ -1,5 +1,7 @@
 "use client";
 
+import { Truck } from "lucide-react";
+
 type VehicleType =
   | "car"
   | "motorcycle"
@@ -20,7 +22,7 @@ const VEHICLE_ASSETS: Record<string, { light: string; dark: string; label: strin
   sportscar: { light: "/sportscar-blue.svg", dark: "/sportscar-white.svg", label: "Sportscar" },
   suv: { light: "/suv-blue.svg", dark: "/suv-white.svg", label: "SUV" },
   pickup: { light: "/pickup-blue.svg", dark: "/pickup-white.svg", label: "Pickup" },
-  truck: { light: "/pickup-blue.svg", dark: "/pickup-white.svg", label: "Truck" },
+  truck: { light: "", dark: "", label: "Truck" },
   bus: { light: "/bus-blue.svg", dark: "/bus-white.svg", label: "Bus" },
   plane: { light: "/plane-blue.svg", dark: "/plane-white.svg", label: "Flight" },
   helicopter: { light: "/helicopter-blue.svg", dark: "/helicopter-white.svg", label: "Helicopter" },
@@ -48,10 +50,10 @@ export default function TrackingVehicleAvatar({
     >
       <div className="absolute inset-0 bg-gradient-to-br from-ember-50/70 via-white to-sky-50/80 dark:from-graphite-900 dark:via-graphite-900 dark:to-graphite-800" />
       <div className="absolute -right-4 -top-4 h-12 w-12 rounded-full bg-ember-100/50 blur-xl dark:bg-ember-900/20" />
-      <picture className="relative z-10 block">
+      {type === "truck" ? <Truck className="relative z-10 h-9 w-9 text-sky-600 dark:text-sky-300" strokeWidth={1.8} aria-hidden="true" /> : <picture className="relative z-10 block">
         <source media="(prefers-color-scheme: dark)" srcSet={vehicle.dark} />
         <img src={vehicle.light} alt="" className={`${sizes.image} object-contain drop-shadow-[0_5px_6px_rgba(15,23,42,.18)] dark:drop-shadow-[0_5px_8px_rgba(0,0,0,.45)]`} />
-      </picture>
+      </picture>}
       <span className={`absolute bottom-1 left-1/2 z-20 -translate-x-1/2 font-bold uppercase tracking-[.16em] text-graphite-500 dark:text-graphite-400 ${sizes.label}`}>
         {vehicle.label}
       </span>
