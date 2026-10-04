@@ -167,8 +167,8 @@ a[href="/wishlist"]:active svg { animation: heart-beat 360ms ease-out; }
 
 @keyframes cart-fly-to-header {
   0% { opacity: 1; transform: translate(-50%, -50%) scale(1.15) rotate(0deg); }
-  25% { opacity: 1; transform: translate(calc(-50% + 28px), calc(-50% - 34px)) scale(1.05) rotate(-8deg); }
-  100% { opacity: 0; transform: translate(calc(-50vw + 46vw), calc(-50vh + 46vh)) scale(.35) rotate(18deg); }
+  22% { opacity: 1; transform: translate(calc(-50% + 18px), calc(-50% - 26px)) scale(1.08) rotate(-7deg); }
+  100% { opacity: 0; transform: translate(calc(100vw - var(--fly-x) - 28px), calc(28px - var(--fly-y))) scale(.32) rotate(18deg); }
 }
 @keyframes add-cart-shoot {
   0% { transform: translateX(0) scale(1); }
