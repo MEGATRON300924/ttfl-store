@@ -8,12 +8,6 @@
     cursor: pointer;
     transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
   }
-  button:not(:disabled):hover, a:hover {
-    transform: translateY(-1px);
-  }
-  button:not(:disabled):active, a:active {
-    transform: translateY(0) scale(0.98);
-  }
   button:disabled { cursor: not-allowed; }
 
   :root { color-scheme: light; }
@@ -142,6 +136,8 @@ html.dark .shadow-card {
 }
 @media (hover: hover) and (pointer: fine) {
   .rewards-action:hover { transform: translateY(-1px); }
+  .notifications-action:hover svg { animation: bell-ring 520ms ease-out; }
+  .notifications-action:active svg { animation: bell-ring 360ms ease-out; }
   .rewards-action:hover .rewards-icon { animation: rewards-gift-bounce 650ms cubic-bezier(.2,.8,.2,1); }
   .rewards-action:hover .rewards-icon-wrap { position: relative; }
   .rewards-action:hover .rewards-icon-wrap::after,
