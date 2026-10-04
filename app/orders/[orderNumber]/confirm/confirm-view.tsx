@@ -146,12 +146,12 @@ export function OrderConfirmView() {
       {status === "checking" && <>
         <Loader2 className="mx-auto h-10 w-10 animate-spin text-graphite-400" />
         <h1 className="mt-4 text-lg font-bold text-graphite-900">Checking your payment…</h1>
-        <p className="mt-1 text-sm text-graphite-600">We're checking Paystack directly so you don't have to wait for order processing.</p>
+        <p className="mt-1 text-sm text-graphite-600">We are checking your payment.</p>
       </>}
       {status === "processing" && <>
         <Loader2 className="mx-auto h-10 w-10 animate-spin text-graphite-400" />
         <h1 className="mt-4 text-lg font-bold text-graphite-900">{paymentReceived ? "Payment received — finishing your order…" : "Payment is being confirmed…"}</h1>
-        <p className="mt-1 text-sm text-graphite-600">{paymentReceived ? "Your money has been received. We're finishing the order in the background. Please don't pay again." : "Paystack is confirming the transaction. Please don't pay again."}</p>
+        <p className="mt-1 text-sm text-graphite-600">{paymentReceived ? "Your money has been received. We're finishing the order in the background. Please don't pay again." : "We are confirming your payment. Please don't pay again."}</p>
         {attempts >= 16 && <button onClick={retry} className="mt-6 rounded-card border border-graphite-300 px-5 py-2.5 text-sm font-semibold text-graphite-900 hover:bg-cloud-100">Check again</button>}
       </>}
       {status === "success" && <>
