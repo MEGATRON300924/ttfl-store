@@ -78,7 +78,7 @@ export function OrderConfirmView() {
 
         if (payment.paymentStatus === "PAID") {
           setPaymentReceived(true);
-          if (payment.orderFinalized || currentOrder.paymentStatus === "PAID") {
+          if (payment.orderFinalized) {
             finishSuccess(currentOrder);
             return;
           }
@@ -122,7 +122,7 @@ export function OrderConfirmView() {
       setOrder(currentOrder);
       if (payment.paymentStatus === "PAID") {
         setPaymentReceived(true);
-        if (payment.orderFinalized || currentOrder.paymentStatus === "PAID") {
+        if (payment.orderFinalized) {
           finishSuccess(currentOrder);
         } else {
           setStatus("processing");
