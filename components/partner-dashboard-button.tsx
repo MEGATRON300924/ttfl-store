@@ -6,7 +6,7 @@ import { useAuth } from "@/lib/auth-context";
 
 export function PartnerDashboardButton() {
   const { user, loading } = useAuth();
-  const href = !loading && !user
+  const href = loading || !user
     ? "/login?next=/partners/dashboard"
     : "/partners/dashboard";
 
