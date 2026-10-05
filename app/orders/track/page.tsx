@@ -220,7 +220,6 @@ function TrackOrderContent() {
   const linkToken = searchParams.get("token")?.trim() ?? "";
   const demo = searchParams.get("demo") === "1";
   const [orderNumber, setOrderNumber] = useState("");
-  const [productId, setProductId] = useState("");
   const [result, setResult] = useState<ApiTrackingResult | null>(demo ? demoResult : null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
