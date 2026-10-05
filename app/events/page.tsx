@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CalendarDays, ArrowRight, Building2, Users } from "lucide-react";
 import { api } from "@/lib/api-client";
+import { PartnerDashboardButton } from "@/components/partner-dashboard-button";
 
 type EventItem = {
   id:string; title:string; slug:string; description:string; coverImageUrl:string|null;
@@ -14,7 +15,10 @@ export default async function EventsPage(){
   return <div className="shell py-8 sm:py-10">
     <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
       <div><p className="text-xs font-extrabold uppercase tracking-[0.16em] text-ember-600">TTFL Store</p><h1 className="mt-1 text-2xl font-extrabold tracking-tight text-graphite-900 dark:text-white">Events & Opportunities</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-graphite-600 dark:text-graphite-300">Discover trade fairs, exhibitions, networking events, training and other opportunities from verified TTFL Store partners.</p></div>
-      <Link href="/partners" className="inline-flex items-center gap-2 rounded-card border border-graphite-200 px-4 py-2.5 text-sm font-semibold text-graphite-900 dark:border-graphite-700 dark:text-white">Partner with TTFL Store <ArrowRight className="h-4 w-4"/></Link>
+      <div className="flex flex-wrap items-center gap-2">
+        <PartnerDashboardButton />
+        <Link href="/partners" className="inline-flex items-center gap-2 rounded-card border border-graphite-200 px-4 py-2.5 text-sm font-semibold text-graphite-900 dark:border-graphite-700 dark:text-white">Partner with TTFL Store <ArrowRight className="h-4 w-4"/></Link>
+      </div>
     </div>
     {data.events.length===0?<div className="mt-8 rounded-card border border-dashed border-graphite-200 p-10 text-center dark:border-graphite-700"><CalendarDays className="mx-auto h-9 w-9 text-graphite-400"/><p className="mt-3 font-semibold text-graphite-900 dark:text-white">No upcoming events yet</p><p className="mt-1 text-sm text-graphite-600 dark:text-graphite-300">New partner opportunities will appear here.</p></div>:
     <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{data.events.map(event=><Link href={`/events/${event.slug}`} key={event.id} className="overflow-hidden rounded-card border border-graphite-200 bg-white transition hover:-translate-y-0.5 hover:border-ember-500 hover:shadow-sm dark:border-graphite-700 dark:bg-graphite-900">
