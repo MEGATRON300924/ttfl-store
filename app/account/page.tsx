@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Package, LogOut, Pencil, Heart, Loader2, Plus, Trash2, MapPin, Camera, Gift, Truck, UserRound, Store, ChevronRight, Sparkles } from "lucide-react";
+import { Package, LogOut, Pencil, Heart, Loader2, Plus, Trash2, MapPin, Camera, Gift, Truck, UserRound, Store, ChevronRight, Sparkles, ShoppingBag } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api-client";
 import { formatNaira } from "@/lib/mock-data";
