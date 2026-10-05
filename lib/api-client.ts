@@ -56,8 +56,8 @@ async function request<T>(path: string, opts: RequestOptions = {}): Promise<T> {
     method: opts.method ?? "GET",
     credentials: "include",
     cache: opts.cache ?? "no-store",
-    headers: opts.body ? { "Content-Type": "application/json" } : undefined,
-    body: opts.body ? JSON.stringify(opts.body) : undefined,
+    headers: opts.body instanceof FormData ? undefined : opts.body ? { "Content-Type": "application/json" } : undefined,
+    body: opts.body instanceof FormData ? opts.body : opts.body ? JSON.stringify(opts.body) : undefined,
   });
 
   if (res.status === 204) return undefined as T;
