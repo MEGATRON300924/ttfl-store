@@ -229,13 +229,15 @@ function TrackOrderContent() {
 
   const fetchTracking = useCallback(async () => {
     if (!orderNumber.trim()) return;
-    const data = user
-      ? await api.get<ApiTrackingResult>(`/api/tracking/order/${encodeURIComponent(orderNumber.trim())}`)
-      : await api.post<ApiTrackingResult>("/api/tracking/public", { orderNumber: orderNumber.trim(), productId: productId.trim() });
+    if (!user) {
+      setError("Please log in to track an order by order number, or open the secure tracking link sent with your order.");
+      return;
+    }
+    const data = await api.get<ApiTrackingResult>(`/api/tracking/order/${encodeURIComponent(orderNumber.trim())}`);
     setResult(data);
     setLastUpdated(new Date());
     setError(null);
-  }, [orderNumber, productId, user]);
+  }, [orderNumber, user]);
 
   const lookup = useCallback(async (event?: FormEvent) => {
     event?.preventDefault();
@@ -308,14 +310,25 @@ function TrackOrderContent() {
           {demo && <div className="mb-5 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800"><strong>Tracking demo mode.</strong> This page is using safe local demo data and does not call the tracking API. Remove <code>?demo=1</code> to use real orders.</div>}
 
           {!linkToken && !demo && (
-            <form onSubmit={lookup} className="mb-6 rounded-[26px] border border-graphite-200 bg-white p-4 shadow-sm sm:p-5">
-              <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto]">
-                <label className="text-sm"><span className="mb-1 block text-xs font-bold text-graphite-700">Order number</span><input value={orderNumber} onChange={(event) => setOrderNumber(event.target.value)} placeholder="TTFL-2026-123456" required className="w-full rounded-2xl border border-graphite-200 bg-graphite-50 px-3.5 py-3 outline-none transition focus:border-ember-500 focus:bg-white" /></label>
-                <label className="text-sm"><span className="mb-1 block text-xs font-bold text-graphite-700">Product ID</span><input value={productId} onChange={(event) => setProductId(event.target.value)} placeholder={user ? "Optional when signed in" : "Required without login"} required={!user} className="w-full rounded-2xl border border-graphite-200 bg-graphite-50 px-3.5 py-3 outline-none transition focus:border-ember-500 focus:bg-white" /></label>
-                <button disabled={loading || authLoading} className="mt-auto rounded-2xl bg-ember-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-ember-700 disabled:opacity-60">{loading ? "Finding…" : "Track order"}</button>
+            user ? (
+              <form onSubmit={lookup} className="mb-6 rounded-[26px] border border-graphite-200 bg-white p-4 shadow-sm sm:p-5">
+                <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
+                  <label className="text-sm"><span className="mb-1 block text-xs font-bold text-graphite-700">Order number</span><input value={orderNumber} onChange={(event) => setOrderNumber(event.target.value)} placeholder="TTFL-2026-123456" required className="w-full rounded-2xl border border-graphite-200 bg-graphite-50 px-3.5 py-3 outline-none transition focus:border-ember-500 focus:bg-white" /></label>
+                  <button disabled={loading || authLoading} className="mt-auto rounded-2xl bg-ember-600 px-5 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-ember-700 disabled:opacity-60">{loading ? "Finding…" : "Track order"}</button>
+                </div>
+              </form>
+            ) : (
+              <div className="mb-6 rounded-[26px] border border-graphite-200 bg-white p-5 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-ember-100 text-ember-700"><LogIn className="h-5 w-5" /></div>
+                  <div>
+                    <p className="text-sm font-bold text-graphite-900">Track securely</p>
+                    <p className="mt-1 text-xs leading-5 text-graphite-600">Sign in to track an order by order number, or use the secure tracking link included with your order updates.</p>
+                    <Link href="/login?next=/orders/track" className="mt-3 inline-flex rounded-2xl bg-ember-600 px-4 py-2.5 text-xs font-bold text-white hover:bg-ember-700">Log in to track</Link>
+                  </div>
+                </div>
               </div>
-              {!user && <p className="mt-3 flex items-center gap-1.5 text-xs text-graphite-500"><LogIn className="h-3.5 w-3.5" />Already have an account? <Link href="/login?next=/orders/track" className="font-bold text-ember-600">Log in to track without a Product ID.</Link></p>}
-            </form>
+            )
           )}
 
           {error && <div className="mb-5 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
