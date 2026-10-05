@@ -11,6 +11,7 @@ import { CartProvider } from "@/lib/cart-context";
 import { SiteStructuredData } from "@/components/site-structured-data";
 import { WaitlistLaunchAlert } from "@/components/my-waitlist";
 import { TermsGate } from "@/components/terms-gate";
+import { LaunchPopup } from "@/components/launch-popup";
 
 const SITE_URL = "https://ttflstore.name.ng";
 const ADSENSE_CLIENT = "ca-pub-2236157159704579";
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <SiteFooter />
             <BroadcastPopup />
             <WaitlistLaunchAlert />
+            <LaunchPopup />
           </CartProvider>
         </AuthProvider>
       </body>
