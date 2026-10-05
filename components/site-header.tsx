@@ -15,7 +15,7 @@ export function SiteHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { totalItems } = useCart();
   const { user, wishlistIds } = useAuth();
-  const accountHref = !user ? "/login" : user.role === "ADMIN" ? "/admin" : user.role === "VENDOR" ? "/vendor/dashboard" : "/account";
+  const accountHref = !user ? "/login" : user.role === "ADMIN" ? "/admin" : "/account";
   const isVendor = user?.role === "VENDOR";
 
   return (
