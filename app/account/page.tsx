@@ -52,6 +52,10 @@ export default function AccountPage() {
     );
   }
 
+  if (user?.role === "VENDOR") {
+    return <VendorAccountPage user={user} orders={orders} onLogout={handleLogout} />;
+  }
+
   return (
     <div className="shell py-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -153,6 +157,67 @@ export default function AccountPage() {
       )}
 
       <AccountDangerZone />
+    </div>
+  );
+}
+
+
+function VendorAccountPage({ user, orders, onLogout }: { user: NonNullable<ReturnType<typeof useAuth>["user"]>; orders: ApiOrder[] | null; onLogout: () => Promise<void> }) {
+  const [products, setProducts] = useState<Array<{ id: string }>>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+
+  useEffect(() => {
+    api.get<{ products: Array<{ id: string }> }>("/api/products/mine")
+      .then((r) => setProducts(r.products))
+      .catch(() => setProducts([]))
+      .finally(() => setProductsLoading(false));
+  }, []);
+
+  return (
+    <div className="shell py-8">
+      <section className="rounded-card border border-graphite-200 bg-white p-5 sm:p-6">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-ember-100 text-ember-600">
+            <Store className="h-8 w-8" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-[0.18em] text-ember-600">TTFL Store</p>
+            <h1 className="mt-1 truncate text-2xl font-extrabold tracking-tight text-graphite-900 sm:text-3xl">{user.vendorProfile?.storeName ?? "Your Store"}</h1>
+            <p className="mt-1 text-sm text-graphite-600">Vendor account</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <h2 className="text-lg font-bold text-graphite-900">Your products and orders</h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <Link href="/vendor/dashboard/products" className="group rounded-card border border-graphite-200 bg-white p-5 hover:border-ember-300 hover:bg-cloud-50">
+            <div className="flex items-center justify-between"><Package className="h-5 w-5 text-ember-600" /><ChevronRight className="h-4 w-4 text-graphite-300" /></div>
+            <p className="mt-3 font-bold text-graphite-900">Your products</p>
+            <p className="mt-1 text-sm text-graphite-600">{productsLoading ? "Loading…" : `${products.length} product${products.length === 1 ? "" : "s"} listed`}</p>
+          </Link>
+          <Link href="/vendor/dashboard/orders" className="group rounded-card border border-graphite-200 bg-white p-5 hover:border-ember-300 hover:bg-cloud-50">
+            <div className="flex items-center justify-between"><ShoppingBag className="h-5 w-5 text-ember-600" /><ChevronRight className="h-4 w-4 text-graphite-300" /></div>
+            <p className="mt-3 font-bold text-graphite-900">Your orders</p>
+            <p className="mt-1 text-sm text-graphite-600">{orders === null ? "Loading…" : `${orders.length} order${orders.length === 1 ? "" : "s"}`}</p>
+          </Link>
+        </div>
+      </section>
+
+      <div className="mt-6 flex flex-wrap gap-2">
+        <Link href="/vendor/dashboard" className="inline-flex items-center gap-2 rounded-card bg-ember-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-ember-700"><Store className="h-4 w-4" /> Vendor dashboard</Link>
+        <button onClick={() => void onLogout()} className="inline-flex items-center gap-2 rounded-card border border-graphite-300 px-5 py-2.5 text-sm font-semibold text-graphite-900 hover:bg-cloud-100"><LogOut className="h-4 w-4" /> Log out</button>
+      </div>
+
+      <section className="mt-8 rounded-card border border-graphite-200 bg-white p-5">
+        <h2 className="text-sm font-bold uppercase tracking-wide text-graphite-600">Vendor account</h2>
+        <div className="mt-3 grid gap-2 text-sm text-graphite-700 sm:grid-cols-2">
+          <p><span className="font-semibold text-graphite-900">Email:</span> {user.email}</p>
+          <p><span className="font-semibold text-graphite-900">Store status:</span> {user.vendorProfile?.status ?? "—"}</p>
+          <p><span className="font-semibold text-graphite-900">Plan:</span> {user.vendorProfile?.tier ?? "FREE"}</p>
+          <p><span className="font-semibold text-graphite-900">Store ID:</span> {user.vendorProfile?.id ?? "—"}</p>
+        </div>
+      </section>
     </div>
   );
 }
