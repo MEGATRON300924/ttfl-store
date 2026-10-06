@@ -90,6 +90,11 @@ export default function SellPage() {
     if (!form.storeCategory) return setError("Please choose your store category.");
     setSubmitting(true);
     try {
+      if (!user) {
+        setError("Your TTFL account session has expired. Please sign in again.");
+        setSubmitting(false);
+        return;
+      }
       if (user.role === "VENDOR") {
         router.push("/vendor/dashboard");
         return;
