@@ -13,7 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
         const title = `${event.title} | TTFL Store Events`;
         const description = String(event.description || `Join ${event.title} on TTFL Store.`).replace(/\s+/g, " ").slice(0, 160);
         const canonical = `https://ttflstore.name.ng/events/${encodeURIComponent(slug)}`;
-        return { title, description, keywords: [event.title, "TTFL Store events", "virtual trade fair", "Nigeria"].filter(Boolean), alternates: { canonical }, openGraph: { title, description, url: canonical, type: "website", siteName: "TTFL Store" }, twitter: { card: "summary", title, description } };
+        const image = event.coverImageUrl || event.partner?.logoUrl || undefined;
+        return { title, description, keywords: [event.title, "TTFL Store events", "virtual trade fair", "Nigeria"].filter(Boolean), alternates: { canonical }, openGraph: { title, description, url: canonical, type: "website", siteName: "TTFL Store", ...(image ? { images: [{ url: image, alt: event.title }] } : {}) }, twitter: { card: "summary", title, description, ...(image ? { images: [image] } : {}) } };
       }
     }
   } catch {}
