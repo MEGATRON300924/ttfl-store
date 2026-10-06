@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ShieldCheck, Truck, Wallet } from "lucide-react";
+import { api } from "@/lib/api-client";
 
 const trustPoints = [
   { icon: ShieldCheck, label: "Verified vendors" },
@@ -7,7 +8,20 @@ const trustPoints = [
   { icon: Truck, label: "Tracked delivery" },
 ];
 
-export function Hero() {
+export async function Hero() {
+  let verifiedStoreCount = 0;
+  try {
+    const response = await api.get<{ stores?: unknown[]; pagination?: { total?: number } }>(
+      "/api/store-profile/public/directory?verified=true&limit=1&page=1",
+      { cache: "no-store" },
+    );
+    verifiedStoreCount = Number(response.pagination?.total ?? response.stores?.length ?? 0);
+  } catch {
+    verifiedStoreCount = 0;
+  }
+
+  const verifiedStoreLabel = verifiedStoreCount > 0 ? verifiedStoreCount.toLocaleString() : "Live";
+
   return (
     <section className="border-b border-graphite-200 bg-graphite-950">
       <div className="shell grid gap-5 py-7 sm:gap-8 sm:py-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-16">
@@ -49,19 +63,25 @@ export function Hero() {
 
         <div className="grid grid-cols-2 gap-2 sm:gap-3">
           {[
-            { label: "Flash Deals", sub: "Up to 40% off", tone: "bg-ember-600" },
-            { label: "New Arrivals", sub: "This week", tone: "bg-graphite-800" },
-            { label: "Verified Stores", sub: "1,200+ vendors", tone: "bg-graphite-800" },
+            { label: "Flash Deals", sub: "Up to 25% off", tone: "bg-ember-600" },
+            { label: "New Arrivals", sub: "This week", tone: "bg-graphite-800", href: "/shop" },
+            { label: "Verified Stores", sub: `${verifiedStoreLabel} verified stores`, tone: "bg-graphite-800", href: "/stores" },
             { label: "Near You", sub: "Local pickup", tone: "bg-verified-700" },
-          ].map((t) => (
-            <div
-              key={t.label}
-              className={`${t.tone} flex h-24 flex-col justify-between rounded-card p-3 text-white sm:h-36 sm:p-4`}
-            >
-              <span className="text-[11px] font-medium text-white/70 sm:text-[13px]">{t.sub}</span>
-              <span className="text-base font-bold tracking-tight sm:text-lg">{t.label}</span>
-            </div>
-          ))}
+          ].map((t) => {
+            const content = (
+              <div className={`${t.tone} flex h-24 flex-col justify-between rounded-card p-3 text-white sm:h-36 sm:p-4`}>
+                <span className="text-[11px] font-medium text-white/70 sm:text-[13px]">{t.sub}</span>
+                <span className="text-base font-bold tracking-tight sm:text-lg">{t.label}</span>
+              </div>
+            );
+            return t.href ? (
+              <Link key={t.label} href={t.href} className="block rounded-card outline-none focus-visible:ring-2 focus-visible:ring-ember-500">
+                {content}
+              </Link>
+            ) : (
+              <div key={t.label}>{content}</div>
+            );
+          })}
         </div>
       </div>
     </section>
