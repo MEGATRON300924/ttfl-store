@@ -1,6 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, ArrowLeft, CheckCircle2, MessagesSquare } from "lucide-react";
@@ -14,7 +15,7 @@ const marketplaceOptions = [
   { value: "ACCOUNT", label: "Account / website", help: "Login, account, website or other TTFL issue." },
 ] as const;
 
-export default function ReportProblemPage() {
+function ReportProblemPageContent() {
   const searchParams = useSearchParams();
   const { user, loading } = useAuth();
   const [marketplace, setMarketplace] = useState<(typeof marketplaceOptions)[number]["value"]>((searchParams.get("marketplace")?.toUpperCase() as any) || "STORE");
@@ -80,4 +81,9 @@ export default function ReportProblemPage() {
       <button disabled={busy} className="rounded-card bg-ember-600 px-4 py-3 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-60">{busy?"Sending…":"Send report"}</button>
     </div></form>
   </div></div>;
+}
+
+
+export default function ReportProblemPage() {
+  return <Suspense fallback={<div className="shell py-16"><div className="mx-auto max-w-xl text-center text-sm text-graphite-500">Loading support form…</div></div>}><ReportProblemPageContent /></Suspense>;
 }
