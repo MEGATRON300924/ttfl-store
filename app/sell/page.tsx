@@ -90,7 +90,17 @@ export default function SellPage() {
     if (!form.storeCategory) return setError("Please choose your store category.");
     setSubmitting(true);
     try {
-      if (user.role === "VENDOR") { router.push("/vendor/dashboard"); return; }\n      await api.post("/api/auth/apply/vendor", { storeName: form.storeName, storeCategory: form.storeCategory, storeType: form.storeType, whatsappNumber: form.whatsappNumber, location: form.location });
+      if (user.role === "VENDOR") {
+        router.push("/vendor/dashboard");
+        return;
+      }
+      await api.post("/api/auth/apply/vendor", {
+        storeName: form.storeName,
+        storeCategory: form.storeCategory,
+        storeType: form.storeType,
+        whatsappNumber: form.whatsappNumber,
+        location: form.location,
+      });
       setSubmitting(false);
       setSubmitted(true);
       void router.refresh();
