@@ -11,6 +11,19 @@ import { GoogleSignIn } from "@/components/google-sign-in";
 
 export default function RegisterPage() {
   const router = useRouter();
+  async function continueToDestination() {
+    const next = new URLSearchParams(window.location.search).get("next");
+    const destination = next || "/";
+    try {
+      const url = new URL(destination, window.location.origin);
+      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng"]);
+      if (url.origin !== window.location.origin && !allowedHosts.has(url.hostname)) throw new Error("Invalid redirect destination");
+      if (url.origin === window.location.origin) { router.push(url.pathname + url.search + url.hash); return; }
+      const handoff = await api.post<{ token: string }>("/api/auth/handoff/create", {});
+      url.searchParams.set("handoff", handoff.token);
+      window.location.assign(url.toString());
+    } catch { router.push("/"); }
+  }
   const { setAuthenticatedUser } = useAuth();
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", phone: "", password: "" });
   const [error, setError] = useState<string | null>(null);
@@ -35,7 +48,7 @@ export default function RegisterPage() {
   const handleGoogleSuccess = useCallback(async (user: import("@/lib/api-types").ApiUser) => {
     setError(null);
     setAuthenticatedUser(user);
-    router.push("/account");
+    void continueToDestination();
   }, [router, setAuthenticatedUser]);
 
   const handleGoogleError = useCallback((message: string) => {
@@ -44,7 +57,7 @@ export default function RegisterPage() {
 
   function continueToStore() {
     setVerificationNotice(false);
-    router.push("/");
+    void continueToDestination();
   }
 
   return (
