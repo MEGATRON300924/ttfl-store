@@ -23,7 +23,7 @@ export function LoginForm() {
     try {
       const { user } = await api.post<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/login", { email, password });
       setAuthenticatedUser(user);
-      router.push(searchParams.get("next") ?? "/");
+      await continueToDestination(searchParams.get("next"));
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
       setSubmitting(false);
@@ -35,6 +35,24 @@ export function LoginForm() {
     setAuthenticatedUser(user);
     router.push(searchParams.get("next") ?? "/");
   }, [router, searchParams, setAuthenticatedUser]);
+
+  async function continueToDestination(next: string | null) {
+    const destination = next || "/";
+    try {
+      const url = new URL(destination, window.location.origin);
+      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng"]);
+      if (url.origin !== window.location.origin && !allowedHosts.has(url.hostname)) throw new Error("Invalid redirect destination");
+      if (url.origin === window.location.origin) {
+        router.push(url.pathname + url.search + url.hash);
+        return;
+      }
+      const handoff = await api.post<{ token: string }>("/api/auth/handoff/create", {});
+      url.searchParams.set("handoff", handoff.token);
+      window.location.assign(url.toString());
+    } catch {
+      router.push("/");
+    }
+  }
 
   const handleGoogleError = useCallback((message: string) => {
     setError(message);
