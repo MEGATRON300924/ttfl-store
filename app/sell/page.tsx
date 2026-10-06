@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, Store, EyeOff, LayoutTemplate, CarFront, House, Package, Smartphone, ArrowRight, LogIn } from "lucide-react";
+import { CheckCircle2, Store, EyeOff, LayoutTemplate, CarFront, Home, Package, Smartphone, ArrowRight, LogIn } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { TextField } from "@/components/text-field";
@@ -20,7 +20,7 @@ const storeTypes: [StoreType, string, string, typeof Store][] = [
 
 const marketplaces: [Marketplace, string, string, typeof Store][] = [
   ["CARS", "Cars", "Cars, SUVs, trucks, motorcycles and other vehicles.", CarFront],
-  ["HOMES", "Homes", "Houses, apartments, land and other property listings.", House],
+  ["HOMES", "Homes", "Houses, apartments, land and other property listings.", Home],
   ["GENERAL", "Normal products", "A full TTFL Store covering your usual product categories.", Package],
   ["MINIMAL", "Minimal products", "Focused everyday products such as phones, gadgets, groceries and similar goods.", Smartphone],
 ];
