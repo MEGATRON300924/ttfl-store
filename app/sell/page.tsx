@@ -90,7 +90,7 @@ export default function SellPage() {
     if (!form.storeCategory) return setError("Please choose your store category.");
     setSubmitting(true);
     try {
-      await api.post("/api/auth/register/vendor", form);
+      if (user.role === "VENDOR") { router.push("/vendor/dashboard"); return; }\n      await api.post("/api/auth/apply/vendor", { storeName: form.storeName, storeCategory: form.storeCategory, storeType: form.storeType, whatsappNumber: form.whatsappNumber, location: form.location });
       setSubmitting(false);
       setSubmitted(true);
       void router.refresh();
@@ -171,7 +171,7 @@ export default function SellPage() {
             <TextField label="WhatsApp (optional)" value={form.whatsappNumber} onChange={v => setForm({ ...form, whatsappNumber: v })} optional />
           </div>
           <TextField label="Location (optional)" value={form.location} onChange={v => setForm({ ...form, location: v })} optional />
-          <TextField label="Password" type="password" value={form.password} onChange={v => setForm({ ...form, password: v })} hint="Only needed for a new vendor application." />
+          <TextField label="Password" type="password" value={form.password} onChange={v => setForm({ ...form, password: v })} hint="Your TTFL account password is not needed here." />
           {error && <p role="alert" className="rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}
           <button type="submit" disabled={submitting || loadingCategories || !categories.length} className="mt-2 rounded-card bg-ember-600 py-2.5 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-60">{submitting ? "Submitting…" : "Apply to sell"}</button>
         </form>
