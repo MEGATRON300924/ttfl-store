@@ -1,47 +1,337 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, type ComponentProps } from "react";
-import { Package, ShoppingBag, Plus, AlertCircle, CreditCard, Wallet, BarChart3, Megaphone, Ticket, Settings, Palette, Users, Zap, Bell, Rocket, TrendingUp, PartyPopper, Landmark, Trash2, Power, Wrench, MessageCircle, X, Copy, Bot } from "lucide-react";
+import { useEffect, useMemo, useState, type ComponentProps, type ReactNode } from "react";
+import {
+  BarChart3, Bell, Bot, CalendarDays, ChevronRight, Clock3, Copy, CreditCard,
+  ExternalLink, LayoutDashboard, LogOut, Megaphone, Menu, MessageCircle, Package,
+  Palette, Plus, Power, Rocket, Settings, ShoppingBag, Store, Tag, Ticket,
+  Trash2, TrendingUp, UserRound, Users, Wallet, Wrench, X, Zap
+} from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api-client";
 import { VendorDashboardTutorial, VendorTutorialsSection } from "@/components/vendor-dashboard-tutorial";
 
 type Membership = { vendorId: string; isOwner: boolean; role: string; permissions: string[] } | null;
-type VendorGrowth = { productCount: number; productLimit: number | null; tier: string; paidOrderCount: number }; type Setup={completed:number;total:number;percentage:number;items:Array<{key:string;label:string;done:boolean;href:string}>};
-const LINKS = [
-  { href: "/vendor/dashboard/products", permission: "PRODUCTS", icon: Package, title: "My products", desc: "List, edit, and manage inventory" },
-  { href: "/vendor/dashboard/services", permission: "PRODUCTS", icon: Wrench, title: "My services", desc: "Offer services customers can discover and pay for" },
-  { href: "/vendor/dashboard/services/orders", permission: "ORDERS", icon: CalendarIcon, title: "Service orders", desc: "Manage customer bookings and service payments" },
-  { href: "/vendor/dashboard/ads", permission: "PRODUCTS", icon: Megaphone, title: "Ad Centre", desc: "Promote stores, products, and services" },
-  { href: "/vendor/dashboard/orders", permission: "ORDERS", icon: ShoppingBag, title: "Orders", desc: "Fulfill orders from your store" },
-  { href: "/vendor/dashboard/analytics", permission: "FINANCE", icon: BarChart3, title: "Analytics", desc: "Views, clicks, revenue, best sellers" },
-  { href: "/vendor/dashboard/payouts", permission: "FINANCE", icon: Wallet, title: "Payouts", desc: "View balances and settlement details" },
-  { href: "/vendor/dashboard/subscription", permission: "MANAGER", icon: CreditCard, title: "Subscription", desc: "Manage your plan and billing" },
-  { href: "/vendor/dashboard/promote", permission: "PRODUCTS", icon: Megaphone, title: "Promote", desc: "Feature a product or your store" },
-  { href: "/vendor/dashboard/flash-deals", permission: "PRODUCTS", icon: Zap, title: "Flash deals", desc: "Run limited-time product discounts" },
-  { href: "/vendor/dashboard/launches", permission: "PRODUCTS", icon: Rocket, title: "Launch campaigns", desc: "Schedule and launch products" },
-  { href: "/vendor/dashboard/coupons", permission: "MANAGER", icon: Ticket, title: "Coupons", desc: "Discount codes for your store" },
-  { href: "/vendor/dashboard/store-settings", permission: "MANAGER", icon: Settings, title: "Store settings", desc: "Manage your store profile and branding" },
-  { href: "/vendor/dashboard/store-setup", permission: "MANAGER", icon: StoreIcon, title: "Store setup", desc: "Complete your store checkpoint and verification-ready profile" },
-  { href: "/vendor/dashboard/business-hours", permission: "MANAGER", icon: ClockIcon, title: "Business hours", desc: "Tell customers when your store is open" },
-  { href: "/vendor/dashboard/notifications", permission: "MANAGER", icon: Bell, title: "Notifications", desc: "Choose email, WhatsApp, and marketing alerts" },
-  { href: "/vendor/dashboard/public-profile", permission: "MANAGER", icon: Palette, title: "Public profile", desc: "Enterprise storefront appearance, visibility, and gallery" },
-  { href: "/vendor/dashboard/team", ownerOnly: true, icon: Users, title: "Team", desc: "Invite staff and manage permissions" },
+type Product = {
+  id: string;
+  name: string;
+  slug?: string;
+  status?: string;
+  price?: number | string;
+  viewCount?: number;
+  createdAt?: string;
+  images?: Array<{ url: string }>;
+};
+type Growth = {
+  productCount: number;
+  productLimit: number | null;
+  tier: string;
+  paidOrderCount: number;
+  viewCount: number;
+  activeProductCount: number;
+};
+type Setup = {
+  completed: number;
+  total: number;
+  percentage: number;
+  items: Array<{ key: string; label: string; done: boolean; href: string }>;
+};
+
+const NAV = [
+  { key: "overview", href: "/vendor/dashboard", icon: LayoutDashboard, title: "Overview" },
+  { key: "products", href: "/vendor/dashboard/products", icon: Package, title: "Products" },
+  { key: "services", href: "/vendor/dashboard/services", icon: Wrench, title: "Services" },
+  { key: "orders", href: "/vendor/dashboard/orders", icon: ShoppingBag, title: "Orders" },
+  { key: "analytics", href: "/vendor/dashboard/analytics", icon: BarChart3, title: "Analytics" },
+  { key: "ads", href: "/vendor/dashboard/ads", icon: Megaphone, title: "Ad Centre" },
+  { key: "promote", href: "/vendor/dashboard/promote", icon: TrendingUp, title: "Promote" },
+  { key: "deals", href: "/vendor/dashboard/flash-deals", icon: Zap, title: "Flash deals" },
+  { key: "coupons", href: "/vendor/dashboard/coupons", icon: Ticket, title: "Coupons" },
+  { key: "payouts", href: "/vendor/dashboard/payouts", icon: Wallet, title: "Payouts" },
+  { key: "subscription", href: "/vendor/dashboard/subscription", icon: CreditCard, title: "Subscription" },
+  { key: "store", href: "/vendor/dashboard/store-settings", icon: Store, title: "Store settings" },
+  { key: "setup", href: "/vendor/dashboard/store-setup", icon: Clock3, title: "Store setup" },
+  { key: "profile", href: "/vendor/dashboard/public-profile", icon: Palette, title: "Public profile" },
+  { key: "hours", href: "/vendor/dashboard/business-hours", icon: CalendarDays, title: "Business hours" },
+  { key: "notifications", href: "/vendor/dashboard/notifications", icon: Bell, title: "Notifications" },
+  { key: "team", href: "/vendor/dashboard/team", icon: Users, title: "Team", ownerOnly: true },
 ] as const;
-function StoreIcon(props: ComponentProps<"svg">) { return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 10h18M5 10v9h14v-9M4 10l2-5h12l2 5M9 19v-5h6v5"/></svg>; }
-function ClockIcon(props: ComponentProps<"svg">) { return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>; }
-function CalendarIcon(props: ComponentProps<"svg">) { return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/><path d="m9 16 2 2 4-4"/></svg>; }
+
+function StoreIcon(props: ComponentProps<"svg">) {
+  return <svg {...props} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 10h18M5 10v9h14v-9M4 10l2-5h12l2 5M9 19v-5h6v5"/></svg>;
+}
 
 export default function VendorDashboardPage() {
-  const { user, loading, logout } = useAuth(); const [showWhatsAppPopup, setShowWhatsAppPopup] = useState(false); const [membership,setMembership]=useState<Membership>(null); const [membershipLoading,setMembershipLoading]=useState(true); const [growth,setGrowth]=useState<VendorGrowth|null>(null); const [setup,setSetup]=useState<Setup|null>(null); const [tipIndex,setTipIndex]=useState(0); const [accountAction,setAccountAction]=useState<"disable"|"delete"|null>(null); const [accountError,setAccountError]=useState<string|null>(null);
-  useEffect(()=>{if(!loading&&user&&window.localStorage.getItem("ttfl_vendor_whatsapp_popup_dismissed")!=="1")setShowWhatsAppPopup(true)},[loading,user]); useEffect(()=>{if(loading||!user)return;void api.get<{membership:Membership}>("/api/vendor-staff/me").then(({membership:next})=>setMembership(next)).catch(()=>setMembership(null)).finally(()=>setMembershipLoading(false));},[loading,user]); useEffect(()=>{if(!loading&&!user)setMembershipLoading(false)},[loading,user]);
-  useEffect(()=>{if(loading||!user||!membership?.isOwner||user.vendorProfile?.status!=="APPROVED")return; void api.get<Setup>("/api/store-hours/setup").then(setSetup).catch(()=>undefined);void Promise.allSettled([api.get<{products:Array<{id:string;status?:string}>}>("/api/products/mine"),api.get<{subscription:{plan:{tier:string;productLimit:number|null}}|null}>("/api/subscriptions/me"),api.get<{vendorOrders:Array<{order?:{paymentStatus?:string}}> }>("/api/orders/vendor/me")]).then(([a,b,c])=>{const products=a.status==="fulfilled"?a.value.products:[];const subscription=b.status==="fulfilled"?b.value.subscription:null;const orders=c.status==="fulfilled"?c.value.vendorOrders:[];setGrowth({productCount:products.filter(p=>p.status!=="SUSPENDED").length,productLimit:subscription?.plan.productLimit??null,tier:subscription?.plan.tier??user.vendorProfile?.tier??"FREE",paidOrderCount:orders.filter(i=>i.order?.paymentStatus==="PAID").length});});},[loading,user,membership]);
-  useEffect(()=>{if(!growth)return;const timer=window.setInterval(()=>setTipIndex(c=>c+1),5000);return()=>window.clearInterval(timer)},[growth]);
-  async function handleAccountAction(action:"disable"|"delete"){const message=action==="delete"?"Delete your TTFL Store account permanently? This cannot be undone.":"Disable your TTFL Store account? You will be logged out and won't be able to sign in until the account is reactivated.";if(!window.confirm(message))return;setAccountAction(action);setAccountError(null);try{await api[action==="delete"?"delete":"post"](action==="delete"?"/api/auth/account":"/api/auth/disable");await logout();window.location.href="/";}catch(err){setAccountError(err instanceof ApiError?err.message:`Couldn't ${action} your account`);setAccountAction(null)}}
-  if(loading||membershipLoading)return <div className="shell py-16 text-center text-sm text-graphite-600 dark:text-graphite-400">Loading dashboard…</div>; if(!user||(!membership&&user.role!=="VENDOR"))return <div className="shell py-16 text-center"><h1 className="text-lg font-bold text-graphite-900 dark:text-white">Vendor access only</h1><p className="mt-1 text-sm text-graphite-600 dark:text-graphite-400">Log in with a vendor account, or <Link href="/sell" className="font-medium text-ember-600">apply to sell</Link>.</p></div>;
-  const canSee=(link:(typeof LINKS)[number])=>{if(membership?.isOwner)return true;if("ownerOnly" in link)return false;return membership?.permissions.includes(link.permission)??false}; const visibleLinks=LINKS.filter(canSee); const nearLimit=Boolean(growth?.productLimit&&growth.productCount>=Math.max(1,growth.productLimit-3)); const firstProduct=growth?.productCount===1; const firstOrder=growth?.paidOrderCount===1; const tips=growth?[{icon:TrendingUp,title:nearLimit?"You're close to your product limit":"Increase your business on TTFL Store",body:nearLimit?`You have ${Math.max(0,growth.productLimit!-growth.productCount)} product slot${growth.productLimit!-growth.productCount===1?"":"s"} left on your ${growth.tier} plan.`:"Upgrade your plan to list more products and unlock a lower marketplace commission.",href:"/vendor/dashboard/subscription",action:"View plans"},{icon:Landmark,title:"Add your payout details",body:"Add your bank details so your TTFL Store earnings can be paid to you when they become available.",href:"/vendor/dashboard/payouts",action:"Add bank details"}]:[]; const activeTip=tips.length?tips[tipIndex%tips.length]:null;
-  return <div className="min-h-screen bg-[#f6f7f7] dark:bg-[#0b0d10]"><div className="shell py-6 sm:py-8">{showWhatsAppPopup&&<div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="ttfl-whatsapp-title"><div className="relative w-full max-w-md overflow-hidden rounded-2xl border border-graphite-200 bg-white shadow-2xl dark:border-graphite-700 dark:bg-graphite-900"><button type="button" aria-label="Close" onClick={()=>{setShowWhatsAppPopup(false);window.localStorage.setItem("ttfl_vendor_whatsapp_popup_dismissed","1")}} className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-graphite-500 hover:bg-cloud-100 hover:text-graphite-900 dark:hover:bg-graphite-800 dark:hover:text-white"><X className="h-5 w-5"/></button><div className="p-6 sm:p-7"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#25D366] text-white shadow-sm"><MessageCircle className="h-6 w-6"/></div><h2 id="ttfl-whatsapp-title" className="mt-5 text-xl font-bold text-graphite-900 dark:text-white">Join the TTFL Store Vendor Group</h2><p className="mt-2 text-sm leading-6 text-graphite-600 dark:text-graphite-300">Stay updated on new features, vendor tools, important announcements, tips, and upcoming opportunities on TTFL Store.</p><div className="mt-5 rounded-xl bg-cloud-100 p-4 dark:bg-graphite-800"><p className="text-sm font-semibold text-graphite-900 dark:text-white">📢 Vendor updates, directly on WhatsApp</p><p className="mt-1 text-xs leading-5 text-graphite-600 dark:text-graphite-400">Join the community so you don&apos;t miss what&apos;s new.</p></div><a href="https://chat.whatsapp.com/LUlsRgmSFjz2ADeRtXiKl4" target="_blank" rel="noopener noreferrer" onClick={()=>{window.localStorage.setItem("ttfl_vendor_whatsapp_popup_dismissed","1");setShowWhatsAppPopup(false)}} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3 text-sm font-bold text-white transition hover:brightness-95"><MessageCircle className="h-5 w-5"/>Join WhatsApp Group</a><button type="button" onClick={()=>{setShowWhatsAppPopup(false);window.localStorage.setItem("ttfl_vendor_whatsapp_popup_dismissed","1")}} className="mt-3 w-full rounded-xl px-5 py-2.5 text-sm font-semibold text-graphite-600 hover:bg-cloud-100 dark:text-graphite-300 dark:hover:bg-graphite-800">Maybe later</button></div></div></div>}<VendorDashboardTutorial />{activeTip&&<div className="mb-5 overflow-hidden rounded-card border border-ember-200 bg-ember-50 dark:border-ember-500/30 dark:bg-ember-950/30"><div key={tipIndex%tips.length} className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-card bg-ember-600 text-white"><activeTip.icon className="h-5 w-5" /></span><div><p className="text-sm font-bold text-graphite-900 dark:text-white">{activeTip.title}</p><p className="mt-0.5 text-sm text-graphite-600 dark:text-graphite-300">{activeTip.body}</p></div></div><Link href={activeTip.href} className="inline-flex shrink-0 items-center justify-center rounded-card bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-ember-700">{activeTip.action}</Link></div><div className="flex gap-1 px-4 pb-3">{tips.map((_,index)=><span key={index} className={`h-1 flex-1 rounded-full ${index===tipIndex%tips.length?"bg-ember-600":"bg-ember-200 dark:bg-ember-800"}`} />)}</div></div>}
-  <div className="mb-5 rounded-card border border-graphite-200 bg-white p-4 dark:border-graphite-700 dark:bg-graphite-900"><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-ember-600">Store identity</p><p className="mt-1 text-sm text-graphite-600 dark:text-graphite-400">Use your Store ID when asking Max AI to analyze your store.</p><div className="mt-2 flex flex-wrap items-center gap-2"><code className="rounded-lg bg-cloud-100 px-3 py-2 font-mono text-sm font-bold text-graphite-900 dark:bg-graphite-950 dark:text-white">{user.vendorProfile?.id}</code><button type="button" onClick={()=>{if(user.vendorProfile?.id)void navigator.clipboard?.writeText(user.vendorProfile.id)}} className="inline-flex items-center gap-1.5 rounded-lg border border-graphite-200 px-3 py-2 text-xs font-semibold text-graphite-700 hover:bg-cloud-100 dark:border-graphite-700 dark:text-graphite-200 dark:hover:bg-graphite-800"><Copy className="h-3.5 w-3.5"/>Copy Store ID</button></div></div><Link href="/vendor/dashboard/max-ai" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-graphite-800 dark:bg-white dark:text-graphite-900"><Bot className="h-4 w-4"/>Max AI Analytics</Link></div></div><div className="mb-5 rounded-card border border-ember-200 bg-ember-50/60 p-5 dark:border-ember-500/30 dark:bg-ember-950/20"><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[0.16em] text-ember-600">Store setup checkpoint</p><h2 className="mt-1 text-base font-bold text-graphite-900 dark:text-white">{setup?.percentage??0}% complete</h2><p className="mt-1 text-sm text-graphite-600 dark:text-graphite-300">Complete your store profile to make your storefront more trustworthy and verification-ready.</p></div><Link href="/vendor/dashboard/store-setup" className="rounded-card bg-ember-600 px-4 py-2.5 text-sm font-bold text-white">Complete store setup</Link></div><div className="mt-4 h-2 overflow-hidden rounded-full bg-ember-100 dark:bg-ember-900"><div className="h-full rounded-full bg-ember-600" style={{width:`${setup?.percentage??0}%`}}/></div></div><div className="mb-5 rounded-[28px] bg-graphite-950 px-5 py-6 text-white shadow-xl sm:px-7"><p className="text-[10px] font-bold uppercase tracking-[0.2em] text-orange-300">Vendor workspace</p><h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">{user.vendorProfile?.storeName??"Vendor dashboard"}</h1><p className="mt-1 text-sm text-white/60">Everything you need to run your store in one place.</p></div>{!membership?.isOwner&&membership&&<p className="mt-1 text-sm text-graphite-600 dark:text-graphite-400">Team role: <span className="font-semibold">{membership.role}</span></p>}{user.vendorProfile&&user.vendorProfile.status!=="APPROVED"&&<div className="mt-4 flex items-start gap-3 rounded-card bg-gold-100 p-4 dark:bg-[#2B2517]"><AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-gold-600"/><div><p className="text-sm font-semibold text-graphite-900 dark:text-white">{user.vendorProfile.status==="PENDING"&&"Your application is under review"}{user.vendorProfile.status==="REJECTED"&&"Your application was not approved"}{user.vendorProfile.status==="SUSPENDED"&&"Your store is currently suspended"}</p><p className="mt-0.5 text-sm text-graphite-700 dark:text-graphite-300">{user.vendorProfile.status==="PENDING"&&"You can't list products yet — we'll email you once you're approved."}{user.vendorProfile.status==="REJECTED"&&"Contact support if you'd like to appeal this decision."}{user.vendorProfile.status==="SUSPENDED"&&"Contact support to resolve this."}</p></div></div>}{firstProduct&&<div className="mt-4 flex items-start gap-3 rounded-card border border-verified-200 bg-verified-50 p-4 dark:border-verified-500/30 dark:bg-verified-950/20"><PartyPopper className="mt-0.5 h-5 w-5 shrink-0 text-verified-600"/><div><p className="text-sm font-bold text-graphite-900 dark:text-white">🎉 Congratulations! Your first product is live.</p><p className="mt-0.5 text-sm text-graphite-600 dark:text-graphite-300">Your store is officially open for business. Keep adding products to reach more customers.</p></div></div>}{firstOrder&&<div className="mt-4 flex items-start gap-3 rounded-card border border-gold-200 bg-gold-50 p-4 dark:border-gold-500/30 dark:bg-gold-950/20"><PartyPopper className="mt-0.5 h-5 w-5 shrink-0 text-gold-600"/><div><p className="text-sm font-bold text-graphite-900 dark:text-white">🥳 Congratulations on your first order!</p><p className="mt-0.5 text-sm text-graphite-600 dark:text-graphite-300">You've made your first sale on TTFL Store. Head to Orders to review and fulfill it.</p></div><Link href="/vendor/dashboard/orders" className="ml-auto shrink-0 text-sm font-semibold text-ember-600 hover:text-ember-700">View order</Link></div>}
-  <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{visibleLinks.map(({href,icon:Icon,title,desc})=><Link key={href} href={href} className="group flex items-center gap-4 rounded-[22px] border border-graphite-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-ember-300 hover:shadow-md dark:border-graphite-800 dark:bg-graphite-900 dark:hover:border-ember-500"><span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-graphite-200 bg-cloud-50 text-graphite-600 shadow-sm transition group-hover:border-ember-200 group-hover:bg-ember-50 group-hover:text-ember-600 dark:border-graphite-700 dark:bg-graphite-800 dark:text-graphite-300 dark:group-hover:border-ember-500/30 dark:group-hover:bg-ember-950/30 dark:group-hover:text-ember-300"><Icon className="h-5 w-5"/></span><div><p className="font-semibold text-graphite-900 dark:text-white">{title}</p><p className="text-sm text-graphite-600 dark:text-graphite-400">{desc}</p></div></Link>)}</div>{membership?.isOwner&&user.vendorProfile?.status==="APPROVED"&&<Link href="/vendor/dashboard/products/new" className="mt-6 inline-flex items-center gap-2 rounded-card bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-ember-700"><Plus className="h-4 w-4"/>List a new product</Link>}<VendorTutorialsSection />{membership?.isOwner&&<section className="mt-10 rounded-card border border-ember-200 bg-ember-50/60 p-5 dark:border-ember-500/30 dark:bg-ember-950/20"><div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-card bg-ember-100 text-ember-700 dark:bg-ember-900/40 dark:text-ember-300"><Power className="h-5 w-5"/></span><div><h2 className="text-sm font-bold text-graphite-900 dark:text-white">Account controls</h2><p className="mt-1 text-sm text-graphite-600 dark:text-graphite-300">Temporarily disable your account or permanently delete it. Both actions log you out immediately.</p></div></div>{accountError&&<p className="mt-3 text-sm font-medium text-ember-700 dark:text-ember-300">{accountError}</p>}<div className="mt-4 flex flex-wrap gap-2"><button type="button" onClick={()=>void handleAccountAction("disable")} disabled={accountAction!==null} className="inline-flex items-center gap-2 rounded-card border border-graphite-300 bg-white px-4 py-2.5 text-sm font-semibold text-graphite-900 hover:bg-cloud-100 disabled:opacity-60 dark:border-graphite-700 dark:bg-graphite-900 dark:text-white dark:hover:bg-graphite-800"><Power className="h-4 w-4"/>{accountAction==="disable"?"Disabling…":"Disable account"}</button><button type="button" onClick={()=>void handleAccountAction("delete")} disabled={accountAction!==null} className="inline-flex items-center gap-2 rounded-card bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-60"><Trash2 className="h-4 w-4"/>{accountAction==="delete"?"Deleting…":"Delete account"}</button></div></section>}</div></div>;
+  const { user, loading, logout } = useAuth();
+  const [membership, setMembership] = useState<Membership>(null);
+  const [membershipLoading, setMembershipLoading] = useState(true);
+  const [growth, setGrowth] = useState<Growth | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [setup, setSetup] = useState<Setup | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [showWhatsAppPopup, setShowWhatsAppPopup] = useState(false);
+  const [accountAction, setAccountAction] = useState<"disable" | "delete" | null>(null);
+  const [accountError, setAccountError] = useState("");
+
+  useEffect(() => {
+    if (!loading && user && window.localStorage.getItem("ttfl_vendor_whatsapp_popup_dismissed") !== "1") {
+      setShowWhatsAppPopup(true);
+    }
+  }, [loading, user]);
+
+  useEffect(() => {
+    if (loading || !user) return;
+    void api.get<{ membership: Membership }>("/api/vendor-staff/me")
+      .then(({ membership: next }) => setMembership(next))
+      .catch(() => setMembership(null))
+      .finally(() => setMembershipLoading(false));
+  }, [loading, user]);
+
+  useEffect(() => {
+    if (!loading && !user) setMembershipLoading(false);
+  }, [loading, user]);
+
+  useEffect(() => {
+    if (loading || !user || !membership?.isOwner || user.vendorProfile?.status !== "APPROVED") return;
+    void api.get<Setup>("/api/store-hours/setup").then(setSetup).catch(() => undefined);
+
+    void Promise.allSettled([
+      api.get<{ products: Product[] }>("/api/products/mine"),
+      api.get<{ subscription: { plan: { tier: string; productLimit: number | null } } | null }>("/api/subscriptions/me"),
+      api.get<{ vendorOrders: Array<{ order?: { paymentStatus?: string } }> }>("/api/orders/vendor/me"),
+    ]).then(([productResult, subscriptionResult, orderResult]) => {
+      const mine = productResult.status === "fulfilled" ? productResult.value.products || [] : [];
+      const subscription = subscriptionResult.status === "fulfilled" ? subscriptionResult.value.subscription : null;
+      const orders = orderResult.status === "fulfilled" ? orderResult.value.vendorOrders || [] : [];
+      setProducts(mine);
+      setGrowth({
+        productCount: mine.filter(p => p.status !== "SUSPENDED").length,
+        activeProductCount: mine.filter(p => p.status === "ACTIVE" || p.status === "PUBLISHED" || !p.status).length,
+        productLimit: subscription?.plan.productLimit ?? null,
+        tier: subscription?.plan.tier ?? user.vendorProfile?.tier ?? "FREE",
+        paidOrderCount: orders.filter(item => item.order?.paymentStatus === "PAID").length,
+        viewCount: mine.reduce((total, product) => total + Number(product.viewCount || 0), 0),
+      });
+    });
+  }, [loading, user, membership]);
+
+  async function handleAccountAction(action: "disable" | "delete") {
+    const message = action === "delete"
+      ? "Delete your TTFL Store account permanently? This cannot be undone."
+      : "Disable your TTFL Store account? You will be logged out and won't be able to sign in until it is reactivated.";
+    if (!window.confirm(message)) return;
+    setAccountAction(action);
+    setAccountError("");
+    try {
+      await api[action === "delete" ? "delete" : "post"](action === "delete" ? "/api/auth/account" : "/api/auth/disable");
+      await logout();
+      window.location.href = "/";
+    } catch (err) {
+      setAccountError(err instanceof ApiError ? err.message : `Couldn't ${action} your account`);
+      setAccountAction(null);
+    }
+  }
+
+  if (loading || membershipLoading) {
+    return <main className="min-h-screen bg-cloud-50 dark:bg-[#0b0d10]"><div className="shell flex min-h-screen items-center justify-center text-sm text-graphite-600 dark:text-graphite-400">Loading dashboard…</div></main>;
+  }
+
+  if (!user || (!membership && user.role !== "VENDOR")) {
+    return <div className="shell py-16 text-center"><h1 className="text-lg font-bold text-graphite-900 dark:text-white">Vendor access only</h1><p className="mt-1 text-sm text-graphite-600 dark:text-graphite-400">Log in with a vendor account, or <Link href="/sell" className="font-medium text-ember-600">apply to sell</Link>.</p></div>;
+  }
+
+  const canSee = (item: typeof NAV[number]) => {
+    if (membership?.isOwner) return true;
+    if ("ownerOnly" in item && item.ownerOnly) return false;
+    return true;
+  };
+  const visibleNav = NAV.filter(canSee);
+  const nearLimit = Boolean(growth?.productLimit && growth.productCount >= Math.max(1, growth.productLimit - 3));
+  const setupPercent = setup?.percentage ?? 0;
+  const recentProducts = products.slice().sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || ""))).slice(0, 5);
+
+  return (
+    <main className="min-h-screen bg-cloud-50 dark:bg-[#0b0d10]">
+      {showWhatsAppPopup && (
+        <div className="fixed inset-0 z-[60] grid place-items-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-2xl border border-graphite-200 bg-white shadow-2xl dark:border-graphite-700 dark:bg-graphite-900">
+            <button className="absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full text-graphite-500 hover:bg-cloud-100" onClick={() => { setShowWhatsAppPopup(false); localStorage.setItem("ttfl_vendor_whatsapp_popup_dismissed", "1"); }} aria-label="Close"><X size={19}/></button>
+            <div className="p-6 sm:p-7">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-[#25D366] text-white"><MessageCircle size={24}/></div>
+              <h2 className="mt-5 text-xl font-bold text-graphite-900 dark:text-white">Join the TTFL Store Vendor Group</h2>
+              <p className="mt-2 text-sm leading-6 text-graphite-600 dark:text-graphite-300">Stay updated on new features, vendor tools, announcements and opportunities.</p>
+              <a href="https://chat.whatsapp.com/LUlsRgmSFjz2ADeRtXiKl4" target="_blank" rel="noopener noreferrer" onClick={() => { localStorage.setItem("ttfl_vendor_whatsapp_popup_dismissed", "1"); setShowWhatsAppPopup(false); }} className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 py-3 text-sm font-bold text-white"><MessageCircle size={19}/>Join WhatsApp Group</a>
+              <button onClick={() => { setShowWhatsAppPopup(false); localStorage.setItem("ttfl_vendor_whatsapp_popup_dismissed", "1"); }} className="mt-3 w-full rounded-xl px-5 py-2.5 text-sm font-semibold text-graphite-600 hover:bg-cloud-100">Maybe later</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <header className="sticky top-0 z-40 border-b border-graphite-200 bg-white/95 backdrop-blur dark:border-graphite-800 dark:bg-graphite-950/95">
+        <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
+          <button className="btn-secondary !px-2.5 lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu"><Menu size={19}/></button>
+          <Link href="/" className="flex items-center gap-2 font-bold text-graphite-950 dark:text-white">
+            <span className="grid h-9 w-9 place-items-center rounded-xl bg-ember-600 text-white"><StoreIcon className="h-5 w-5"/></span>
+            <span>TTFL Store</span>
+            <span className="hidden border-l border-graphite-200 pl-3 text-sm font-semibold text-graphite-500 sm:block">Vendor dashboard</span>
+          </Link>
+          <div className="ml-auto flex items-center gap-2">
+            <Link href="/vendor/dashboard/max-ai" className="btn-secondary hidden sm:inline-flex"><Bot size={16}/> Max AI</Link>
+            <Link href="/vendor/dashboard/products/new" className="btn-primary"><Plus size={16}/> Add product</Link>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex min-h-[calc(100vh-4rem)]">
+        {mobileOpen && <button className="fixed inset-0 z-40 bg-black/30 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close menu"/>}
+        <aside className={`fixed inset-y-0 left-0 z-50 mt-16 w-72 border-r border-graphite-200 bg-white p-4 transition-transform dark:border-graphite-800 dark:bg-graphite-950 lg:sticky lg:top-16 lg:z-0 lg:mt-0 lg:h-[calc(100vh-4rem)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
+          <div className="mb-5 flex items-center justify-between lg:hidden"><strong>Menu</strong><button onClick={() => setMobileOpen(false)} aria-label="Close menu"><X/></button></div>
+          <div className="mb-5 rounded-2xl border border-graphite-200 bg-cloud-50 p-3 dark:border-graphite-800 dark:bg-graphite-900">
+            <p className="text-[10px] font-bold uppercase tracking-[.16em] text-ember-600">Your store</p>
+            <p className="mt-1 truncate font-bold text-graphite-900 dark:text-white">{user.vendorProfile?.storeName || "TTFL Store"}</p>
+            <p className="mt-1 truncate text-xs text-graphite-500">{user.vendorProfile?.location || "Nigeria"}</p>
+            <span className="mt-3 inline-flex rounded-full bg-verified-100 px-2 py-1 text-[11px] font-semibold text-verified-700">{user.vendorProfile?.status === "APPROVED" ? "Active" : user.vendorProfile?.status || "Pending"}</span>
+          </div>
+
+          <nav className="space-y-1">
+            {visibleNav.map(item => {
+              const Icon = item.icon;
+              return <Link key={item.key} href={item.href} onClick={() => setMobileOpen(false)} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${item.key === "overview" ? "bg-ember-100 text-ember-700 dark:bg-ember-950/30 dark:text-ember-300" : "text-graphite-600 hover:bg-cloud-100 hover:text-graphite-900 dark:text-graphite-300 dark:hover:bg-graphite-900 dark:hover:text-white"}`}><Icon size={17}/>{item.title}</Link>;
+            })}
+          </nav>
+
+          <div className="mt-6 border-t border-graphite-200 pt-4 dark:border-graphite-800">
+            <Link href="/vendor/dashboard/store-settings" className="flex items-center gap-3 px-3 py-2 text-sm font-semibold text-graphite-600 dark:text-graphite-300"><Settings size={17}/> Store settings</Link>
+            <Link href="/support" className="flex items-center gap-3 px-3 py-2 text-sm font-semibold text-graphite-600 dark:text-graphite-300"><MessageCircle size={17}/> Support</Link>
+            <Link href="/" className="flex items-center gap-3 px-3 py-2 text-sm font-semibold text-graphite-600 dark:text-graphite-300"><LogOut size={17}/> Back to TTFL Store</Link>
+          </div>
+        </aside>
+
+        <section className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
+          <div className="mx-auto max-w-[1240px]">
+            {user.vendorProfile?.status !== "APPROVED" && (
+              <div className="mb-5 rounded-2xl border border-gold-200 bg-gold-50 p-4 text-sm text-graphite-700 dark:border-gold-500/30 dark:bg-gold-950/20 dark:text-graphite-200">
+                Your store status is <strong>{user.vendorProfile?.status || "pending"}</strong>. Some selling features may remain unavailable until approval.
+              </div>
+            )}
+
+            <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-[.16em] text-ember-600">Seller workspace</p>
+                <h1 className="mt-1 text-3xl font-bold tracking-tight text-graphite-950 dark:text-white">Welcome back 👋</h1>
+                <p className="mt-2 text-sm text-graphite-600 dark:text-graphite-400">Run your TTFL Store business from one place.</p>
+              </div>
+              <div className="flex gap-2">
+                <Link className="btn-secondary" href={`/store/${encodeURIComponent(user.vendorProfile?.storeSlug || "")}`}>View store <ExternalLink size={15}/></Link>
+                <Link className="btn-primary" href="/vendor/dashboard/products/new"><Plus size={16}/> Add product</Link>
+              </div>
+            </div>
+
+            <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <StatCard icon={Package} label="Products" value={growth?.productCount ?? 0} href="/vendor/dashboard/products"/>
+              <StatCard icon={BarChart3} label="Product views" value={growth?.viewCount ?? 0} href="/vendor/dashboard/analytics"/>
+              <StatCard icon={ShoppingBag} label="Paid orders" value={growth?.paidOrderCount ?? 0} href="/vendor/dashboard/orders"/>
+              <StatCard icon={TrendingUp} label="Active listings" value={growth?.activeProductCount ?? 0} href="/vendor/dashboard/products"/>
+            </div>
+
+            <div className="mt-7 grid gap-5 lg:grid-cols-[1.45fr_.75fr]">
+              <div className="card p-5 sm:p-6">
+                <div className="flex items-center justify-between">
+                  <div><h2 className="font-bold text-graphite-950 dark:text-white">Store analytics</h2><p className="mt-1 text-sm text-graphite-500">A quick view of how your storefront is performing.</p></div>
+                  <Link href="/vendor/dashboard/analytics" className="text-sm font-semibold text-ember-600">View analytics</Link>
+                </div>
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  <Metric label="Total views" value={growth?.viewCount ?? 0} />
+                  <Metric label="Listings" value={growth?.productCount ?? 0} />
+                  <Metric label="Paid orders" value={growth?.paidOrderCount ?? 0} />
+                </div>
+                <div className="mt-6 rounded-2xl bg-cloud-50 p-4 dark:bg-graphite-800">
+                  <div className="flex items-center gap-3"><div className="grid h-10 w-10 place-items-center rounded-xl bg-ember-100 text-ember-600 dark:bg-ember-950/30 dark:text-ember-300"><BarChart3 size={19}/></div><div><p className="text-sm font-bold text-graphite-900 dark:text-white">Want deeper insights?</p><p className="text-xs text-graphite-500">Open Analytics for traffic, product performance and business trends.</p></div><Link href="/vendor/dashboard/analytics" className="ml-auto text-graphite-500"><ChevronRight size={18}/></Link></div>
+                </div>
+              </div>
+
+              <div className="card p-5 sm:p-6">
+                <div className="flex items-center justify-between"><div><h2 className="font-bold text-graphite-950 dark:text-white">Store setup</h2><p className="mt-1 text-sm text-graphite-500">Build buyer trust.</p></div><strong className="text-sm text-ember-600">{setupPercent}%</strong></div>
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-ember-100 dark:bg-ember-950"><div className="h-full rounded-full bg-ember-600" style={{ width: `${setupPercent}%` }}/></div>
+                <p className="mt-3 text-sm text-graphite-600 dark:text-graphite-400">{setup?.completed ?? 0} of {setup?.total ?? 0} setup items completed.</p>
+                <Link href="/vendor/dashboard/store-setup" className="btn-secondary mt-5 w-full">Complete setup <ChevronRight size={16}/></Link>
+              </div>
+            </div>
+
+            <div className="mt-7 grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
+              <div className="card p-5 sm:p-6">
+                <div className="flex items-center justify-between"><div><h2 className="font-bold text-graphite-950 dark:text-white">Recent products</h2><p className="mt-1 text-sm text-graphite-500">Your latest marketplace listings.</p></div><Link href="/vendor/dashboard/products" className="text-sm font-semibold text-ember-600">View all</Link></div>
+                <div className="mt-5 divide-y divide-graphite-200 dark:divide-graphite-800">
+                  {recentProducts.map(product => (
+                    <div key={product.id} className="flex items-center gap-3 py-3">
+                      {product.images?.[0]?.url ? <img src={product.images[0].url} alt="" className="h-12 w-12 rounded-xl object-cover"/> : <div className="grid h-12 w-12 place-items-center rounded-xl bg-cloud-100 text-graphite-400 dark:bg-graphite-800"><Package size={18}/></div>}
+                      <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-graphite-900 dark:text-white">{product.name}</p><p className="mt-1 text-xs text-graphite-500">{Number(product.viewCount || 0)} views · {product.status || "Listed"}</p></div>
+                      {product.slug && <Link href={`/products/${product.slug}`} className="text-graphite-400 hover:text-ember-600"><ExternalLink size={16}/></Link>}
+                    </div>
+                  ))}
+                  {!recentProducts.length && <div className="py-8 text-center"><Package className="mx-auto h-9 w-9 text-graphite-300"/><p className="mt-3 text-sm text-graphite-500">No products yet.</p><Link href="/vendor/dashboard/products/new" className="btn-primary mt-4">List your first product</Link></div>}
+                </div>
+              </div>
+
+              <div className="card p-5 sm:p-6">
+                <h2 className="font-bold text-graphite-950 dark:text-white">Quick actions</h2>
+                <p className="mt-1 text-sm text-graphite-500">Jump straight into the tools you use most.</p>
+                <div className="mt-5 grid gap-2">
+                  <QuickAction href="/vendor/dashboard/products/new" icon={Plus} title="List a product"/>
+                  <QuickAction href="/vendor/dashboard/services" icon={Wrench} title="Manage services"/>
+                  <QuickAction href="/vendor/dashboard/orders" icon={ShoppingBag} title="Review orders"/>
+                  <QuickAction href="/vendor/dashboard/ads" icon={Megaphone} title="Promote your store"/>
+                  <QuickAction href="/vendor/dashboard/coupons" icon={Ticket} title="Create a coupon"/>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-7 grid gap-5 md:grid-cols-3">
+              <InsightCard icon={Zap} title="Grow your reach" text="Use ads, promotions and flash deals to put your products in front of more shoppers." href="/vendor/dashboard/ads" action="Open Ad Centre"/>
+              <InsightCard icon={Bot} title="Max AI Analytics" text="Use your Store ID with Max AI to analyze your store and get business insights." href="/vendor/dashboard/max-ai" action="Open Max AI"/>
+              <InsightCard icon={CreditCard} title={nearLimit ? "You're close to your product limit" : `You're on the ${growth?.tier || "FREE"} plan`} text={nearLimit ? `${Math.max(0, (growth?.productLimit || 0) - (growth?.productCount || 0))} product slots remaining on your current plan.` : "Manage your plan, billing and available marketplace features."} href="/vendor/dashboard/subscription" action={nearLimit ? "View plans" : "Manage plan"}/>
+            </div>
+
+            <div className="mt-7 rounded-2xl border border-graphite-200 bg-white p-5 dark:border-graphite-800 dark:bg-graphite-900">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div><p className="text-xs font-bold uppercase tracking-[.16em] text-ember-600">Store identity</p><p className="mt-1 text-sm text-graphite-500">Use your Store ID when asking Max AI to analyze your store.</p><div className="mt-2 flex items-center gap-2"><code className="rounded-lg bg-cloud-100 px-3 py-2 font-mono text-sm font-bold dark:bg-graphite-950 dark:text-white">{user.vendorProfile?.id}</code><button type="button" onClick={() => user.vendorProfile?.id && void navigator.clipboard?.writeText(user.vendorProfile.id)} className="inline-flex items-center gap-1.5 rounded-lg border border-graphite-200 px-3 py-2 text-xs font-semibold dark:border-graphite-700 dark:text-white"><Copy size={14}/> Copy</button></div></div>
+                <Link href="/vendor/dashboard/max-ai" className="btn-secondary"><Bot size={16}/> Max AI Analytics</Link>
+              </div>
+            </div>
+
+            {membership?.isOwner && (
+              <section className="mt-7 rounded-2xl border border-ember-200 bg-ember-50/60 p-5 dark:border-ember-500/30 dark:bg-ember-950/20">
+                <div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-ember-100 text-ember-700"><Power size={19}/></span><div><h2 className="text-sm font-bold text-graphite-900 dark:text-white">Account controls</h2><p className="mt-1 text-sm text-graphite-600 dark:text-graphite-300">Temporarily disable your account or permanently delete it.</p></div></div>
+                {accountError && <p className="mt-3 text-sm font-medium text-ember-700">{accountError}</p>}
+                <div className="mt-4 flex flex-wrap gap-2">
+                  <button type="button" onClick={() => void handleAccountAction("disable")} disabled={accountAction !== null} className="btn-secondary"><Power size={16}/>{accountAction === "disable" ? "Disabling…" : "Disable account"}</button>
+                  <button type="button" onClick={() => void handleAccountAction("delete")} disabled={accountAction !== null} className="btn-primary"><Trash2 size={16}/>{accountAction === "delete" ? "Deleting…" : "Delete account"}</button>
+                </div>
+              </section>
+            )}
+
+            <VendorTutorialsSection />
+          </div>
+        </section>
+      </div>
+      <VendorDashboardTutorial />
+    </main>
+  );
+}
+
+function StatCard({ icon: Icon, label, value, href }: { icon: typeof Package; label: string; value: number; href: string }) {
+  return <Link href={href} className="card group p-5 transition hover:-translate-y-0.5 hover:border-ember-300 hover:shadow-md"><Icon className="h-5 w-5 text-ember-600"/><p className="mt-4 text-sm text-graphite-500">{label}</p><strong className="mt-1 block text-2xl text-graphite-950 dark:text-white">{value.toLocaleString()}</strong></Link>;
+}
+
+function Metric({ label, value }: { label: string; value: number }) {
+  return <div className="rounded-2xl border border-graphite-200 bg-white p-4 dark:border-graphite-800 dark:bg-graphite-900"><p className="text-xs font-semibold uppercase tracking-wide text-graphite-400">{label}</p><strong className="mt-2 block text-xl text-graphite-950 dark:text-white">{value.toLocaleString()}</strong></div>;
+}
+
+function QuickAction({ href, icon: Icon, title }: { href: string; icon: typeof Plus; title: string }) {
+  return <Link href={href} className="flex items-center gap-3 rounded-xl border border-graphite-200 px-3 py-3 text-sm font-semibold text-graphite-700 transition hover:border-ember-300 hover:bg-ember-50 hover:text-ember-700 dark:border-graphite-800 dark:text-graphite-200 dark:hover:bg-ember-950/20"><span className="grid h-8 w-8 place-items-center rounded-lg bg-cloud-100 dark:bg-graphite-800"><Icon size={16}/></span>{title}<ChevronRight className="ml-auto" size={16}/></Link>;
+}
+
+function InsightCard({ icon: Icon, title, text, href, action }: { icon: typeof Zap; title: string; text: string; href: string; action: string }) {
+  return <div className="card p-5"><div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-ember-100 text-ember-600"><Icon size={19}/></span><h2 className="font-bold text-graphite-950 dark:text-white">{title}</h2></div><p className="mt-3 text-sm leading-6 text-graphite-500">{text}</p><Link href={href} className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-ember-600">{action}<ChevronRight size={15}/></Link></div>;
 }
