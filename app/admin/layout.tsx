@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import AdminNavigationShell from "@/components/admin-navigation-shell";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
@@ -7,4 +8,6 @@ export const metadata: Metadata = {
   alternates: { canonical: `https://ttflstore.name.ng/admin` },
 };
 
-export default function Layout({ children }: { children: React.ReactNode }) { return children; }
+export default function Layout({ children }: { children: React.ReactNode }) {
+  return <AdminNavigationShell>{children}</AdminNavigationShell>;
+}
