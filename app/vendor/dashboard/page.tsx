@@ -340,8 +340,13 @@ function Metric({ label, value }: { label: string; value: number }) {
   return <div className="rounded-2xl border border-graphite-200 bg-white p-4 dark:border-graphite-800 dark:bg-graphite-900"><p className="text-xs font-semibold uppercase tracking-wide text-graphite-400">{label}</p><strong className="mt-2 block text-xl text-graphite-950 dark:text-white">{value.toLocaleString()}</strong></div>;
 }
 
-function QuickAction({ href, icon: Icon, title }: { href: string; icon: typeof Plus; title: string }) {
-  return <Link href={href} className="flex items-center gap-3 rounded-xl border border-graphite-200 px-3 py-3 text-sm font-semibold text-graphite-700 transition hover:border-ember-300 hover:bg-ember-50 hover:text-ember-700 dark:border-graphite-800 dark:text-graphite-200 dark:hover:bg-ember-950/20"><span className="grid h-8 w-8 place-items-center rounded-lg bg-cloud-100 dark:bg-graphite-800"><Icon size={16}/></span>{title}<ChevronRight className="ml-auto" size={16}/></Link>;
+function QuickAction({ href, icon: Icon, title, primary = false }: { href: string; icon: typeof Plus; title: string; primary?: boolean }) {
+  return <Link href={href} className={primary
+    ? "flex items-center gap-3 rounded-xl bg-ember-600 px-3 py-3 text-sm font-semibold text-white transition hover:bg-ember-700"
+    : "flex items-center gap-3 rounded-xl border border-graphite-200 px-3 py-3 text-sm font-semibold text-graphite-700 transition hover:border-ember-300 hover:bg-ember-50 hover:text-ember-700 dark:border-graphite-800 dark:text-graphite-200 dark:hover:bg-ember-950/20"}>
+    <span className={primary ? "grid h-8 w-8 place-items-center rounded-lg bg-white/15" : "grid h-8 w-8 place-items-center rounded-lg bg-cloud-100 dark:bg-graphite-800"}><Icon size={16}/></span>
+    {title}<ChevronRight className="ml-auto" size={16}/>
+  </Link>;
 }
 
 function InsightCard({ icon: Icon, title, text, href, action }: { icon: typeof Zap; title: string; text: string; href: string; action: string }) {
