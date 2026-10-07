@@ -6,6 +6,7 @@ import { AlertTriangle, ExternalLink, MapPin, MessageCircle, Star } from "lucide
 import { api, ApiError } from "@/lib/api-client";
 import { formatNaira } from "@/lib/mock-data";
 import type { ApiProduct, ApiProductVariation, StoreBadge } from "@/lib/api-types";
+import type { Product } from "@/lib/mock-data";
 import { isVideoUrl } from "@/lib/media";
 import { ProductGallery } from "@/components/product-gallery";
 import { ProductPurchaseSection } from "@/components/product-purchase-section";
@@ -17,6 +18,7 @@ import { ProductAlerts } from "@/components/product-alerts";
 import { ComingSoonWaitlist } from "@/components/coming-soon-waitlist";
 import { ComingSoonCountdown } from "@/components/coming-soon-countdown";
 import { SponsoredPlacementCard } from "@/components/sponsored-placement-card";
+import { ProductCard } from "@/components/product-card";
 import { BreadcrumbJsonLd, ProductJsonLd } from "@/components/seo-jsonld";
 import { MarkdownDescription } from "@/components/markdown-description";
 import { getGoogleBrand, getGoogleGtin, getGoogleMpn } from "@/lib/google-product-data";
@@ -97,6 +99,51 @@ async function getSponsored(category: string): Promise<SponsoredCampaign[]> {
   }
 }
 
+function mapRelatedProduct(p: ApiProduct): Product {
+  return {
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    price: Number(p.price),
+    previousPrice: p.previousPrice ? Number(p.previousPrice) : undefined,
+    image: p.images?.[0]?.url ?? "",
+    vendor: p.vendor.storeName,
+    vendorSlug: p.vendor.storeSlug,
+    verified: p.vendor.verified,
+    location: p.location ?? p.vendor.location ?? "",
+    rating: p.avgRating ? Number(p.avgRating) : 0,
+    reviewCount: p.reviewCount,
+    sellingMethod:
+      p.sellingMethod === "EXTERNAL_LINK"
+        ? "external"
+        : p.sellingMethod === "WHATSAPP"
+          ? "whatsapp"
+          : "checkout",
+    whatsappNumber: p.whatsappNumber ?? p.vendor.whatsappNumber ?? null,
+    externalUrl: p.externalUrl,
+    sponsored: p.sponsored,
+    estimatedDeliveryDays: p.estimatedDeliveryDays,
+    comingSoon: p.comingSoon,
+    availableAt: p.availableAt,
+    launchedAt: p.launchedAt,
+  };
+}
+
+async function getRelatedProducts(category: string, currentSlug: string): Promise<Product[]> {
+  try {
+    const response = await api.get<{ items: ApiProduct[] }>(
+      `/api/products?category=${encodeURIComponent(category)}&sort=popular&page=1&limit=8`,
+    );
+
+    return (response.items ?? [])
+      .filter((item) => item.slug !== currentSlug && item.status === "ACTIVE")
+      .slice(0, 6)
+      .map(mapRelatedProduct);
+  } catch {
+    return [];
+  }
+}
+
 function cleanDescription(value: string, fallback: string) {
   const text = value.replace(/\s+/g, " ").trim();
   return (text || fallback).slice(0, 155);
@@ -158,9 +205,10 @@ export default async function ProductPage({ params }: { params: { slug: string }
   const product = await getProduct(params.slug);
   if (!product) notFound();
 
-  const [store, sponsored] = await Promise.all([
+  const [store, sponsored, relatedProducts] = await Promise.all([
     getStoreProfile(product.vendor.storeSlug),
     getSponsored(product.category.slug),
+    getRelatedProducts(product.category.slug, product.slug),
   ]);
 
   const variations = parseVariations(product.specifications);
@@ -593,6 +641,36 @@ export default async function ProductPage({ params }: { params: { slug: string }
             reviewCount={product.reviewCount}
           />
         </div>
+
+        {relatedProducts.length > 0 && (
+          <section className="mt-12 border-t border-graphite-200 pt-8 dark:border-graphite-700">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-ember-600">
+                  More from {product.category.name}
+                </p>
+                <h2 className="mt-1 text-xl font-bold text-graphite-900 dark:text-white">
+                  You may also like
+                </h2>
+                <p className="mt-1 text-sm text-graphite-600 dark:text-graphite-300">
+                  Similar products from the same category.
+                </p>
+              </div>
+              <Link
+                href={`/shop?category=${encodeURIComponent(product.category.slug)}`}
+                className="text-sm font-semibold text-ember-700 hover:text-ember-800 dark:text-ember-400"
+              >
+                View all →
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
+              {relatedProducts.map((relatedProduct) => (
+                <ProductCard key={relatedProduct.id} product={relatedProduct} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </>
   );
