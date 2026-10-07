@@ -85,6 +85,26 @@ export default function AdminDashboardPage() {
     }
   }, [user]);
 
+  if (loading) {
+    return (
+      <div className="grid min-h-[calc(100vh-80px)] place-items-center bg-cloud-50">
+        <p className="text-sm font-medium text-graphite-600">Loading admin workspace...</p>
+      </div>
+    );
+  }
+
+  if (!user || user.role !== "ADMIN") {
+    return (
+      <div className="grid min-h-[calc(100vh-80px)] place-items-center bg-cloud-50 px-6">
+        <div className="max-w-md rounded-card border border-graphite-200 bg-white p-6 text-center">
+          <h1 className="text-lg font-bold text-graphite-900">Admin access required</h1>
+          <p className="mt-2 text-sm text-graphite-600">You need an administrator account to access this workspace.</p>
+          <Link href="/" className="mt-4 inline-flex rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white">Back to TTFL Store</Link>
+        </div>
+      </div>
+    );
+  }
+
   const sidebarGroups = [
     {
       label: "Overview",
