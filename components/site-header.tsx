@@ -26,6 +26,7 @@ export function SiteHeader() {
           <nav className="flex items-center gap-5">
             <Link href="/services" className="flex items-center gap-1.5 hover:text-white"><Wrench className="h-3.5 w-3.5" />Services</Link>
             <Link href="/sell" className="hover:text-white">Sell on TTFL Store</Link>
+            <Link href="https://cars.ttflstore.name.ng" className="hover:text-white">Sell Cars on TTFL Store</Link>
             <Link href="/support" className="hover:text-white">Support</Link>
             <Link href="/vendor/login" className="hover:text-white">Vendor login</Link>
           </nav>
@@ -95,6 +96,7 @@ export function SiteHeader() {
               <Link href={accountHref} className="py-2 font-semibold text-ember-600" onClick={() => setMenuOpen(false)}>My account</Link>
               {isVendor && <Link href="/vendor/dashboard" className="flex items-center gap-2 py-2 font-semibold text-ember-600" onClick={() => setMenuOpen(false)}><Store className="h-4 w-4" />Vendor dashboard</Link>}
               <Link href="/sell" className="py-2" onClick={() => setMenuOpen(false)}>Sell on TTFL Store</Link>
+              <Link href="https://cars.ttflstore.name.ng" className="py-2" onClick={() => setMenuOpen(false)}>Sell Cars on TTFL Store</Link>
               <Link href="/vendor/login" className="py-2" onClick={() => setMenuOpen(false)}>Vendor login</Link>
               <Link href="/support" className="py-2" onClick={() => setMenuOpen(false)}>Support</Link>
             </div>
