@@ -33,7 +33,7 @@ export function LoginForm() {
   const handleGoogleSuccess = useCallback(async (user: import("@/lib/api-types").ApiUser) => {
     setError(null);
     setAuthenticatedUser(user);
-    router.push(searchParams.get("next") ?? "/");
+    await continueToDestination(searchParams.get("next"));
   }, [router, searchParams, setAuthenticatedUser]);
 
   async function continueToDestination(next: string | null) {
