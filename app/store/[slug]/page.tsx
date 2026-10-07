@@ -2,7 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { CalendarDays, ChevronRight, Eye, MapPin, MessageCircle, ShieldCheck, Sparkles, Star, Store as StoreIcon, AlertTriangle, ShieldAlert } from "lucide-react";
+import { CalendarDays, ChevronRight, Eye, MapPin, ShieldCheck, Sparkles, Star, Store as StoreIcon, AlertTriangle, ShieldAlert } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import type { ApiProduct } from "@/lib/api-types";
 import { ProductCard } from "@/components/product-card";
@@ -93,6 +93,14 @@ function cleanDescription(value: string | null, fallback: string) {
 
 function formatCount(value: number) {
   return new Intl.NumberFormat("en-NG", { notation: value >= 1000 ? "compact" : "standard", maximumFractionDigits: 1 }).format(value);
+}
+
+function WhatsAppLogo({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 32 32" aria-hidden="true" fill="currentColor">
+      <path d="M16 3.2A12.8 12.8 0 0 0 5 22.4L3.2 28.8l6.6-1.7A12.8 12.8 0 1 0 16 3.2Zm0 23.3a10.4 10.4 0 0 1-5.3-1.45l-.38-.23-3.9 1 1.04-3.78-.25-.39A10.4 10.4 0 1 1 16 26.5Zm5.72-7.72c-.31-.16-1.83-.9-2.11-1-.29-.1-.5-.16-.71.16-.21.31-.81 1-1 1.2-.18.21-.37.23-.68.08-.31-.16-1.31-.48-2.5-1.52-.92-.8-1.54-1.78-1.72-2.08-.18-.31-.02-.48.14-.64.14-.14.31-.37.47-.55.16-.18.21-.31.31-.52.1-.21.05-.39-.03-.55-.08-.16-.71-1.71-.97-2.34-.26-.62-.52-.54-.71-.55h-.6c-.21 0-.55.08-.84.39-.29.31-1.1 1.08-1.1 2.63s1.13 3.05 1.29 3.26c.16.21 2.22 3.39 5.38 4.76.75.32 1.34.52 1.8.67.76.24 1.45.21 2 .13.61-.09 1.83-.75 2.09-1.47.26-.72.26-1.34.18-1.47-.08-.13-.29-.21-.6-.37Z"/>
+    </svg>
+  );
 }
 
 function getDisplayBadges(vendor: PublicVendor): StoreBadge[] {
