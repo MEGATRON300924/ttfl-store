@@ -80,8 +80,32 @@ export default function VendorStoreSettingsPage() {
 
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [handoffLoading, setHandoffLoading] = useState(false);
 
   const vendor = user?.vendorProfile;
+
+  useEffect(() => {
+    const handoff = new URLSearchParams(window.location.search).get("handoff");
+    if (!handoff) return;
+    setHandoffLoading(true);
+    void fetch("/api/auth/handoff/exchange", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ token: handoff }),
+    })
+      .then(async response => {
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data?.message || "Unable to complete Store sign-in handoff.");
+        window.history.replaceState({}, "", "/vendor/dashboard/store-settings");
+        window.location.reload();
+      })
+      .catch(error => {
+        setErrorMessage(error instanceof Error ? error.message : "Unable to complete Store sign-in handoff.");
+      })
+      .finally(() => setHandoffLoading(false));
+  }, []);
+
 
   useEffect(() => {
     if (!vendor) return;
@@ -333,7 +357,7 @@ export default function VendorStoreSettingsPage() {
     setErrorMessage("");
   }
 
-  if (loading) {
+  if (loading || handoffLoading) {
     return (
       <div className="shell py-16">
         <div className="flex items-center justify-center gap-2 text-sm text-graphite-600">
