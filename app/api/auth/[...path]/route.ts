@@ -42,6 +42,21 @@ async function proxyAuth(request: NextRequest, path: string[]) {
       cache: "no-store",
     });
 
+    if (path.join("/") === "handoff/exchange" && upstream.ok) {
+      const data = await upstream.json().catch(() => null);
+      if (!data?.accessToken || !data?.refreshToken) {
+        return NextResponse.json({ message: "Invalid authentication handoff response." }, { status: 502 });
+      }
+      const response = NextResponse.json({ user: data.user });
+      response.cookies.set("ttfl_access", data.accessToken, {
+        httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 7,
+      });
+      response.cookies.set("ttfl_refresh", data.refreshToken, {
+        httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30,
+      });
+      return response;
+    }
+
     const responseHeaders = new Headers();
     responseHeaders.set("cache-control", "no-store");
     const upstreamContentType = upstream.headers.get("content-type");
