@@ -25,6 +25,15 @@ export default function AdminDashboardPage() {
   const [resetLoading, setResetLoading] = useState(false);
   const [resetMessage, setResetMessage] = useState<string | null>(null);
   const [resetError, setResetError] = useState<string | null>(null);
+  const [platformOverview, setPlatformOverview] = useState<{
+    users: { total: number };
+    vendors: { total: number; approved: number };
+    products: { total: number; active: number };
+    orders: { total: number; paid: number; refunded: number };
+    gmv: number;
+    ttflCommissionRevenue: number;
+  } | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => { void refresh(); }, [refresh]);
   async function loadAdmins() { try { const result = await api.get<{ admins: AdminUser[] }>("/api/admin/admins"); setAdmins(result.admins); } catch { setAdminError("Could not load administrators."); } }
@@ -67,19 +76,6 @@ export default function AdminDashboardPage() {
     catch (error) { setAdminError(error instanceof ApiError ? error.message : "Could not remove administrator."); }
     finally { setRemovingAdminId(null); }
   }
-
-  if (loading) return <div className="shell py-16 text-center"><p className="text-sm text-graphite-600">Loading...</p></div>;
-  if (!user || user.role !== "ADMIN") return <div className="shell py-16 text-center"><h1 className="text-lg font-bold text-graphite-900">Admin access only</h1><p className="mt-2 text-sm text-graphite-600">Your account does not currently have administrator access. If an administrator just added you, refresh the page or sign in again.</p></div>;
-
-  const [platformOverview, setPlatformOverview] = useState<{
-    users: { total: number };
-    vendors: { total: number; approved: number };
-    products: { total: number; active: number };
-    orders: { total: number; paid: number; refunded: number };
-    gmv: number;
-    ttflCommissionRevenue: number;
-  } | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (user?.role === "ADMIN") {
@@ -135,9 +131,6 @@ export default function AdminDashboardPage() {
       ] as const,
     },
   ];
-
-  if (loading) return <div className="shell py-16 text-center"><p className="text-sm text-graphite-600">Loading...</p></div>;
-  if (!user || user.role !== "ADMIN") return <div className="shell py-16 text-center"><h1 className="text-lg font-bold text-graphite-900">Admin access only</h1><p className="mt-2 text-sm text-graphite-600">Your account does not currently have administrator access. If an administrator just added you, refresh the page or sign in again.</p></div>;
 
   return (
     <div className="min-h-[calc(100vh-80px)] bg-cloud-50">
@@ -272,7 +265,7 @@ export default function AdminDashboardPage() {
   );
 }
 
-function OverviewCard({ label, value, icon: Icon, href }: { label: string; value: string; icon: typeof Users; href: string }) {
+function formatNaira(value: number) {\n  return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(value || 0);\n}\n\nfunction OverviewCard({ label, value, icon: Icon, href }: { label: string; value: string; icon: typeof Users; href: string }) {
   return <Link href={href} className="rounded-card border border-graphite-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-ember-300"><div className="flex items-center justify-between gap-2"><span className="text-xs font-medium text-graphite-600">{label}</span><Icon className="h-4 w-4 text-graphite-500" /></div><p className="mt-2 text-xl font-bold text-graphite-900">{value}</p></Link>;
 }
 
