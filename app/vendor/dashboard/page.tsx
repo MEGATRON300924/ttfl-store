@@ -180,8 +180,8 @@ export default function VendorDashboardPage() {
             <span className="hidden border-l border-graphite-200 pl-3 text-sm font-semibold text-graphite-500 sm:block">Vendor dashboard</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
-            <Link href="/vendor/dashboard/max-ai" className="btn-secondary hidden sm:inline-flex"><Bot size={16}/> Max AI</Link>
-            <Link href="/vendor/dashboard/products/new" className="btn-primary"><Plus size={16}/> Add product</Link>
+            <Link href="/vendor/dashboard/max-ai" className="inline-flex items-center justify-center gap-2 rounded-xl border border-graphite-200 bg-white px-4 py-2.5 text-sm font-semibold text-graphite-800 shadow-sm transition hover:border-ember-300 hover:bg-ember-50 hover:text-ember-700 dark:border-graphite-700 dark:bg-graphite-900 dark:text-white dark:hover:border-ember-500/50 dark:hover:bg-ember-950/20"><Bot size={16}/> Max AI</Link>
+            <Link href="/vendor/dashboard/products/new" className="inline-flex items-center justify-center gap-2 rounded-xl bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-ember-700"><Plus size={16}/> Add product</Link>
           </div>
         </div>
       </header>
@@ -222,6 +222,23 @@ export default function VendorDashboardPage() {
 
         <section className="min-w-0 flex-1 p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-[1240px]">
+            <div className="mb-6 flex gap-2 overflow-x-auto pb-1">
+              {[
+                ["/services", "Services"],
+                ["/categories/phones-tablets", "Phones & Tablets"],
+                ["/categories/electronics", "Electronics"],
+                ["/categories/fashion", "Fashion"],
+                ["/categories/home-living", "Home & Living"],
+                ["/categories/beauty-health", "Beauty & Health"],
+                ["/categories/vehicles", "Vehicles"],
+                ["/categories/gaming", "Gaming"],
+                ["/categories/services", "Services"],
+              ].map(([href, title]) => (
+                <Link key={href} href={href} className="inline-flex shrink-0 items-center rounded-full border border-graphite-200 bg-white px-3.5 py-2 text-xs font-semibold text-graphite-700 shadow-sm transition hover:border-ember-300 hover:bg-ember-50 hover:text-ember-700 dark:border-graphite-700 dark:bg-graphite-900 dark:text-graphite-200 dark:hover:border-ember-500/50 dark:hover:bg-ember-950/20">
+                  {title}
+                </Link>
+              ))}
+            </div>
             {user.vendorProfile?.status !== "APPROVED" && (
               <div className="mb-5 rounded-2xl border border-gold-200 bg-gold-50 p-4 text-sm text-graphite-700 dark:border-gold-500/30 dark:bg-gold-950/20 dark:text-graphite-200">
                 Your store status is <strong>{user.vendorProfile?.status || "pending"}</strong>. Some selling features may remain unavailable until approval.
