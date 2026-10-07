@@ -43,6 +43,7 @@ const NAV = [
   { key: "products", href: "/vendor/dashboard/products", icon: Package, title: "Products" },
   { key: "services", href: "/vendor/dashboard/services", icon: Wrench, title: "Services" },
   { key: "orders", href: "/vendor/dashboard/orders", icon: ShoppingBag, title: "Orders" },
+  { key: "bookings", href: "/vendor/dashboard/bookings", icon: CalendarDays, title: "Bookings" },
   { key: "analytics", href: "/vendor/dashboard/analytics", icon: BarChart3, title: "Analytics" },
   { key: "ads", href: "/vendor/dashboard/ads", icon: Megaphone, title: "Ad Centre" },
   { key: "promote", href: "/vendor/dashboard/promote", icon: TrendingUp, title: "Promote" },
