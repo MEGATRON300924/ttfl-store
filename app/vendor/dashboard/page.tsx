@@ -38,25 +38,33 @@ type Setup = {
   items: Array<{ key: string; label: string; done: boolean; href: string }>;
 };
 
-const NAV = [
-  { key: "overview", href: "/vendor/dashboard", icon: LayoutDashboard, title: "Overview" },
-  { key: "products", href: "/vendor/dashboard/products", icon: Package, title: "Products" },
-  { key: "services", href: "/vendor/dashboard/services", icon: Wrench, title: "Services" },
-  { key: "orders", href: "/vendor/dashboard/orders", icon: ShoppingBag, title: "Orders" },
-  { key: "bookings", href: "/vendor/dashboard/bookings", icon: CalendarDays, title: "Bookings" },
-  { key: "analytics", href: "/vendor/dashboard/analytics", icon: BarChart3, title: "Analytics" },
-  { key: "ads", href: "/vendor/dashboard/ads", icon: Megaphone, title: "Ad Centre" },
-  { key: "promote", href: "/vendor/dashboard/promote", icon: TrendingUp, title: "Promote" },
-  { key: "deals", href: "/vendor/dashboard/flash-deals", icon: Zap, title: "Flash deals" },
-  { key: "coupons", href: "/vendor/dashboard/coupons", icon: Ticket, title: "Coupons" },
-  { key: "payouts", href: "/vendor/dashboard/payouts", icon: Wallet, title: "Payouts" },
-  { key: "subscription", href: "/vendor/dashboard/subscription", icon: CreditCard, title: "Subscription" },
-  { key: "store", href: "/vendor/dashboard/store-settings", icon: Store, title: "Store settings" },
-  { key: "setup", href: "/vendor/dashboard/store-setup", icon: Clock3, title: "Store setup" },
-  { key: "profile", href: "/vendor/dashboard/public-profile", icon: Palette, title: "Public profile" },
-  { key: "hours", href: "/vendor/dashboard/business-hours", icon: CalendarDays, title: "Business hours" },
-  { key: "notifications", href: "/vendor/dashboard/notifications", icon: Bell, title: "Notifications" },
-  { key: "team", href: "/vendor/dashboard/team", icon: Users, title: "Team", ownerOnly: true },
+const NAV_GROUPS = [
+  { label: "Workspace", items: [
+    { key: "overview", href: "/vendor/dashboard", icon: LayoutDashboard, title: "Overview" },
+    { key: "products", href: "/vendor/dashboard/products", icon: Package, title: "Products" },
+    { key: "services", href: "/vendor/dashboard/services", icon: Wrench, title: "Services" },
+    { key: "orders", href: "/vendor/dashboard/orders", icon: ShoppingBag, title: "Orders" },
+    { key: "bookings", href: "/vendor/dashboard/bookings", icon: CalendarDays, title: "Bookings" },
+  ]},
+  { label: "Growth", items: [
+    { key: "analytics", href: "/vendor/dashboard/analytics", icon: BarChart3, title: "Analytics" },
+    { key: "ads", href: "/vendor/dashboard/ads", icon: Megaphone, title: "Ad Centre" },
+    { key: "promote", href: "/vendor/dashboard/promote", icon: TrendingUp, title: "Promote" },
+    { key: "deals", href: "/vendor/dashboard/flash-deals", icon: Zap, title: "Flash deals" },
+    { key: "coupons", href: "/vendor/dashboard/coupons", icon: Ticket, title: "Coupons" },
+  ]},
+  { label: "Money", items: [
+    { key: "payouts", href: "/vendor/dashboard/payouts", icon: Wallet, title: "Payouts" },
+    { key: "subscription", href: "/vendor/dashboard/subscription", icon: CreditCard, title: "Subscription" },
+  ]},
+  { label: "Store", items: [
+    { key: "store", href: "/vendor/dashboard/store-settings", icon: Store, title: "Store settings" },
+    { key: "setup", href: "/vendor/dashboard/store-setup", icon: Clock3, title: "Store setup" },
+    { key: "profile", href: "/vendor/dashboard/public-profile", icon: Palette, title: "Public profile" },
+    { key: "hours", href: "/vendor/dashboard/business-hours", icon: CalendarDays, title: "Business hours" },
+    { key: "notifications", href: "/vendor/dashboard/notifications", icon: Bell, title: "Notifications" },
+    { key: "team", href: "/vendor/dashboard/team", icon: Users, title: "Team", ownerOnly: true },
+  ]},
 ] as const;
 
 function StoreIcon(props: ComponentProps<"svg">) {
@@ -142,12 +150,6 @@ export default function VendorDashboardPage() {
     return <div className="shell py-16 text-center"><h1 className="text-lg font-bold text-graphite-900 dark:text-white">Vendor access only</h1><p className="mt-1 text-sm text-graphite-600 dark:text-graphite-400">Log in with a vendor account, or <Link href="/sell" className="font-medium text-ember-600">apply to sell</Link>.</p></div>;
   }
 
-  const canSee = (item: typeof NAV[number]) => {
-    if (membership?.isOwner) return true;
-    if ("ownerOnly" in item && item.ownerOnly) return false;
-    return true;
-  };
-  const visibleNav = NAV.filter(canSee);
   const nearLimit = Boolean(growth?.productLimit && growth.productCount >= Math.max(1, growth.productLimit - 3));
   const setupPercent = setup?.percentage ?? 0;
   const recentProducts = products.slice().sort((a, b) => String(b.createdAt || "").localeCompare(String(a.createdAt || ""))).slice(0, 5);
@@ -186,23 +188,32 @@ export default function VendorDashboardPage() {
 
       <div className="flex min-h-[calc(100vh-4rem)]">
         {mobileOpen && <button className="fixed inset-0 z-40 bg-black/30 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close menu"/>}
-        <aside className={`fixed inset-y-0 left-0 z-50 mt-16 w-72 border-r border-graphite-200 bg-white p-4 transition-transform dark:border-graphite-800 dark:bg-graphite-950 lg:sticky lg:top-16 lg:z-0 lg:mt-0 lg:h-[calc(100vh-4rem)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
-          <div className="mb-5 flex items-center justify-between lg:hidden"><strong>Menu</strong><button onClick={() => setMobileOpen(false)} aria-label="Close menu"><X/></button></div>
-          <div className="mb-5 rounded-2xl border border-graphite-200 bg-cloud-50 p-3 dark:border-graphite-800 dark:bg-graphite-900">
+        <aside className={`fixed inset-y-0 left-0 z-50 mt-16 flex w-72 flex-col border-r border-graphite-200 bg-white p-4 transition-transform dark:border-graphite-800 dark:bg-graphite-950 lg:sticky lg:top-16 lg:z-0 lg:mt-0 lg:h-[calc(100vh-4rem)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
+          <div className="mb-4 flex shrink-0 items-center justify-between lg:hidden"><strong>Menu</strong><button onClick={() => setMobileOpen(false)} aria-label="Close menu"><X/></button></div>
+          <div className="mb-4 shrink-0 rounded-2xl border border-graphite-200 bg-cloud-50 p-3 dark:border-graphite-800 dark:bg-graphite-900">
             <p className="text-[10px] font-bold uppercase tracking-[.16em] text-ember-600">Your store</p>
             <p className="mt-1 truncate font-bold text-graphite-900 dark:text-white">{user.vendorProfile?.storeName || "TTFL Store"}</p>
             <p className="mt-1 truncate text-xs text-graphite-500">{user.vendorProfile?.location || "Nigeria"}</p>
             <span className="mt-3 inline-flex rounded-full bg-verified-100 px-2 py-1 text-[11px] font-semibold text-verified-700">{user.vendorProfile?.status === "APPROVED" ? "Active" : user.vendorProfile?.status || "Pending"}</span>
           </div>
 
-          <nav className="space-y-1">
-            {visibleNav.map(item => {
-              const Icon = item.icon;
-              return <Link key={item.key} href={item.href} onClick={() => setMobileOpen(false)} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${item.key === "overview" ? "bg-ember-100 text-ember-700 dark:bg-ember-950/30 dark:text-ember-300" : "text-graphite-600 hover:bg-cloud-100 hover:text-graphite-900 dark:text-graphite-300 dark:hover:bg-graphite-900 dark:hover:text-white"}`}><Icon size={17}/>{item.title}</Link>;
-            })}
-          </nav>
+          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+            <nav className="space-y-5">
+              {NAV_GROUPS.map(group => (
+                <div key={group.label}>
+                  <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-[.16em] text-graphite-400">{group.label}</p>
+                  <div className="space-y-0.5">
+                    {group.items.filter(item => !("ownerOnly" in item) || !item.ownerOnly || membership?.isOwner).map(item => {
+                      const Icon = item.icon;
+                      return <Link key={item.key} href={item.href} onClick={() => setMobileOpen(false)} className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold transition ${item.key === "overview" ? "bg-ember-100 text-ember-700 dark:bg-ember-950/30 dark:text-ember-300" : "text-graphite-600 hover:bg-cloud-100 hover:text-graphite-900 dark:text-graphite-300 dark:hover:bg-graphite-900 dark:hover:text-white"}`}><Icon size={16}/><span>{item.title}</span></Link>;
+                    })}
+                  </div>
+                </div>
+              ))}
+            </nav>
+          </div>
 
-          <div className="mt-6 border-t border-graphite-200 pt-4 dark:border-graphite-800">
+          <div className="mt-3 shrink-0 border-t border-graphite-200 pt-3 dark:border-graphite-800">
             <Link href="/vendor/dashboard/store-settings" className="flex items-center gap-3 px-3 py-2 text-sm font-semibold text-graphite-600 dark:text-graphite-300"><Settings size={17}/> Store settings</Link>
             <Link href="/support" className="flex items-center gap-3 px-3 py-2 text-sm font-semibold text-graphite-600 dark:text-graphite-300"><MessageCircle size={17}/> Support</Link>
             <Link href="/" className="flex items-center gap-3 px-3 py-2 text-sm font-semibold text-graphite-600 dark:text-graphite-300"><LogOut size={17}/> Back to TTFL Store</Link>
@@ -279,7 +290,7 @@ export default function VendorDashboardPage() {
                 <h2 className="font-bold text-graphite-950 dark:text-white">Quick actions</h2>
                 <p className="mt-1 text-sm text-graphite-500">Jump straight into the tools you use most.</p>
                 <div className="mt-5 grid gap-2">
-                  <QuickAction href="/vendor/dashboard/products/new" icon={Plus} title="List a product"/>
+                  <QuickAction href="/vendor/dashboard/products/new" icon={Plus} title="Add product" primary/>
                   <QuickAction href="/vendor/dashboard/services" icon={Wrench} title="Manage services"/>
                   <QuickAction href="/vendor/dashboard/orders" icon={ShoppingBag} title="Review orders"/>
                   <QuickAction href="/vendor/dashboard/ads" icon={Megaphone} title="Promote your store"/>
