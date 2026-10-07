@@ -265,7 +265,11 @@ export default function AdminDashboardPage() {
   );
 }
 
-function formatNaira(value: number) {\n  return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(value || 0);\n}\n\nfunction OverviewCard({ label, value, icon: Icon, href }: { label: string; value: string; icon: typeof Users; href: string }) {
+function formatNaira(value: number) {
+  return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(value || 0);
+}
+
+function OverviewCard({ label, value, icon: Icon, href }: { label: string; value: string; icon: typeof Users; href: string }) {
   return <Link href={href} className="rounded-card border border-graphite-200 bg-white p-4 transition hover:-translate-y-0.5 hover:border-ember-300"><div className="flex items-center justify-between gap-2"><span className="text-xs font-medium text-graphite-600">{label}</span><Icon className="h-4 w-4 text-graphite-500" /></div><p className="mt-2 text-xl font-bold text-graphite-900">{value}</p></Link>;
 }
 
