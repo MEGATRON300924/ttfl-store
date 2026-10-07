@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import {
   BarChart3, Bell, Bot, CalendarDays, CreditCard, LayoutDashboard, LogOut,
   Megaphone, Menu, MessageCircle, Package, Palette, Plus, ShoppingBag,
@@ -45,7 +45,7 @@ function isActive(pathname: string, href: string) {
   return href === "/vendor/dashboard" ? pathname === href : pathname === href || pathname.startsWith(href + "/");
 }
 
-export default function VendorDashboardNavigationShell({ children }: { children: React.ReactNode }) {
+export default function VendorDashboardNavigationShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { user } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -60,7 +60,9 @@ export default function VendorDashboardNavigationShell({ children }: { children:
         }
       }).catch(() => undefined);
     }
-  });
+  }, [user, pathname]);
+
+  if (pathname === "/vendor/dashboard") return <>{children}</>;
 
   return (
     <main className="min-h-screen bg-cloud-50 dark:bg-[#0b0d10]">
@@ -73,11 +75,31 @@ export default function VendorDashboardNavigationShell({ children }: { children:
             <span className="hidden border-l border-graphite-200 pl-3 text-sm font-semibold text-graphite-500 sm:block">Vendor dashboard</span>
           </Link>
           <div className="ml-auto flex items-center gap-2">
-            <Link href="/vendor/dashboard/max-ai" className="btn-secondary hidden sm:inline-flex"><Bot size={16}/> Max AI</Link>
-            <Link href="/vendor/dashboard/products/new" className="btn-primary"><Plus size={16}/> Add product</Link>
+            <Link href="/vendor/dashboard/max-ai" className="btn-secondary hidden sm:inline-flex items-center justify-center gap-2"><Bot size={16}/> Max AI</Link>
+            <Link href="/vendor/dashboard/products/new" className="btn-primary inline-flex items-center justify-center gap-2"><Plus size={16}/> Add product</Link>
           </div>
         </div>
       </header>
+
+      <div className="border-b border-graphite-200 bg-white dark:border-graphite-800 dark:bg-graphite-950">
+        <div className="flex gap-2 overflow-x-auto px-4 py-2.5 sm:px-6 lg:px-8">
+          {[
+            ["/services", "Services"],
+            ["/categories/phones-tablets", "Phones & Tablets"],
+            ["/categories/electronics", "Electronics"],
+            ["/categories/fashion", "Fashion"],
+            ["/categories/home-living", "Home & Living"],
+            ["/categories/beauty-health", "Beauty & Health"],
+            ["/categories/vehicles", "Vehicles"],
+            ["/categories/gaming", "Gaming"],
+            ["/categories/services", "Services"],
+          ].map(([href, title]) => (
+            <Link key={href} href={href} className="inline-flex shrink-0 items-center rounded-full border border-graphite-200 bg-white px-3.5 py-1.5 text-xs font-semibold text-graphite-700 transition hover:border-ember-300 hover:bg-ember-50 hover:text-ember-700 dark:border-graphite-700 dark:bg-graphite-900 dark:text-graphite-200 dark:hover:border-ember-500/50 dark:hover:bg-ember-950/20">
+              {title}
+            </Link>
+          ))}
+        </div>
+      </div>
 
       <div className="flex min-h-[calc(100vh-4rem)]">
         {mobileOpen && <button className="fixed inset-0 z-40 bg-black/30 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close menu"/>}
