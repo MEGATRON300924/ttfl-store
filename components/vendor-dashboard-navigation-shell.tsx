@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ComponentType } from "react";
+import { useEffect, useState } from "react";
 import {
   BarChart3, Bell, Bot, CalendarDays, CreditCard, LayoutDashboard, LogOut,
   Megaphone, Menu, MessageCircle, Package, Palette, Plus, ShoppingBag,
@@ -51,8 +51,8 @@ export default function VendorDashboardNavigationShell({ children }: { children:
   const [mobileOpen, setMobileOpen] = useState(false);
   const [membership, setMembership] = useState<Membership>(null);
 
-  useState(() => {
-    if (user) {
+  useEffect(() => {
+    if (user && pathname !== "/vendor/dashboard") {
       fetch("/api/vendor-staff/me").then(async (res) => {
         if (res.ok) {
           const data = await res.json();
