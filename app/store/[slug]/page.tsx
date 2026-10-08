@@ -132,8 +132,8 @@ export default async function StorePage({ params }: { params: { slug: string } }
   const items = await getStoreProducts(vendor.storeSlug);
   const badges = getDisplayBadges(vendor);
   const enterprise = badges.includes("ENTERPRISE") || vendor.tier === "ENTERPRISE";
-  const dark = vendor.theme === "DARK";
-  const accent = vendor.theme === "MINIMAL" ? "#111827" : vendor.accentColor || "#E8622C";
+  const dark = vendor.storefront?.theme?.preset === "DARK" || (!vendor.storefront && vendor.theme === "DARK");
+  const accent = vendor.storefront?.theme?.accent || (vendor.storefront?.theme?.preset === "MINIMAL" ? "#111827" : vendor.accentColor || "#E8622C");
   const publicSlug = vendor.customUrl || vendor.storeSlug;
   const storeUrl = SITE_URL + "/store/" + publicSlug;
   const muted = dark ? "text-graphite-300" : "text-graphite-600";
