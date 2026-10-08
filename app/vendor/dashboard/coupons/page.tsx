@@ -1,94 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect,useMemo,useState } from "react";
 import { api, ApiError } from "@/lib/api-client";
 import { formatNaira } from "@/lib/mock-data";
 import { TextField } from "@/components/text-field";
-import type { ApiCoupon } from "@/lib/api-types";
+import type { ApiCoupon, ApiProduct } from "@/lib/api-types";
 
-export default function VendorCouponsPage() {
-  const [coupons, setCoupons] = useState<ApiCoupon[] | null>(null);
-  const [form, setForm] = useState({ code: "", type: "PERCENTAGE" as "PERCENTAGE" | "FIXED", value: "" });
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  async function load() {
-    const { coupons } = await api.get<{ coupons: ApiCoupon[] }>("/api/coupons/vendor");
-    setCoupons(coupons);
-  }
-
-  useEffect(() => {
-    void load();
-  }, []);
-
-  async function create(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setSubmitting(true);
-    try {
-      await api.post("/api/coupons/vendor", { code: form.code, type: form.type, value: Number(form.value) });
-      setForm({ code: "", type: "PERCENTAGE", value: "" });
-      await load();
-    } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Couldn't create coupon");
-    } finally {
-      setSubmitting(false);
-    }
-  }
-
-  return (
-    <div className="shell max-w-2xl py-8">
-      <h1 className="text-xl font-bold text-graphite-900">Coupons</h1>
-      <p className="mt-1 text-sm text-graphite-600">Discount codes that apply only to your store's items.</p>
-
-      <form onSubmit={create} className="mt-6 flex flex-col gap-4 rounded-card border border-graphite-200 p-4">
-        <TextField label="Code" value={form.code} onChange={(v) => setForm({ ...form, code: v.toUpperCase() })} />
-        <div className="grid grid-cols-2 gap-3">
-          <label className="flex flex-col gap-1 text-sm">
-            <span className="font-medium text-graphite-700">Type</span>
-            <select
-              value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value as "PERCENTAGE" | "FIXED" })}
-              className="rounded-[7px] border border-graphite-200 bg-white px-3 py-2.5 text-sm"
-            >
-              <option value="PERCENTAGE">Percentage off</option>
-              <option value="FIXED">Fixed amount off (₦)</option>
-            </select>
-          </label>
-          <TextField label="Value" type="number" value={form.value} onChange={(v) => setForm({ ...form, value: v })} />
-        </div>
-        {error && <p className="rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-card bg-ember-600 py-2.5 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-60"
-        >
-          {submitting ? "Creating…" : "Create coupon"}
-        </button>
-      </form>
-
-      <div className="mt-6 flex flex-col gap-2">
-        {coupons === null ? (
-          <p className="text-sm text-graphite-600">Loading…</p>
-        ) : coupons.length === 0 ? (
-          <p className="text-sm text-graphite-600">No coupons yet.</p>
-        ) : (
-          coupons.map((c) => (
-            <div key={c.id} className="flex items-center justify-between rounded-card border border-graphite-200 p-3">
-              <div>
-                <p className="font-mono text-sm font-semibold text-graphite-900">{c.code}</p>
-                <p className="text-xs text-graphite-600">
-                  {c.type === "PERCENTAGE" ? `${Number(c.value)}% off` : `${formatNaira(Number(c.value))} off`} ·{" "}
-                  {c._count?.redemptions ?? 0} used
-                </p>
-              </div>
-              <span className={`rounded-tag px-2 py-1 text-xs font-medium ${c.active ? "bg-verified-100 text-verified-700" : "bg-cloud-100 text-graphite-500"}`}>
-                {c.active ? "active" : "inactive"}
-              </span>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
+export default function VendorCouponsPage(){
+ const[coupons,setCoupons]=useState<ApiCoupon[]|null>(null);const[products,setProducts]=useState<ApiProduct[]>([]);const[form,setForm]=useState({code:"",type:"PERCENTAGE" as "PERCENTAGE"|"FIXED",value:"",scope:"STORE" as "STORE"|"CATEGORY"|"PRODUCT",categoryId:"",productId:""});const[error,setError]=useState<string|null>(null);const[submitting,setSubmitting]=useState(false);
+ async function load(){const[cr,pr]=await Promise.all([api.get<{coupons:ApiCoupon[]}>("/api/coupons/vendor"),api.get<{items:ApiProduct[]}>("/api/products/mine")]);setCoupons(cr.coupons);setProducts(pr.items||[]);}
+ useEffect(()=>{void load().catch(()=>setCoupons([]));},[]);
+ const categories=useMemo(()=>Array.from(new Map(products.map(p=>[p.category.id,p.category])).values()),[products]);
+ async function create(e:React.FormEvent){e.preventDefault();setError(null);setSubmitting(true);try{const payload:any={code:form.code,type:form.type,value:Number(form.value)};if(form.scope==="CATEGORY")payload.categoryId=form.categoryId;if(form.scope==="PRODUCT")payload.productIds=[form.productId];await api.post("/api/coupons/vendor",payload);setForm({code:"",type:"PERCENTAGE",value:"",scope:"STORE",categoryId:"",productId:""});await load();}catch(err){setError(err instanceof ApiError?err.message:"Couldn't create coupon");}finally{setSubmitting(false);}}
+ return <div className="shell max-w-3xl py-8"><h1 className="text-xl font-bold text-graphite-900">Coupons</h1><p className="mt-1 text-sm text-graphite-600">Create discounts for your entire store, a category, or selected products.</p>
+ <form onSubmit={create} className="mt-6 flex flex-col gap-4 rounded-card border border-graphite-200 p-4"><TextField label="Code" value={form.code} onChange={v=>setForm({...form,code:v.toUpperCase()})}/><div className="grid grid-cols-2 gap-3"><label className="flex flex-col gap-1 text-sm"><span className="font-medium text-graphite-700">Type</span><select value={form.type} onChange={e=>setForm({...form,type:e.target.value as "PERCENTAGE"|"FIXED"})} className="rounded-[7px] border border-graphite-200 bg-white px-3 py-2.5 text-sm"><option value="PERCENTAGE">Percentage off</option><option value="FIXED">Fixed amount off (₦)</option></select></label><TextField label="Value" type="number" value={form.value} onChange={v=>setForm({...form,value:v})}/></div>
+ <label className="flex flex-col gap-1 text-sm"><span className="font-medium text-graphite-700">Applies to</span><select value={form.scope} onChange={e=>setForm({...form,scope:e.target.value as typeof form.scope})} className="rounded-[7px] border border-graphite-200 bg-white px-3 py-2.5 text-sm"><option value="STORE">Entire store</option><option value="CATEGORY">Specific category</option><option value="PRODUCT">Specific product</option></select></label>
+ {form.scope==="CATEGORY"&&<select required value={form.categoryId} onChange={e=>setForm({...form,categoryId:e.target.value})} className="rounded-[7px] border border-graphite-200 bg-white px-3 py-2.5 text-sm"><option value="">Select category</option>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select>}
+ {form.scope==="PRODUCT"&&<select required value={form.productId} onChange={e=>setForm({...form,productId:e.target.value})} className="rounded-[7px] border border-graphite-200 bg-white px-3 py-2.5 text-sm"><option value="">Select product</option>{products.map(p=><option key={p.id} value={p.id}>{p.name}</option>)}</select>}
+ {error&&<p className="rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}<button type="submit" disabled={submitting} className="rounded-card bg-ember-600 py-2.5 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-60">{submitting?"Creating…":"Create coupon"}</button></form>
+ <div className="mt-6 flex flex-col gap-2">{coupons===null?<p className="text-sm text-graphite-600">Loading…</p>:coupons.length===0?<p className="text-sm text-graphite-600">No coupons yet.</p>:coupons.map(c=><div key={c.id} className="flex items-center justify-between rounded-card border border-graphite-200 p-3"><div><p className="font-mono text-sm font-semibold text-graphite-900">{c.code}</p><p className="text-xs text-graphite-600">{c.type==="PERCENTAGE"?`${Number(c.value)}% off`:`${formatNaira(Number(c.value))} off`} · {c._count?.redemptions??0} used{(c as any).productIds?.length?" · selected products":c.categoryId?" · category":" · store"}</p></div><span className={`rounded-tag px-2 py-1 text-xs font-medium ${c.active?"bg-verified-100 text-verified-700":"bg-cloud-100 text-graphite-500"}`}>{c.active?"active":"inactive"}</span></div>)}</div></div>;
 }
