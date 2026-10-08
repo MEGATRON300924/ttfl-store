@@ -36,6 +36,7 @@ const GROUPS = [
     ["/admin/featured", "Featured listings", Megaphone],
   ] as const },
   { label: "Growth", links: [
+    ["/admin/affiliates", "Affiliates", Users],
     ["/admin/analytics", "Analytics", BarChart3],
     ["/admin/plans", "Vendor plans", Layers],
     ["/admin/payouts", "Payouts", Wallet],
