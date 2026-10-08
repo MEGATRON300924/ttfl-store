@@ -82,6 +82,9 @@ export default function VendorDashboardPage() {
   const [showWhatsAppPopup, setShowWhatsAppPopup] = useState(false);
   const [accountAction, setAccountAction] = useState<"disable" | "delete" | null>(null);
   const [accountError, setAccountError] = useState("");
+  const [vendorRewards, setVendorRewards] = useState<Array<{ id:string; status:string; rewardTier:string; rewardMonths:number; affiliateDisplayName:string }>>([]);
+  const [redeemingReward, setRedeemingReward] = useState(false);
+  const [rewardError, setRewardError] = useState("");
 
   useEffect(() => {
     if (!loading && user && window.localStorage.getItem("ttfl_vendor_whatsapp_popup_dismissed") !== "1") {
@@ -104,6 +107,7 @@ export default function VendorDashboardPage() {
   useEffect(() => {
     if (loading || !user || !membership?.isOwner || user.vendorProfile?.status !== "APPROVED") return;
     void api.get<Setup>("/api/store-hours/setup").then(setSetup).catch(() => undefined);
+    void api.get<{ rewards: Array<{ id:string; status:string; rewardTier:string; rewardMonths:number; affiliateDisplayName:string }> }>("/api/affiliates/vendor-rewards").then(r => setVendorRewards(r.rewards || [])).catch(() => setVendorRewards([]));
 
     void Promise.allSettled([
       api.get<{ products: Product[] }>("/api/products/mine"),
@@ -257,6 +261,7 @@ export default function VendorDashboardPage() {
               </div>
             </div>
 
+            {vendorRewards.some(r => r.status === "CLAIMED") && <div className="mb-6 rounded-2xl border border-ember-200 bg-ember-50 p-5 dark:border-ember-500/30 dark:bg-ember-950/20"><div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"><div><p className="text-xs font-bold uppercase tracking-[.16em] text-ember-700">Saved vendor perk</p><h2 className="mt-1 text-lg font-bold text-graphite-950 dark:text-white">{vendorRewards.find(r => r.status === "CLAIMED")?.rewardMonths} month {vendorRewards.find(r => r.status === "CLAIMED")?.rewardTier} Vendor Plan</h2><p className="mt-1 text-sm text-graphite-600 dark:text-graphite-300">Invited by {vendorRewards.find(r => r.status === "CLAIMED")?.affiliateDisplayName || "a TTFL affiliate"}. Your reward is saved and ready to apply.</p></div><button disabled={redeemingReward} onClick={async()=>{setRedeemingReward(true);setRewardError("");try{await api.post("/api/affiliates/vendor-reward/redeem");setVendorRewards(vendorRewards.map(r=>r.status==="CLAIMED"?{...r,status:"REDEEMED"}:r));}catch(e){setRewardError(e instanceof ApiError?e.message:"Unable to apply your vendor reward.");}finally{setRedeemingReward(false);}}} className="shrink-0 rounded-xl bg-ember-600 px-5 py-3 text-sm font-bold text-white disabled:opacity-60">{redeemingReward?"Applying…":"Apply reward"}</button></div>{rewardError&&<p className="mt-3 text-xs font-semibold text-ember-700">{rewardError}</p>}</div>}
             <div className="mt-7 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
               <StatCard icon={Package} label="Products" value={growth?.productCount ?? 0} href="/vendor/dashboard/products"/>
               <StatCard icon={BarChart3} label="Product views" value={growth?.viewCount ?? 0} href="/vendor/dashboard/analytics"/>
