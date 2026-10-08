@@ -33,7 +33,7 @@ export function CouponBox({
       // discount that checkout itself would reject.
       const result = await api.post<{ coupon: { code: string }; discountAmount: number }>("/api/coupons/preview", {
         code: code.trim(),
-        lines: lines.map((l) => ({ vendorId: l.vendorId, categoryId: l.categoryId, lineTotal: l.price * l.quantity })),
+        lines: lines.map((l) => ({ vendorId: l.vendorId, categoryId: l.categoryId, productId: l.productId, lineTotal: l.price * l.quantity })),
       });
       onApply({ code: result.coupon.code, discountAmount: result.discountAmount });
       setCode("");
