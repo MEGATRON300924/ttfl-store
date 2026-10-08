@@ -148,19 +148,9 @@ export default async function StorePage({ params }: { params: { slug: string } }
       <div className="shell py-5 sm:py-8">
         <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
           <aside className="hidden lg:block">
-            <div className="sticky top-5 overflow-hidden rounded-[24px] border border-graphite-200 bg-white shadow-card" style={{ background: storefront?.theme?.sidebarBackground || (dark ? "#111827" : "#FFFFFF") }}>
-              <div className="p-4">
-                <div className="flex items-center gap-3">
-                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-white">
-                    {vendor.logoUrl ? <Image src={vendor.logoUrl} alt="" fill sizes="40px" className="object-cover" /> : <span className="grid h-full w-full place-items-center font-bold text-graphite-900">{vendor.storeName.charAt(0).toUpperCase()}</span>}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-bold" style={{ color: dark ? "#FFFFFF" : storefront?.theme?.text || "#111827" }}>{vendor.storeName}</p>
-                    <p className="text-[11px] opacity-60">TTFL Store</p>
-                  </div>
-                </div>
-              </div>
-              <nav className="space-y-1 p-2 text-sm font-semibold">
+            <div className="sticky top-5 rounded-[24px] border border-graphite-200 bg-white p-4 shadow-card">
+              <p className="truncate text-sm font-bold">{vendor.storeName}</p>
+              <nav className="mt-3 space-y-1 text-sm font-semibold">
                 <Link href="#top" className="block rounded-xl px-3 py-2.5">Home</Link>
                 <Link href="#products" className="block rounded-xl px-3 py-2.5">Products</Link>
                 <Link href="#contact" className="block rounded-xl px-3 py-2.5">Contact</Link>
