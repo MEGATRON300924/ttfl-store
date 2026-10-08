@@ -8,6 +8,7 @@ import type { ApiProduct } from "@/lib/api-types";
 import { ProductCard } from "@/components/product-card";
 import { StoreBadges, type StoreBadge } from "@/components/store-badges";
 import { StoreProfileActions } from "@/components/store-profile-actions";
+import { StoreBuilderEntry } from "@/components/store-builder-entry";
 
 const SITE_URL = "https://ttflstore.name.ng";
 const DEFAULT_SEO_IMAGE = "/ttflstore.png";
@@ -145,7 +146,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
           <div className="relative h-52 sm:h-72">
             {vendor.bannerUrl ? <Image src={vendor.bannerUrl} alt="" fill sizes="100vw" className="object-cover" priority /> : <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, " + accent + ", " + (dark ? "#111827" : "#1F2937") + ")" }} />}
             <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-            <div className="absolute right-4 top-4 sm:right-6 sm:top-6"><StoreProfileActions storeName={vendor.storeName} url={storeUrl} whatsappNumber={vendor.whatsappNumber} /></div>
+            <div className="absolute right-4 top-4 flex items-center gap-2 sm:right-6 sm:top-6"><StoreBuilderEntry storeSlug={vendor.storeSlug} /><StoreProfileActions storeName={vendor.storeName} url={storeUrl} whatsappNumber={vendor.whatsappNumber} /></div>
             <div className="absolute bottom-5 left-4 right-4 sm:bottom-7 sm:left-7 sm:right-7"><div className="flex min-w-0 items-end gap-4">
               {vendor.logoUrl ? <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-4 border-white bg-white shadow-lg sm:h-24 sm:w-24"><Image src={vendor.logoUrl} alt={vendor.storeName + " logo"} fill sizes="96px" className="object-cover" /></div> : <div className="grid h-20 w-20 shrink-0 place-items-center rounded-2xl border-4 border-white bg-graphite-900 text-2xl font-bold text-white shadow-lg sm:h-24 sm:w-24">{vendor.storeName.charAt(0).toUpperCase()}</div>}
               <div className="min-w-0 text-white"><div className="flex flex-wrap items-center gap-2"><h1 className="truncate text-2xl font-bold tracking-tight sm:text-3xl">{vendor.storeName}</h1>{vendor.verified && <ShieldCheck className="h-5 w-5 shrink-0" aria-label="Verified store" />}</div>
