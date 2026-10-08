@@ -144,7 +144,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
   const sectionEnabled = (type: string) => storefront?.sections?.some((section: any) => section.type === type && section.enabled) ?? true;
 
   return (
-    <main className={dark ? "min-h-screen bg-graphite-950 text-white" : "min-h-screen bg-cloud-50 text-graphite-900"}>
+    <main className={dark ? "min-h-screen text-white" : "min-h-screen text-graphite-900"} style={{ background: storefront?.theme?.background || (dark ? "#0B0D10" : "#F8FAFC") }}>
       <div className="shell py-5 sm:py-8">
         <section className={"overflow-hidden rounded-[28px] border shadow-card " + panel}>
           <div className="relative" style={{height: `${Math.max(220, Math.min(520, Number(banner?.height ?? 288)))}px`}}>
