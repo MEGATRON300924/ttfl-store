@@ -36,7 +36,7 @@ type PublicVendor = {
   badges: StoreBadge[];
   gallery: { id: string; url: string; position: number }[];
   bookingSettings?: { enabled: boolean; bookingUrl: string | null; bookingLabel: string | null; whatsappNumber: string | null; phoneNumber: string | null; email: string | null; instructions: string | null };
-  reviewHealth?: { windowDays: number; recentReviews: number; recentOrders: number; problemOrders: number; badReviews: number; caution: boolean; threshold: number }; businessHours?: {dayOfWeek:number;day:string;isOpen:boolean;openTime:string|null;closeTime:string|null}[]; openNow?: boolean;
+  reviewHealth?: { windowDays: number; recentReviews: number; recentOrders: number; problemOrders: number; badReviews: number; caution: boolean; threshold: number }; businessHours?: {dayOfWeek:number;day:string;isOpen:boolean;openTime:string|null;closeTime:string|null}[]; openNow?: boolean; storefront?: { version:number; theme:any; banner:any; layout:any; sections:any[]; contact:any };
 };
 
 async function getVendor(slug: string): Promise<PublicVendor | null> {
