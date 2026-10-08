@@ -146,6 +146,28 @@ export default async function StorePage({ params }: { params: { slug: string } }
   return (
     <main className={dark ? "min-h-screen text-white" : "min-h-screen text-graphite-900"} style={{ background: storefront?.theme?.background || (dark ? "#0B0D10" : "#F8FAFC") }}>
       <div className="shell py-5 sm:py-8">
+        <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+          <aside className="hidden lg:block">
+            <div className="sticky top-5 overflow-hidden rounded-[24px] border border-graphite-200 bg-white shadow-card" style={{ background: storefront?.theme?.sidebarBackground || (dark ? "#111827" : "#FFFFFF") }}>
+              <div className="p-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative h-10 w-10 shrink-0 overflow-hidden rounded-xl bg-white">
+                    {vendor.logoUrl ? <Image src={vendor.logoUrl} alt="" fill sizes="40px" className="object-cover" /> : <span className="grid h-full w-full place-items-center font-bold text-graphite-900">{vendor.storeName.charAt(0).toUpperCase()}</span>}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-bold" style={{ color: dark ? "#FFFFFF" : storefront?.theme?.text || "#111827" }}>{vendor.storeName}</p>
+                    <p className="text-[11px] opacity-60">TTFL Store</p>
+                  </div>
+                </div>
+              </div>
+              <nav className="space-y-1 p-2 text-sm font-semibold">
+                <Link href="#top" className="block rounded-xl px-3 py-2.5">Home</Link>
+                <Link href="#products" className="block rounded-xl px-3 py-2.5">Products</Link>
+                <Link href="#contact" className="block rounded-xl px-3 py-2.5">Contact</Link>
+              </nav>
+            </div>
+          </aside>
+          <div className="min-w-0">
         <section className={"overflow-hidden rounded-[28px] border shadow-card " + panel}>
           <div className="relative" style={{height: `${Math.max(220, Math.min(520, Number(banner?.height ?? 288)))}px`}}>
             {(banner?.imageUrl || vendor.bannerUrl) ? <Image src={banner?.imageUrl || vendor.bannerUrl || ""} alt="" fill sizes="100vw" className="object-cover" style={{objectPosition: `${Number(banner?.positionX ?? 50)}% ${Number(banner?.positionY ?? 50)}%`}} priority /> : <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, " + accent + ", " + (dark ? "#111827" : "#1F2937") + ")" }} />}
@@ -185,7 +207,10 @@ export default async function StorePage({ params }: { params: { slug: string } }
             {vendor.viewCount > 0 && <div className={"flex items-center gap-2 px-1 text-xs " + muted}><Eye className="h-3.5 w-3.5" />{formatCount(vendor.viewCount)} public profile views</div>}
           </aside>
         </div>
+          </div>
+        </div>
       </div>
+    </div>
     </main>
   );
 }
