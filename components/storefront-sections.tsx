@@ -4,26 +4,31 @@ import { ProductCard } from "@/components/product-card";
 import { CalendarDays, Megaphone, Sparkles, Store as StoreIcon } from "lucide-react";
 
 function escapeHtml(value: unknown) {
-  return String(value ?? "").replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char] || char));
+  return String(value ?? "").replace(/[&<>"']/g, (char) => {
+    if (char === "&") return "&amp;";
+    if (char === "<") return "&lt;";
+    if (char === ">") return "&gt;";
+    if (char === '"') return "&quot;";
+    return "&#39;";
+  });
 }
 
 function sanitizeHtml(value: string) {
   return value
     .slice(0, 60000)
-    .replace(/<!--[\\s\\S]*?-->/g, "")
-    .replace(/<\\/?(script|iframe|object|embed|applet|base|meta|link|form|input|textarea|select|option|button|style)\\b[^>]*>[\\s\\S]*?(<\\/\\s*\\1\\s*>)?/gi, "")
-    .replace(/\\s+on[a-z-]+\\s*=\\s*(?:"[^"]*"|'[^']*'|[^\\s>]+)/gi, "")
-    .replace(/(href|src)\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))/gi, (full, name, a, b, d) => {
-      const url = String(a ?? b ?? d ?? "").trim();
-      return /^(https?:|mailto:|tel:|#|\\/)/i.test(url) ? full : `${name}="#"`;
-    });
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, "")
+    .replace(/<iframe[\s\S]*?<\/iframe>/gi, "")
+    .replace(/<style[\s\S]*?<\/style>/gi, "")
+    .replace(/\s+on[a-z-]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, "");
 }
 
 function renderProductsHtml(items: ApiProduct[]) {
-  return `<div data-ttfl-products class="ttfl-products">${items.map((p) => {
+  return `<div class="ttfl-products">${items.map((p) => {
     const image = p.images?.[0]?.url || "";
     const href = "/product/" + encodeURIComponent(p.slug);
-    return `<a class="ttfl-product-card" href="${escapeHtml(href)}"><div class="ttfl-product-image">${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(p.name)}">` : ""}</div><div class="ttfl-product-body"><strong>${escapeHtml(p.name)}</strong><span>₦${Number(p.price).toLocaleString("en-NG")}</span></div></a>`;
+    const imageHtml = image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(p.name)}">` : "";
+    return `<a class="ttfl-product-card" href="${escapeHtml(href)}"><div class="ttfl-product-image">${imageHtml}</div><div class="ttfl-product-body"><strong>${escapeHtml(p.name)}</strong><span>₦${Number(p.price).toLocaleString("en-NG")}</span></div></a>`;
   }).join("")}</div>`;
 }
 
@@ -38,12 +43,16 @@ function CustomStorefrontHtml({ code, vendor, items }: { code: string; vendor: a
     "{my-store-banner}": vendor.storefront?.banner?.imageUrl ? `<img src="${escapeHtml(vendor.storefront.banner.imageUrl)}" alt="">` : "",
     "{my-products}": renderProductsHtml(items),
     "{my-featured-products}": renderProductsHtml(items.slice(0, 8)),
-    "{my-best-sellers}": renderProductsHtml([...items].sort((a,b) => Number(b.viewCount || 0) - Number(a.viewCount || 0)).slice(0, 8)),
+    "{my-best-sellers}": renderProductsHtml([...items].sort((a, b) => Number(b.viewCount || 0) - Number(a.viewCount || 0)).slice(0, 8)),
     "{my-store-url}": escapeHtml("/store/" + vendor.storeSlug),
-    "{my-whatsapp}": vendor.whatsappNumber ? `<a href="https://wa.me/${escapeHtml(vendor.whatsappNumber.replace(/\\D/g, ""))}" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>` : "",
+    "{my-whatsapp}": vendor.whatsappNumber ? `<a href="https://wa.me/${escapeHtml(vendor.whatsappNumber.replace(/\D/g, ""))}" target="_blank" rel="noopener noreferrer">Chat on WhatsApp</a>` : "",
   };
-  const html = sanitizeHtml(Object.entries(replacements).reduce((result, [token, value]) => result.split(token).join(value), code));
-  return <section className="ttfl-custom-html rounded-[24px]">{/* Vendor HTML is sanitized server-side and again here before rendering. */}<div dangerouslySetInnerHTML={{ __html: html }} /></section>;
+  let html = code;
+  Object.entries(replacements).forEach(([token, value]) => {
+    html = html.split(token).join(value);
+  });
+  html = sanitizeHtml(html);
+  return <section className="ttfl-custom-html"><div dangerouslySetInnerHTML={{ __html: html }} /></section>;
 }
 
 type Props={sections:any[];items:ApiProduct[];vendor:any;dark:boolean;accent:string;businessHours?:any[];};
