@@ -146,7 +146,7 @@ export default async function StorePage({ params }: { params: { slug: string } }
   return (
     <main className={dark ? "min-h-screen text-white" : "min-h-screen text-graphite-900"} style={{ background: storefront?.theme?.background || (dark ? "#0B0D10" : "#F8FAFC") }}>
       <div className="shell py-5 sm:py-8">
-        <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+        <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
           <aside className="hidden lg:block">
             <div className="sticky top-5 rounded-[24px] border border-graphite-200 bg-white p-4 shadow-card">
               <p className="truncate text-sm font-bold">{vendor.storeName}</p>
