@@ -235,7 +235,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
   );
 
   const specificationProperties = Object.entries(product.specifications ?? {})
-    .filter(([key, value]) => key !== "_variations" && String(value).trim())
+    .filter(([key, value]) => key !== "_variations" && !key.startsWith("_") && String(value).trim())
     .map(([name, value]) => ({ "@type": "PropertyValue", name, value: String(value) }));
   const variationProperties = variations.flatMap((variant) =>
     Object.entries(variant.options).map(([name, value]) => ({
