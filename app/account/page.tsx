@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Package, LogOut, Pencil, Heart, Loader2, Plus, Trash2, MapPin, Camera, Gift, Truck, UserRound, Store, ChevronRight, Sparkles, ShoppingBag } from "lucide-react";
+import { Package, LogOut, Pencil, Heart, Loader2, Plus, Trash2, MapPin, Camera, Gift, Truck, UserRound, Store, ChevronRight, Sparkles, ShoppingBag, Bell } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api-client";
 import { formatNaira } from "@/lib/mock-data";
@@ -88,6 +88,11 @@ export default function AccountPage() {
           <div className="flex items-center justify-between"><Heart className="h-5 w-5 text-ember-600" /><ChevronRight className="h-4 w-4 text-graphite-300" /></div>
           <p className="mt-3 text-sm font-bold text-graphite-900">Wishlist</p>
           <p className="mt-1 text-xs text-graphite-500">Saved products</p>
+        </Link>
+        <Link href="/notifications" className="group rounded-card border border-graphite-200 p-4 hover:border-ember-300 hover:bg-cloud-50">
+          <div className="flex items-center justify-between"><Bell className="h-5 w-5 text-ember-600" /><ChevronRight className="h-4 w-4 text-graphite-300" /></div>
+          <p className="mt-3 text-sm font-bold text-graphite-900">Notification settings</p>
+          <p className="mt-1 text-xs text-graphite-500">Manage browser alerts and updates</p>
         </Link>
       </div>
 
