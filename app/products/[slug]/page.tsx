@@ -542,7 +542,19 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
             {product.comingSoon && (
               <div className="mt-6">
-                <ComingSoonWaitlist productId={product.id} productName={product.name} />
+                {product.sellingMethod === "EXTERNAL_LINK" && product.externalUrl && /^https?:\/\//i.test(product.externalUrl.trim()) ? (
+                  <a
+                    href={product.externalUrl.trim()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex w-full items-center justify-center gap-2 rounded-card bg-ember-600 px-5 py-3.5 text-sm font-semibold text-white shadow-sm transition hover:bg-ember-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember-500 focus-visible:ring-offset-2"
+                  >
+                    Join the waitlist
+                    <ExternalLink aria-hidden="true" className="h-4 w-4" />
+                  </a>
+                ) : (
+                  <ComingSoonWaitlist productId={product.id} productName={product.name} />
+                )}
               </div>
             )}
             {product.stock > 0 && !product.comingSoon && (
