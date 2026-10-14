@@ -29,6 +29,7 @@ export const categories: Category[] = [
   { id: "2", name: "Electronics", slug: "electronics", icon: "Cpu" },
   { id: "3", name: "Fashion", slug: "fashion", icon: "Shirt" },
   { id: "4", name: "Home & Living", slug: "home-living", icon: "Sofa" },
+  { id: "9", name: "Smart Home", slug: "smart-home", icon: "House" },
   { id: "5", name: "Beauty & Health", slug: "beauty-health", icon: "Sparkles" },
   { id: "6", name: "Vehicles", slug: "vehicles", icon: "Car" },
   { id: "7", name: "Gaming", slug: "gaming", icon: "Gamepad2" },
