@@ -183,7 +183,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   );
 
   return {
-    title: `${product.comingSoon ? "Coming soon: " : ""}${displayName} | TTFL Store`,
+    title: `${product.comingSoon ? "Coming soon: " : product.specifications?._productType === "pre-order" ? "Pre-order: " : ""}${displayName} | TTFL Store`,
     description,
     keywords: [displayName, brand, product.category.name, ...(product.tags ?? []), ...variationKeywords].filter(
       Boolean,
@@ -526,6 +526,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
                   </div>
                 )}
 
+                {product.specifications?._productType === "pre-order" && !product.comingSoon && (
+                  <div className="mt-5 rounded-xl border border-ember-200 bg-ember-50/70 p-4 dark:border-ember-900/60 dark:bg-ember-950/20">
+                    <p className="text-sm font-bold text-graphite-900 dark:text-white">Pre-order this product</p>
+                    {product.specifications._preOrderReleaseDate && <p className="mt-1 text-sm text-graphite-700 dark:text-graphite-300">Expected release: {new Date(product.specifications._preOrderReleaseDate).toLocaleDateString("en-NG", { day: "numeric", month: "long", year: "numeric" })}</p>}
+                    <p className="mt-2 text-sm leading-6 text-graphite-700 dark:text-graphite-300">{product.specifications._preOrderTerms || "Full payment is collected at checkout. The vendor will fulfil the order on or after the expected release date."}</p>
+                    <p className="mt-2 text-xs text-graphite-500 dark:text-graphite-400">Release dates are estimates, not guaranteed delivery dates. Your order will be placed through TTFL Store checkout.</p>
+                  </div>
+                )}
                 <div className="mt-6 border-t border-graphite-200 pt-6">
                   <ProductPurchaseSection product={product} variations={variations} />
                 </div>
