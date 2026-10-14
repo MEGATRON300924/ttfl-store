@@ -5,6 +5,7 @@ import { Bell, BellRing, CheckCheck, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
+import { enableWebPush } from "@/lib/web-push";
 
 type Notification = {
   id: string;
@@ -48,10 +49,10 @@ export default function NotificationsPage() {
         setBrowserMessage(permission === "denied" ? "Notifications are blocked in your browser settings." : "Browser notifications were not enabled.");
         return;
       }
-      await navigator.serviceWorker.register("/sw.js");
+      const message = await enableWebPush();
       const latest = items[0];
       if (latest?.id) window.localStorage.setItem("ttfl-browser-notifications-baseline", latest.id);
-      setBrowserMessage("Browser notifications are enabled for new TTFL Store updates while the site is open.");
+      setBrowserMessage(message);
     } catch {
       setBrowserMessage("Could not enable browser notifications. Please try again.");
     }
