@@ -31,6 +31,10 @@ export function BrowserNotificationListener() {
         const registration = "serviceWorker" in navigator
           ? await navigator.serviceWorker.getRegistration("/")
           : undefined;
+        if (registration && await registration.pushManager.getSubscription()) {
+          if (items[0]?.id) window.localStorage.setItem(BASELINE_KEY, items[0].id);
+          return;
+        }
         for (const item of fresh) {
           if (!active || !registration) break;
           await registration.showNotification(item.title, {
