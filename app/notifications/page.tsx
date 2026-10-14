@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, CheckCheck, ShoppingBag } from "lucide-react";
+import { Bell, BellRing, CheckCheck, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
@@ -21,6 +21,12 @@ export default function NotificationsPage() {
   const { user, loading } = useAuth();
   const [items, setItems] = useState<Notification[]>([]);
   const [busy, setBusy] = useState(true);
+  const [browserPermission, setBrowserPermission] = useState<string>("default");
+  const [browserMessage, setBrowserMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) setBrowserPermission(Notification.permission);
+  }, []);
 
   useEffect(() => {
     if (loading || !user) return;
@@ -28,6 +34,28 @@ export default function NotificationsPage() {
       .then((result) => setItems(result.notifications))
       .finally(() => setBusy(false));
   }, [loading, user]);
+
+  async function enableBrowserNotifications() {
+    setBrowserMessage(null);
+    if (!("Notification" in window) || !("serviceWorker" in navigator)) {
+      setBrowserMessage("This browser does not support web notifications. You can still read every update here.");
+      return;
+    }
+    try {
+      const permission = await Notification.requestPermission();
+      setBrowserPermission(permission);
+      if (permission !== "granted") {
+        setBrowserMessage(permission === "denied" ? "Notifications are blocked in your browser settings." : "Browser notifications were not enabled.");
+        return;
+      }
+      await navigator.serviceWorker.register("/sw.js");
+      const latest = items[0];
+      if (latest?.id) window.localStorage.setItem("ttfl-browser-notifications-baseline", latest.id);
+      setBrowserMessage("Browser notifications are enabled for new TTFL Store updates while the site is open.");
+    } catch {
+      setBrowserMessage("Could not enable browser notifications. Please try again.");
+    }
+  }
 
   async function markRead(id: string) {
     await api.patch("/api/notifications/" + id + "/read");
@@ -53,8 +81,13 @@ export default function NotificationsPage() {
             <h1 className="mt-1 text-2xl font-bold tracking-tight text-graphite-900 dark:text-white">Notifications</h1>
             <p className="mt-1 text-sm text-graphite-600 dark:text-graphite-400">{unread ? unread + " unread notification" + (unread === 1 ? "" : "s") : "You're all caught up."}</p>
           </div>
-          {unread > 0 && <button type="button" onClick={() => void markAllRead()} className="inline-flex items-center gap-2 rounded-card border border-graphite-200 bg-white px-3 py-2 text-xs font-semibold text-graphite-700 hover:bg-cloud-100 dark:border-graphite-700 dark:bg-graphite-900 dark:text-graphite-200"><CheckCheck className="h-4 w-4" />Mark all read</button>}
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            {unread > 0 && <button type="button" onClick={() => void markAllRead()} className="inline-flex items-center gap-2 rounded-card border border-graphite-200 bg-white px-3 py-2 text-xs font-semibold text-graphite-700 hover:bg-cloud-100 dark:border-graphite-700 dark:bg-graphite-900 dark:text-graphite-200"><CheckCheck className="h-4 w-4" />Mark all read</button>}
+            <button type="button" onClick={() => void enableBrowserNotifications()} disabled={browserPermission === "granted"} className="inline-flex items-center gap-2 rounded-card bg-ember-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-ember-700 disabled:cursor-default disabled:bg-verified-700"><BellRing className="h-4 w-4" />{browserPermission === "granted" ? "Browser alerts enabled" : "Enable browser alerts"}</button>
+          </div>
         </div>
+
+        {browserMessage && <p role="status" className="mt-3 rounded-card border border-graphite-200 bg-white px-4 py-3 text-sm text-graphite-700 dark:border-graphite-700 dark:bg-graphite-900 dark:text-graphite-200">{browserMessage}</p>}
 
         <div className="mt-6 overflow-hidden rounded-[24px] border border-graphite-200 bg-white shadow-sm dark:border-graphite-800 dark:bg-graphite-900">
           {items.length === 0 ? (
