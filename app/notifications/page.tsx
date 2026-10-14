@@ -23,10 +23,12 @@ export default function NotificationsPage() {
   const [items, setItems] = useState<Notification[]>([]);
   const [busy, setBusy] = useState(true);
   const [browserPermission, setBrowserPermission] = useState<string>("default");
+  const [webPushEnabled, setWebPushEnabled] = useState(false);
   const [browserMessage, setBrowserMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window) setBrowserPermission(Notification.permission);
+    if ("serviceWorker" in navigator) void navigator.serviceWorker.ready.then((registration) => registration.pushManager.getSubscription()).then((subscription) => { if (subscription) setWebPushEnabled(true); }).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -52,6 +54,7 @@ export default function NotificationsPage() {
       const message = await enableWebPush();
       const latest = items[0];
       if (latest?.id) window.localStorage.setItem("ttfl-browser-notifications-baseline", latest.id);
+      setWebPushEnabled(true);
       setBrowserMessage(message);
     } catch {
       setBrowserMessage("Could not enable browser notifications. Please try again.");
@@ -84,7 +87,7 @@ export default function NotificationsPage() {
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
             {unread > 0 && <button type="button" onClick={() => void markAllRead()} className="inline-flex items-center gap-2 rounded-card border border-graphite-200 bg-white px-3 py-2 text-xs font-semibold text-graphite-700 hover:bg-cloud-100 dark:border-graphite-700 dark:bg-graphite-900 dark:text-graphite-200"><CheckCheck className="h-4 w-4" />Mark all read</button>}
-            <button type="button" onClick={() => void enableBrowserNotifications()} disabled={browserPermission === "granted"} className="inline-flex items-center gap-2 rounded-card bg-ember-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-ember-700 disabled:cursor-default disabled:bg-verified-700"><BellRing className="h-4 w-4" />{browserPermission === "granted" ? "Browser alerts enabled" : "Enable browser alerts"}</button>
+            <button type="button" onClick={() => void enableBrowserNotifications()} disabled={webPushEnabled} className="inline-flex items-center gap-2 rounded-card bg-ember-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-ember-700 disabled:cursor-default disabled:bg-verified-700"><BellRing className="h-4 w-4" />{webPushEnabled ? "Web push enabled" : browserPermission === "granted" ? "Enable on this device" : "Enable browser alerts"}</button>
           </div>
         </div>
 
