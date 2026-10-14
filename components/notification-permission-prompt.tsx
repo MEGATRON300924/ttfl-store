@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { BellRing, X, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { enableWebPush } from "@/lib/web-push";
 
 const DISMISSED_KEY = "ttfl-notification-prompt-dismissed";
 
@@ -35,9 +36,10 @@ export function NotificationPermissionPrompt() {
     try {
       const permission = await Notification.requestPermission();
       if (permission === "granted") {
-        await navigator.serviceWorker.register("/sw.js");
+        const result = await enableWebPush();
         window.localStorage.setItem(DISMISSED_KEY, "1");
         setOpen(false);
+        window.dispatchEvent(new CustomEvent("ttfl-web-push-enabled", { detail: result }));
       } else {
         window.localStorage.setItem(DISMISSED_KEY, "1");
         setOpen(false);
