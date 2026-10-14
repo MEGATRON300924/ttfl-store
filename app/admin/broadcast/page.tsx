@@ -40,6 +40,7 @@ export default function BroadcastPage() {
   const [popup, setPopup] = useState(true);
   const [email, setEmail] = useState(false);
   const [whatsapp, setWhatsapp] = useState(false);
+  const [webNotification, setWebNotification] = useState(false);
   const [status, setStatus] = useState("");
   const [testStatus, setTestStatus] = useState("");
   const [testing, setTesting] = useState(false);
@@ -83,9 +84,10 @@ export default function BroadcastPage() {
   async function submit(event: FormEvent) {
     event.preventDefault(); setStatus("Sending...");
     try {
-      const result = await api.post<{ recipientCount: number; whatsappSent: number; whatsappFailed: number; whatsappSkipped: number }>("/api/broadcast/admin", { title, message, emailSubject: subject || undefined, sendPopup: popup, sendEmail: email, sendWhatsApp: whatsapp, audience: { mode, days: Number(days) } });
+      const result = await api.post<{ recipientCount: number; webNotificationsSent: number; whatsappSent: number; whatsappFailed: number; whatsappSkipped: number }>("/api/broadcast/admin", { title, message, emailSubject: subject || undefined, sendPopup: popup, sendEmail: email, sendWhatsApp: whatsapp, sendWebNotification: webNotification, audience: { mode, days: Number(days) } });
+      const webResult = webNotification ? ` Browser notifications: ${result.webNotificationsSent} queued.` : "";
       const whatsappResult = whatsapp ? ` WhatsApp: ${result.whatsappSent} sent, ${result.whatsappFailed} failed, ${result.whatsappSkipped} without phone.` : "";
-      setStatus(`Broadcast created for ${result.recipientCount} users.${whatsappResult}`); setTitle(""); setMessage(""); setSubject(""); await load();
+      setStatus(`Broadcast created for ${result.recipientCount} users.${webResult}${whatsappResult}`); setTitle(""); setMessage(""); setSubject(""); await load();
     } catch (error) { setStatus(error instanceof Error ? error.message : "Broadcast failed"); }
   }
 
@@ -141,13 +143,14 @@ export default function BroadcastPage() {
       <div><label className="text-sm font-semibold">Message</label><textarea value={message} onChange={e => setMessage(e.target.value)} required rows={6} maxLength={10000} className="mt-1 w-full rounded-card border border-graphite-200 px-3 py-2.5" /></div>
       <div><label className="text-sm font-semibold">Audience</label><select value={mode} onChange={e => setMode(e.target.value)} className="mt-1 w-full rounded-card border border-graphite-200 px-3 py-2.5"><option value="ALL">All active users</option><option value="NEW">New users</option><option value="EXISTING">Existing users</option><option value="VERIFIED">Verified email users</option><option value="UNVERIFIED">Unverified email users</option><option value="VENDORS">Vendors</option><option value="CUSTOMERS">Customers</option></select></div>
       {(mode === "NEW" || mode === "EXISTING") && <div><label className="text-sm font-semibold">Age window in days</label><input type="number" min="1" max="3650" value={days} onChange={e => setDays(e.target.value)} className="mt-1 w-full rounded-card border border-graphite-200 px-3 py-2.5" /></div>}
-      <div className="grid gap-3 sm:grid-cols-3"><label className="flex items-center gap-2 rounded-card border border-graphite-200 p-3"><input type="checkbox" checked={popup} onChange={e => setPopup(e.target.checked)} /> Popup notification</label><label className="flex items-center gap-2 rounded-card border border-graphite-200 p-3"><input type="checkbox" checked={email} onChange={e => setEmail(e.target.checked)} /> Email via Resend</label><label className="flex items-center gap-2 rounded-card border border-graphite-200 p-3"><input type="checkbox" checked={whatsapp} onChange={e => setWhatsapp(e.target.checked)} /> WhatsApp</label></div>
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><label className="flex items-center gap-2 rounded-card border border-graphite-200 p-3"><input type="checkbox" checked={popup} onChange={e => setPopup(e.target.checked)} /> Site popup</label><label className="flex items-center gap-2 rounded-card border border-graphite-200 p-3"><input type="checkbox" checked={webNotification} onChange={e => setWebNotification(e.target.checked)} /> Browser notification</label><label className="flex items-center gap-2 rounded-card border border-graphite-200 p-3"><input type="checkbox" checked={email} onChange={e => setEmail(e.target.checked)} /> Email via Resend</label><label className="flex items-center gap-2 rounded-card border border-graphite-200 p-3"><input type="checkbox" checked={whatsapp} onChange={e => setWhatsapp(e.target.checked)} /> WhatsApp</label></div>
+      {webNotification && <p className="text-xs text-graphite-500">Creates a saved notification for each selected user. Users who have allowed browser notifications can receive an alert while TTFL Store is open; users can always view it at /notifications.</p>}
       {email && <div><label className="text-sm font-semibold">Email subject</label><input value={subject} onChange={e => setSubject(e.target.value)} required={email} maxLength={200} className="mt-1 w-full rounded-card border border-graphite-200 px-3 py-2.5" /></div>}
       {whatsapp && <p className="text-xs text-graphite-500">WhatsApp messages are sent only to users with a saved phone number. Meta may require an approved WhatsApp message template for outbound messages outside an active customer conversation.</p>}
       <button type="submit" className="inline-flex items-center gap-2 rounded-card bg-graphite-900 px-5 py-2.5 text-sm font-semibold text-white"><Send className="h-4 w-4" /> Send broadcast</button>
       {status && <p className="text-sm text-graphite-600">{status}</p>}
     </form>
 
-    <section className="mt-8"><h2 className="font-bold">Recent broadcasts</h2><div className="mt-3 space-y-2">{history.map(item => <div key={item.id} className="rounded-card border border-graphite-200 p-4"><div className="flex justify-between gap-4"><strong>{item.title}</strong><span className="text-xs text-graphite-500">{new Date(item.createdAt).toLocaleString()}</span></div><p className="mt-1 text-sm text-graphite-600">{item.recipientCount} recipients · {item.sendPopup ? "Popup" : ""}{item.sendPopup && (item.sendEmail || item.sendWhatsApp) ? " + " : ""}{item.sendEmail ? "Email" : ""}{item.sendEmail && item.sendWhatsApp ? " + " : ""}{item.sendWhatsApp ? "WhatsApp" : ""}</p></div>)}</div></section>
+    <section className="mt-8"><h2 className="font-bold">Recent broadcasts</h2><div className="mt-3 space-y-2">{history.map(item => <div key={item.id} className="rounded-card border border-graphite-200 p-4"><div className="flex justify-between gap-4"><strong>{item.title}</strong><span className="text-xs text-graphite-500">{new Date(item.createdAt).toLocaleString()}</span></div><p className="mt-1 text-sm text-graphite-600">{item.recipientCount} recipients · {item.sendPopup ? "Popup" : ""}{item.sendPopup && (item.sendWebNotification || item.sendEmail || item.sendWhatsApp) ? " + " : ""}{item.sendWebNotification ? "Browser notification" : ""}{item.sendWebNotification && (item.sendEmail || item.sendWhatsApp) ? " + " : ""}{item.sendEmail ? "Email" : ""}{item.sendEmail && item.sendWhatsApp ? " + " : ""}{item.sendWhatsApp ? "WhatsApp" : ""}</p></div>)}</div></section>
   </div>;
 }
