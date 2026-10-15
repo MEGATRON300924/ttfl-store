@@ -1,6 +1,8 @@
 import type { MetadataRoute } from "next";
 import { api } from "@/lib/api-client";
 import type { ApiCategory, ApiProduct } from "@/lib/api-types";
+
+export const revalidate = 3600;
 const SITE_URL = "https://ttflstore.name.ng";
 const slugify = (value: string) => value.toLowerCase().normalize("NFKD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 async function getAllProducts(): Promise<ApiProduct[]> {
