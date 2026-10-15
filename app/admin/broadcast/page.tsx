@@ -166,7 +166,6 @@ export default function BroadcastPage() {
         {([
           ["autoFlashDeals", "Flash deals", "Automatically announce a newly created flash deal.", "flashDealsWeb", "flashDealsEmail"],
           ["autoSponsoredProducts", "Sponsored products", "Automatically announce a product when it becomes sponsored/featured.", "sponsoredWeb", "sponsoredEmail"],
-          ["autoNewProducts", "New products", "Automatically announce a newly published product.", "newProductsWeb", "newProductsEmail"],
         ] as const).map(([enabledKey, label, description, webKey, emailKey]) => <div key={enabledKey} className="rounded-card border border-graphite-200 p-4">
           <label className="flex items-start gap-3"><input type="checkbox" checked={preferences[enabledKey]} onChange={e => setPreferences(current => ({ ...current, [enabledKey]: e.target.checked }))} className="mt-1" /><span><strong>{label}</strong><span className="mt-1 block text-sm text-graphite-600">{description}</span></span></label>
           <div className="mt-3 flex flex-wrap gap-4 pl-6"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={preferences[webKey]} onChange={e => setPreferences(current => ({ ...current, [webKey]: e.target.checked }))} /> Web push</label><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={preferences[emailKey]} onChange={e => setPreferences(current => ({ ...current, [emailKey]: e.target.checked }))} /> Email</label></div>
