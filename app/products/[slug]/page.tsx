@@ -225,6 +225,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       ? Math.round(100 - (Number(product.price) / Number(product.previousPrice)) * 100)
       : null;
   const brand = getGoogleBrand(product);
+  const displayName = brand && !product.name.toLowerCase().startsWith(`${brand.toLowerCase()} `) ? `${brand} ${product.name}` : product.name;
   const gtin = getGoogleGtin(product);
   const mpn = getGoogleMpn(product);
   const imageUrls = Array.from(
@@ -300,7 +301,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
     return {
       "@type": "Product",
       "@id": canonical + "#variant-" + encodeURIComponent(variant.key),
-      name: product.name + " - " + variant.label,
+      name: displayName + " - " + variant.label,
       image: variantImage,
       sku: productGroupId + "-" + variant.key,
       ...(variantGtin ? { gtin: variantGtin } : {}),
@@ -345,8 +346,8 @@ export default async function ProductPage({ params }: { params: { slug: string }
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": variations.length ? "ProductGroup" : "Product",
-    name: product.name,
-    description: product.description,
+    name: displayName,
+    description: product.description || `Shop ${displayName} in Nigeria on TTFL Store.`,
     url: canonical,
     ...(variations.length
       ? {
@@ -409,7 +410,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
         items={[
           { name: "Home", url: "/" },
           { name: product.category.name, url: `/categories/${product.category.slug}` },
-          { name: product.name, url: `/products/${product.slug}` },
+          { name: displayName, url: `/products/${product.slug}` },
         ]}
       />
       <ProductJsonLd data={jsonLd} />
@@ -451,7 +452,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 -{discount}% OFF
               </span>
             )}
-            <h1 className="text-2xl font-bold tracking-tight text-graphite-900">{product.name}</h1>
+            <h1 className="text-2xl font-bold tracking-tight text-graphite-900">{displayName}</h1>
             {brand && <p className="mt-1 text-sm font-semibold text-ember-700">{brand}</p>}
             {product.comingSoon && (
               <div className="mt-2">
