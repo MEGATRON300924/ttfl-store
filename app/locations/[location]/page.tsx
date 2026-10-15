@@ -14,10 +14,11 @@ async function getLocationProducts(slug: string): Promise<{ location: string; pr
   const location = slug.replace(/-/g, " ");
   const response = await api.get<SearchResponse>(`/api/products?location=${encodeURIComponent(location)}&limit=48&page=1&sort=newest`);
   const products = (response.items ?? []).filter((product) => {
-    const value = String(product.location ?? product.vendor.location ?? "").trim();
-    return value && slugify(value) === slug;
+    const productLocation = String(product.location ?? "").trim();
+    const vendorLocation = String(product.vendor.location ?? "").trim();
+    return [productLocation, vendorLocation].some((value) => value && slugify(value) === slug);
   });
-  return { location: String(products[0]?.location ?? products[0]?.vendor.location ?? location).trim(), products };
+  return { location: String(products[0]?.location && slugify(products[0].location) === slug ? products[0].location : products[0]?.vendor.location ?? location).trim(), products };
 }
 function mapProduct(p: ApiProduct): Product { return { id: p.id, slug: p.slug, name: p.name, price: Number(p.price), previousPrice: p.previousPrice ? Number(p.previousPrice) : undefined, image: p.images?.[0]?.url ?? "", vendor: p.vendor.storeName, vendorSlug: p.vendor.storeSlug, verified: p.vendor.verified, location: p.location ?? p.vendor.location ?? "", rating: p.avgRating ? Number(p.avgRating) : 0, reviewCount: p.reviewCount, sellingMethod: p.sellingMethod === "EXTERNAL_LINK" ? "external" : p.sellingMethod === "WHATSAPP" ? "whatsapp" : "checkout" }; }
 export async function generateMetadata({ params }: { params: { location: string } }): Promise<Metadata> {
