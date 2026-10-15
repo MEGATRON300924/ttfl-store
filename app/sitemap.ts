@@ -15,7 +15,7 @@ async function getAllProducts(): Promise<ApiProduct[]> {
   return all;
 }
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticPaths = ["/", "/deals", "/categories", "/brands", "/locations", "/featured", "/support", "/support/vendors", "/support/refunds", "/about", "/trust", "/legal/terms", "/legal/privacy", "/docs", "/sell", "/sell/pricing"];
+  const staticPaths = ["/", "/shop", "/deals", "/categories", "/brands", "/locations", "/featured", "/stores", "/services", "/events", "/partners", "/support", "/support/vendors", "/support/refunds", "/about", "/trust", "/legal/terms", "/legal/privacy", "/docs", "/sell", "/sell/pricing"];
   const staticPages = staticPaths.map(path => ({ url: `${SITE_URL}${path}`, lastModified: new Date(), changeFrequency: (path === "/" || path === "/deals" ? "daily" : "weekly") as "daily" | "weekly", priority: path === "/" ? 1 : 0.7 }));
   try {
     const [categoriesRes, products] = await Promise.all([api.get<{ categories: ApiCategory[] }>("/api/categories"), getAllProducts()]);
