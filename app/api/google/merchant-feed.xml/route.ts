@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getGoogleBrand, getGoogleGtin, getGoogleMpn, getGoogleProductCategory, getGoogleVariantSpec } from "@/lib/google-product-data";
 
 const SITE_URL = "https://ttflstore.name.ng";
-const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000").replace(/\/$/, "");
+const API_URL = (process.env.NODE_ENV === "production" ? "https://ttfl-store-backend-af5u.onrender.com" : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000")).replace(/\/$/, "");
 
 type ProductImage = { url: string; isPrimary?: boolean; position?: number };
 type Product = {
