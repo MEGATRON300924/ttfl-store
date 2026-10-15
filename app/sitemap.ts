@@ -19,7 +19,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const [categoriesRes, products] = await Promise.all([api.get<{ categories: ApiCategory[] }>("/api/categories"), getAllProducts()]);
     const allCategories = categoriesRes.categories.flatMap(category => [category, ...(category.children ?? [])]);
     const categoryPages = allCategories.map(c => ({ url: `${SITE_URL}/categories/${c.slug}`, changeFrequency: "weekly" as const, priority: 0.7 }));
-    const productPages = products.filter(p => !p.comingSoon && p.status === "ACTIVE").map(p => ({ url: `${SITE_URL}/products/${p.slug}`, lastModified: new Date(p.updatedAt ?? p.createdAt ?? Date.now()), changeFrequency: "weekly" as const, priority: 0.8 }));
+    const productPages = products.filter(p => !p.comingSoon && p.status === "ACTIVE").map(p => ({ url: `${SITE_URL}/products/${p.slug}`, lastModified: new Date(), changeFrequency: "weekly" as const, priority: 0.8 }));
     const storePages = Array.from(new Set(products.map(p => p.vendor.storeSlug).filter(Boolean))).map(slug => ({ url: `${SITE_URL}/store/${slug}`, changeFrequency: "weekly" as const, priority: 0.65 }));
     const brands = Array.from(new Map(products.map(p => String(p.specifications?.brand ?? "").trim()).filter(Boolean).map(brand => [slugify(brand), brand])).entries()).filter(([slug]) => slug);
     const brandPages = brands.map(([slug]) => ({ url: `${SITE_URL}/brands/${slug}`, changeFrequency: "weekly" as const, priority: 0.65 }));
