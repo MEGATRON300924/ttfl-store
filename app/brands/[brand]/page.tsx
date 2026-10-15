@@ -34,7 +34,7 @@ export default async function BrandPage({ params }: { params: { brand: string } 
   const brand = result.brand;
   const mapped = products.map(mapProduct);
   return <main className="shell py-8 sm:py-12">
-    <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Brands", url: "/brands" }, { name, url: `/brands/${params.brand}` }]} />
+    <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Brands", url: "/brands" }, { name: brand, url: `/brands/${params.brand}` }]} />
     <ItemListJsonLd name={`${brand} products in Nigeria`} items={products.map(p => ({ name: p.name, url: `/products/${p.slug}`, image: p.images?.[0]?.url }))} />
     <nav className="text-xs text-graphite-500"><Link href="/">Home</Link> <span aria-hidden="true">/</span> <Link href="/brands">Brands</Link> <span aria-hidden="true">/</span> <span>{brand}</span></nav>
     <h1 className="mt-3 text-3xl font-bold text-graphite-950">{brand} Products in Nigeria</h1>
