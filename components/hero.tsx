@@ -30,12 +30,11 @@ export async function Hero() {
             THE OFFICIAL TTFL MARKETPLACE
           </span>
           <h1 className="mt-2 max-w-[20rem] text-[21px] font-bold leading-[1.12] tracking-tight text-white sm:mt-4 sm:max-w-lg sm:text-4xl sm:leading-tight lg:text-[42px]">
-            Buy it, sell it — with vendors you can trust.
+            Buy and sell products online in Nigeria.
           </h1>
           <p className="mt-2.5 max-w-md text-[13px] leading-relaxed text-graphite-400 sm:mt-4 sm:text-[15px]">
-            Thousands of listings from verified stores across Nigeria. Checkout
-            on TTFL, message on WhatsApp, or shop direct with the vendor —
-            your call.
+            Discover products from Nigerian sellers, compare prices, and shop through
+            secure checkout, WhatsApp, or direct vendor links.
           </p>
           <div className="mt-5 flex flex-wrap gap-2 sm:mt-7 sm:gap-3">
             <Link
