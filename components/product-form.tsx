@@ -84,10 +84,16 @@ export function ProductForm({ productId, initial, redirectTo, productType }: { p
 
     const rawName = form.name.trim();
     const brand = effectiveBrand;
+    // "Other" is a category/type fallback, not part of the customer-facing product name.
+    // Keep the selected category in product metadata for SEO instead of repeating it in the title.
+    const categoryIsOther = selectedCategory?.name.trim().toLowerCase() === "other";
+    const cleanName = categoryIsOther
+      ? rawName.replace(/^other[\\s:–—-]+/i, "").trim()
+      : rawName;
     const searchableName =
-      brand && !rawName.toLowerCase().startsWith(`${brand.toLowerCase()} `)
-        ? `${brand} ${rawName}`
-        : rawName;
+      brand && !cleanName.toLowerCase().startsWith(`${brand.toLowerCase()} `)
+        ? `${brand} ${cleanName}`
+        : cleanName;
     const payload: Record<string, unknown> = { name: searchableName, description: form.description.trim(), categorySlug: form.categorySlug, price: form.price.trim() ? Number(form.price) : 0, condition: form.condition, stock: Number(form.stock), images, videos, tags, specifications, sellingMethod: form.sellingMethod, estimatedDeliveryDays: deliveryDays, comingSoon: productType ? productType === "coming-soon" : form.comingSoon, availableAt: form.availableAt ? new Date(form.availableAt).toISOString() : null };
     if (form.previousPrice.trim()) payload.previousPrice = Number(form.previousPrice); if (form.location.trim()) payload.location = form.location.trim(); if (form.sellingMethod === "EXTERNAL_LINK") payload.externalUrl = form.externalUrl.trim(); if (form.sellingMethod === "WHATSAPP" && form.whatsappNumber.trim()) payload.whatsappNumber = form.whatsappNumber.trim();
     try { let savedProductId = productId; if (productId) await api.patch(`/api/products/${productId}`, payload); else { const response = await api.post<{ product: { id: string } }>("/api/products", payload); savedProductId = response.product.id; } if (savedProductId) await api.post(`/api/products/${savedProductId}/videos`, { videos }); router.push(redirectTo || "/vendor/dashboard/products"); }
