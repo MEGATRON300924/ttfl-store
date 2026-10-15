@@ -1,12 +1,16 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
-import { FileText, Megaphone, MessageSquareText, Send, Smartphone, Users } from "lucide-react";
+import { FileText, Megaphone, MessageSquareText, Send, Smartphone, Users, Search, X, Plus, Settings2, Image as ImageIcon } from "lucide-react";
 import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 
 type WhatsAppAudience = "ADMINS" | "CUSTOMERS";
 type WhatsAppType = "TEXT" | "TEMPLATE";
+type ProductReference = { id: string; name: string; slug: string; imageUrl: string | null; price: number; url?: string };
+type CampaignButton = { label: string; url: string };
+type BroadcastPreferences = { autoFlashDeals: boolean; autoSponsoredProducts: boolean; autoNewProducts: boolean; flashDealsWeb: boolean; flashDealsEmail: boolean; sponsoredWeb: boolean; sponsoredEmail: boolean; newProductsWeb: boolean; newProductsEmail: boolean };
+const DEFAULT_PREFERENCES: BroadcastPreferences = { autoFlashDeals: false, autoSponsoredProducts: false, autoNewProducts: false, flashDealsWeb: true, flashDealsEmail: false, sponsoredWeb: true, sponsoredEmail: false, newProductsWeb: true, newProductsEmail: false };
 
 type TemplatePreset = {
   id: string;
@@ -55,11 +59,36 @@ export default function BroadcastPage() {
   const [templatePreview, setTemplatePreview] = useState("");
   const [whatsappStatus, setWhatsappStatus] = useState("");
   const [whatsappSending, setWhatsappSending] = useState(false);
+  const [productSearch, setProductSearch] = useState("");
+  const [productResults, setProductResults] = useState<ProductReference[]>([]);
+  const [productReferences, setProductReferences] = useState<ProductReference[]>([]);
+  const [buttons, setButtons] = useState<CampaignButton[]>([]);
+  const [preferences, setPreferences] = useState<BroadcastPreferences>(DEFAULT_PREFERENCES);
+  const [preferencesStatus, setPreferencesStatus] = useState("");
+  const [preferencesSaving, setPreferencesSaving] = useState(false);
 
   async function load() {
     try { const result = await api.get<{ items: any[] }>("/api/broadcast/admin"); setHistory(result.items); } catch {}
   }
-  useEffect(() => { if (user?.role === "ADMIN") void load(); }, [user]);
+  useEffect(() => {
+    if (user?.role !== "ADMIN") return;
+    void load();
+    api.get<{ preferences: BroadcastPreferences }>("/api/broadcast/admin/preferences")
+      .then(result => setPreferences({ ...DEFAULT_PREFERENCES, ...result.preferences }))
+      .catch(() => setPreferencesStatus("Could not load automatic notification settings."));
+  }, [user]);
+
+  useEffect(() => {
+    const term = productSearch.trim();
+    if (user?.role !== "ADMIN" || term.length < 2) { setProductResults([]); return; }
+    let cancelled = false;
+    const timeout = setTimeout(() => {
+      api.get<{ items: ProductReference[] }>(`/api/broadcast/admin/products?search=${encodeURIComponent(term)}`)
+        .then(result => { if (!cancelled) setProductResults(result.items); })
+        .catch(() => { if (!cancelled) setProductResults([]); });
+    }, 250);
+    return () => { cancelled = true; clearTimeout(timeout); };
+  }, [productSearch, user]);
 
   const availablePresets = useMemo(() => TEMPLATE_PRESETS.filter(template => template.audience === whatsappAudience), [whatsappAudience]);
 
@@ -81,13 +110,30 @@ export default function BroadcastPage() {
     finally { setTesting(false); }
   }
 
+  function addProductReference(product: ProductReference) {
+    setProductReferences(current => current.some(item => item.id === product.id) || current.length >= 8 ? current : [...current, product]);
+    setProductSearch("");
+    setProductResults([]);
+  }
+
+  async function savePreferences() {
+    setPreferencesSaving(true); setPreferencesStatus("Saving automatic notification settings...");
+    try {
+      const result = await api.put<{ preferences: BroadcastPreferences }>("/api/broadcast/admin/preferences", preferences);
+      setPreferences({ ...DEFAULT_PREFERENCES, ...result.preferences });
+      setPreferencesStatus("Automatic notification settings saved.");
+    } catch (error) {
+      setPreferencesStatus(error instanceof Error ? error.message : "Could not save settings.");
+    } finally { setPreferencesSaving(false); }
+  }
+
   async function submit(event: FormEvent) {
     event.preventDefault(); setStatus("Sending...");
     try {
-      const result = await api.post<{ recipientCount: number; webNotificationsSent: number; whatsappSent: number; whatsappFailed: number; whatsappSkipped: number }>("/api/broadcast/admin", { title, message, emailSubject: subject || undefined, sendPopup: popup, sendEmail: email, sendWhatsApp: whatsapp, sendWebNotification: webNotification, audience: { mode, days: Number(days) } });
+      const result = await api.post<{ recipientCount: number; webNotificationsSent: number; whatsappSent: number; whatsappFailed: number; whatsappSkipped: number }>("/api/broadcast/admin", { title, message, emailSubject: subject || undefined, sendPopup: popup, sendEmail: email, sendWhatsApp: whatsapp, sendWebNotification: webNotification, productReferences, buttons, audience: { mode, days: Number(days) } });
       const webResult = webNotification ? ` Browser notifications: ${result.webNotificationsSent} queued.` : "";
       const whatsappResult = whatsapp ? ` WhatsApp: ${result.whatsappSent} sent, ${result.whatsappFailed} failed, ${result.whatsappSkipped} without phone.` : "";
-      setStatus(`Broadcast created for ${result.recipientCount} users.${webResult}${whatsappResult}`); setTitle(""); setMessage(""); setSubject(""); await load();
+      setStatus(`Broadcast created for ${result.recipientCount} users.${webResult}${whatsappResult}`); setTitle(""); setMessage(""); setSubject(""); setProductReferences([]); setButtons([]); await load();
     } catch (error) { setStatus(error instanceof Error ? error.message : "Broadcast failed"); }
   }
 
@@ -113,6 +159,22 @@ export default function BroadcastPage() {
 
   return <div className="shell py-8">
     <div className="flex items-center gap-3"><span className="grid h-11 w-11 place-items-center rounded-card bg-ember-100 text-ember-700"><Megaphone className="h-5 w-5" /></span><div><h1 className="text-xl font-bold">Broadcast Center</h1><p className="text-sm text-graphite-600">Target users with popup announcements, Resend email, and WhatsApp.</p></div></div>
+
+    <section className="mt-6 max-w-3xl rounded-card border border-graphite-200 p-6">
+      <div className="flex items-start gap-3"><span className="grid h-10 w-10 place-items-center rounded-card bg-cloud-100"><Settings2 className="h-5 w-5" /></span><div><h2 className="text-lg font-bold">Automatic notification settings</h2><p className="mt-1 text-sm text-graphite-600">Choose which store events can automatically notify customers. These controls are separate from manual broadcasts.</p></div></div>
+      <div className="mt-5 space-y-4">
+        {([
+          ["autoFlashDeals", "Flash deals", "Automatically announce a newly created flash deal.", "flashDealsWeb", "flashDealsEmail"],
+          ["autoSponsoredProducts", "Sponsored products", "Automatically announce a product when it becomes sponsored/featured.", "sponsoredWeb", "sponsoredEmail"],
+          ["autoNewProducts", "New products", "Automatically announce a newly published product.", "newProductsWeb", "newProductsEmail"],
+        ] as const).map(([enabledKey, label, description, webKey, emailKey]) => <div key={enabledKey} className="rounded-card border border-graphite-200 p-4">
+          <label className="flex items-start gap-3"><input type="checkbox" checked={preferences[enabledKey]} onChange={e => setPreferences(current => ({ ...current, [enabledKey]: e.target.checked }))} className="mt-1" /><span><strong>{label}</strong><span className="mt-1 block text-sm text-graphite-600">{description}</span></span></label>
+          <div className="mt-3 flex flex-wrap gap-4 pl-6"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={preferences[webKey]} onChange={e => setPreferences(current => ({ ...current, [webKey]: e.target.checked }))} /> Web push</label><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={preferences[emailKey]} onChange={e => setPreferences(current => ({ ...current, [emailKey]: e.target.checked }))} /> Email</label></div>
+        </div>)}
+        <button type="button" onClick={savePreferences} disabled={preferencesSaving} className="rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60">{preferencesSaving ? "Saving..." : "Save automatic settings"}</button>
+        {preferencesStatus && <p className="text-sm text-graphite-600">{preferencesStatus}</p>}
+      </div>
+    </section>
 
     <section className="mt-6 max-w-3xl rounded-card border border-graphite-200 p-5"><div className="flex flex-wrap items-center justify-between gap-4"><div><h2 className="font-bold">WhatsApp connection</h2><p className="mt-1 text-sm text-graphite-600">Test the Meta WhatsApp Cloud API using the configured admin number(s).</p></div><button type="button" onClick={testWhatsApp} disabled={testing} className="inline-flex items-center gap-2 rounded-card border border-graphite-300 px-4 py-2.5 text-sm font-semibold disabled:opacity-60"><Smartphone className="h-4 w-4" /> {testing ? "Testing..." : "Test WhatsApp — Admins"}</button></div>{testStatus && <p className="mt-3 text-sm text-graphite-600">{testStatus}</p>}</section>
 
@@ -141,6 +203,20 @@ export default function BroadcastPage() {
     <form onSubmit={submit} className="mt-6 max-w-3xl space-y-5 rounded-card border border-graphite-200 p-6">
       <div><label className="text-sm font-semibold">Title</label><input value={title} onChange={e => setTitle(e.target.value)} required maxLength={160} className="mt-1 w-full rounded-card border border-graphite-200 px-3 py-2.5" /></div>
       <div><label className="text-sm font-semibold">Message</label><textarea value={message} onChange={e => setMessage(e.target.value)} required rows={6} maxLength={10000} className="mt-1 w-full rounded-card border border-graphite-200 px-3 py-2.5" /></div>
+      <section className="rounded-card border border-graphite-200 p-4">
+        <div className="flex items-center gap-2"><ImageIcon className="h-4 w-4" /><h2 className="font-bold">Product references</h2></div>
+        <p className="mt-1 text-sm text-graphite-600">Attach products to show their image, name, price, and a direct product-page link in campaign emails.</p>
+        <div className="relative mt-3"><Search className="absolute left-3 top-3 h-4 w-4 text-graphite-500" /><input value={productSearch} onChange={e => setProductSearch(e.target.value)} placeholder="Search active products, e.g. iPhone 18" className="w-full rounded-card border border-graphite-200 py-2.5 pl-9 pr-3" />
+          {productResults.length > 0 && <div className="absolute z-20 mt-1 max-h-64 w-full overflow-auto rounded-card border border-graphite-200 bg-white shadow-lg">{productResults.map(product => <button type="button" key={product.id} onClick={() => addProductReference(product)} className="flex w-full items-center gap-3 border-b border-graphite-100 p-3 text-left last:border-0 hover:bg-cloud-50">{product.imageUrl ? <img src={product.imageUrl} alt="" className="h-12 w-12 rounded object-cover" /> : <span className="grid h-12 w-12 place-items-center rounded bg-cloud-100"><ImageIcon className="h-4 w-4" /></span>}<span className="min-w-0 flex-1"><strong className="block truncate text-sm">{product.name}</strong><span className="text-xs text-graphite-600">₦{product.price.toLocaleString("en-NG")}</span></span><Plus className="h-4 w-4" /></button>)}</div>}
+        </div>
+        {productSearch.trim().length >= 2 && productResults.length === 0 && <p className="mt-2 text-xs text-graphite-500">No matching active products found.</p>}
+        {productReferences.length > 0 && <div className="mt-3 space-y-2">{productReferences.map(product => <div key={product.id} className="flex items-center gap-3 rounded-card bg-cloud-50 p-3">{product.imageUrl ? <img src={product.imageUrl} alt="" className="h-12 w-12 rounded object-cover" /> : <span className="h-12 w-12 rounded bg-cloud-200" />}<span className="min-w-0 flex-1"><strong className="block truncate text-sm">{product.name}</strong><span className="text-xs text-graphite-600">₦{product.price.toLocaleString("en-NG")} · /products/{product.slug}</span></span><button type="button" aria-label={`Remove ${product.name}`} onClick={() => setProductReferences(current => current.filter(item => item.id !== product.id))} className="rounded p-2 hover:bg-white"><X className="h-4 w-4" /></button></div>)}</div>}
+      </section>
+      <section className="rounded-card border border-graphite-200 p-4">
+        <div className="flex items-center justify-between gap-3"><h2 className="font-bold">Custom buttons</h2><button type="button" disabled={buttons.length >= 5} onClick={() => setButtons(current => [...current, { label: "", url: "https://ttflstore.name.ng" }])} className="inline-flex items-center gap-1 rounded-card border border-graphite-200 px-3 py-2 text-xs font-semibold disabled:opacity-50"><Plus className="h-3 w-3" /> Add button</button></div>
+        <p className="mt-1 text-sm text-graphite-600">Buttons appear in campaign emails. Use a product URL for actions such as “View product” or “Shop now”.</p>
+        {buttons.map((button, index) => <div key={index} className="mt-3 grid gap-2 sm:grid-cols-[1fr_2fr_auto]"><input value={button.label} onChange={e => setButtons(current => current.map((item, i) => i === index ? { ...item, label: e.target.value } : item))} maxLength={40} placeholder="Button label, e.g. View product" className="rounded-card border border-graphite-200 px-3 py-2" /><input value={button.url} onChange={e => setButtons(current => current.map((item, i) => i === index ? { ...item, url: e.target.value } : item))} type="url" placeholder="https://ttflstore.name.ng/products/..." className="rounded-card border border-graphite-200 px-3 py-2" /><button type="button" aria-label="Remove button" onClick={() => setButtons(current => current.filter((_, i) => i !== index))} className="rounded-card border border-graphite-200 p-2"><X className="h-4 w-4" /></button></div>)}
+      </section>
       <div><label className="text-sm font-semibold">Audience</label><select value={mode} onChange={e => setMode(e.target.value)} className="mt-1 w-full rounded-card border border-graphite-200 px-3 py-2.5"><option value="ALL">All active users</option><option value="NEW">New users</option><option value="EXISTING">Existing users</option><option value="VERIFIED">Verified email users</option><option value="UNVERIFIED">Unverified email users</option><option value="VENDORS">Vendors</option><option value="CUSTOMERS">Customers</option></select></div>
       {(mode === "NEW" || mode === "EXISTING") && <div><label className="text-sm font-semibold">Age window in days</label><input type="number" min="1" max="3650" value={days} onChange={e => setDays(e.target.value)} className="mt-1 w-full rounded-card border border-graphite-200 px-3 py-2.5" /></div>}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><label className="flex items-center gap-2 rounded-card border border-graphite-200 p-3"><input type="checkbox" checked={popup} onChange={e => setPopup(e.target.checked)} /> Site popup</label><label className="flex items-center gap-2 rounded-card border border-graphite-200 p-3"><input type="checkbox" checked={webNotification} onChange={e => setWebNotification(e.target.checked)} /> Browser notification</label><label className="flex items-center gap-2 rounded-card border border-graphite-200 p-3"><input type="checkbox" checked={email} onChange={e => setEmail(e.target.checked)} /> Email via Resend</label><label className="flex items-center gap-2 rounded-card border border-graphite-200 p-3"><input type="checkbox" checked={whatsapp} onChange={e => setWhatsapp(e.target.checked)} /> WhatsApp</label></div>
