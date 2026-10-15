@@ -7,6 +7,9 @@ import { api } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { enableWebPush } from "@/lib/web-push";
 
+type NotificationProduct = { id: string; name: string; slug: string; imageUrl?: string | null; price?: number };
+type NotificationButton = { label: string; url: string };
+
 type Notification = {
   id: string;
   title: string;
@@ -101,6 +104,10 @@ export default function NotificationsPage() {
               <p className="mt-1 text-sm text-graphite-600 dark:text-graphite-400">Order and account updates will appear here.</p>
             </div>
           ) : items.map((item) => {
+            const data = item.data ?? {};
+            const productReferences = Array.isArray(data.productReferences) ? data.productReferences as NotificationProduct[] : [];
+            const buttons = Array.isArray(data.buttons) ? data.buttons as NotificationButton[] : [];
+            const markThisRead = () => { if (!item.readAt) void markRead(item.id); };
             const content = (
               <div className={"flex gap-4 px-5 py-4 transition hover:bg-cloud-50 dark:hover:bg-graphite-800/60 " + (!item.readAt ? "bg-ember-50/50 dark:bg-ember-950/10" : "")}>
                 <span className={"mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl " + (!item.readAt ? "bg-ember-100 text-ember-600 dark:bg-ember-900/40 dark:text-ember-300" : "bg-cloud-100 text-graphite-500 dark:bg-graphite-800 dark:text-graphite-300")}>
@@ -116,7 +123,18 @@ export default function NotificationsPage() {
                 </div>
               </div>
             );
-            return item.url ? <Link key={item.id} href={item.url} onClick={() => { if (!item.readAt) void markRead(item.id); }}>{content}</Link> : <button key={item.id} type="button" className="block w-full text-left" onClick={() => { if (!item.readAt) void markRead(item.id); }}>{content}</button>;
+            return (
+              <article key={item.id} className="border-b border-graphite-100 last:border-0 dark:border-graphite-800">
+                {item.url ? <Link href={item.url} onClick={markThisRead} className="block">{content}</Link> : <button type="button" className="block w-full text-left" onClick={markThisRead}>{content}</button>}
+                {productReferences.length > 0 && <div className="space-y-2 px-5 pb-4 pl-[4.5rem]">
+                  {productReferences.map((product) => <a key={product.id} href={`/products/${encodeURIComponent(product.slug)}`} onClick={markThisRead} className="flex items-center gap-3 rounded-card border border-graphite-200 p-3 transition hover:border-ember-400 dark:border-graphite-700">
+                    {product.imageUrl ? <img src={product.imageUrl} alt={product.name} className="h-14 w-14 shrink-0 rounded object-cover" /> : <span className="h-14 w-14 shrink-0 rounded bg-cloud-100 dark:bg-graphite-800" />}
+                    <span className="min-w-0 flex-1"><strong className="block text-sm text-graphite-900 dark:text-white">{product.name}</strong>{typeof product.price === "number" && <span className="mt-1 block text-sm text-graphite-600 dark:text-graphite-400">₦{product.price.toLocaleString("en-NG")}</span>}<span className="mt-1 block text-xs font-semibold text-ember-700 dark:text-ember-300">View product →</span></span>
+                  </a>)}
+                </div>}
+                {buttons.length > 0 && <div className="flex flex-wrap gap-2 px-5 pb-4 pl-[4.5rem]">{buttons.filter((button) => button && typeof button.label === "string" && typeof button.url === "string" && /^https?:\/\//i.test(button.url)).map((button, index) => <a key={index} href={button.url} target={button.url.startsWith("https://ttflstore.name.ng/") || button.url === "https://ttflstore.name.ng" ? undefined : "_blank"} rel="noreferrer" onClick={markThisRead} className="inline-flex items-center rounded-card bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-ember-700">{button.label} <span aria-hidden="true" className="ml-2">→</span></a>)}</div>}
+              </article>
+            );
           })}
         </div>
       </div>
