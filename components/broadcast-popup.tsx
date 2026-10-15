@@ -11,6 +11,8 @@ type BroadcastItem = {
   title: string;
   message: string;
   createdAt: string;
+  productReferences?: Array<{ id: string; name: string; slug: string; imageUrl?: string | null; price?: number }>;
+  buttons?: Array<{ label: string; url: string }>;
 };
 
 export function BroadcastPopup() {
@@ -79,6 +81,8 @@ export function BroadcastPopup() {
             <p className="mt-2 whitespace-pre-line text-sm leading-6 text-graphite-700">{item.message}</p>
           </div>
         </div>
+        {item.productReferences?.length ? <div className="mt-4 space-y-3">{item.productReferences.map(product => <a key={product.id} href={`/products/${product.slug}`} className="flex items-center gap-3 rounded-card border border-graphite-200 p-3 transition hover:border-ember-400">{product.imageUrl ? <img src={product.imageUrl} alt={product.name} className="h-16 w-16 shrink-0 rounded object-cover" /> : <span className="h-16 w-16 shrink-0 rounded bg-cloud-100" />}<span className="min-w-0 flex-1"><strong className="block text-sm text-graphite-900">{product.name}</strong>{typeof product.price === "number" && <span className="mt-1 block text-sm text-graphite-600">₦{product.price.toLocaleString("en-NG")}</span>}<span className="mt-1 block text-xs font-semibold text-ember-700">View product →</span></span></a>)}</div> : null}
+        {item.buttons?.length ? <div className="mt-4 flex flex-wrap gap-2">{item.buttons.map((button, buttonIndex) => <a key={buttonIndex} href={button.url} className="inline-flex rounded-card bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-ember-700">{button.label}</a>)}</div> : null}
         <div className="mt-5 flex items-center justify-between gap-3 border-t border-graphite-100 pt-4">
           <span className="text-xs text-graphite-400">{items.length > 1 ? `${index + 1} of ${items.length}` : "Announcement"}</span>
           <button onClick={dismissCurrent} className="rounded-card bg-graphite-900 px-4 py-2 text-sm font-semibold text-white hover:bg-graphite-800">
