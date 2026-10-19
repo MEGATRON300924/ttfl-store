@@ -44,8 +44,11 @@ export function NotificationPermissionPrompt() {
         window.localStorage.setItem(DISMISSED_KEY, "1");
         setOpen(false);
       }
-    } catch {
-      setMessage("We couldn't enable notifications. You can try again from Notification settings in your account.");
+    } catch (error) {
+      // Keep the actual failure visible so configuration, authentication, and
+      // browser/service-worker errors can be diagnosed instead of masking them.
+      const reason = error instanceof Error ? error.message : "An unexpected error occurred.";
+      setMessage(`We couldn't enable notifications: ${reason} You can try again from Notification settings in your account.`);
     } finally {
       setBusy(false);
     }
