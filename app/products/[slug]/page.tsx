@@ -522,6 +522,9 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 <div className="mt-4">
                   <DeliveryEstimate days={product.estimatedDeliveryDays ?? 7} />
                 </div>
+                <p className="mt-2 text-sm text-graphite-600 dark:text-graphite-300">
+                  Shipping: {product.deliveryFee == null ? "Standard delivery fee applies at checkout" : Number(product.deliveryFee) === 0 ? "Free shipping" : formatNaira(Number(product.deliveryFee))}
+                </p>
 
                 {store?.reviewHealth?.caution && (
                   <div className="mb-4 rounded-xl border border-gold-300 bg-gold-50 p-4 dark:border-gold-500/30 dark:bg-gold-950/20">
