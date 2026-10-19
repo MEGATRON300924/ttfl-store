@@ -17,7 +17,7 @@ export function ProductPurchaseActions({ product, selectedVariant = null }: { pr
   const outOfStock = product.stock <= 0 || product.status === "OUT_OF_STOCK";
 
   function addLineToCart(andCheckout: boolean) {
-    cart.add({ productId: product.id, variantKey: selectedVariant?.key, variantLabel: selectedVariant?.label, name: `${product.specifications?._productType === "pre-order" ? "[Pre-order] " : ""}${selectedVariant ? `${product.name} — ${selectedVariant.label}` : product.name}`, slug: product.slug, price: variantPrice, image: primaryImage?.url ?? "", vendorId: product.vendor.id, categoryId: product.category.id, vendorName: product.vendor.storeName, maxStock: product.stock }, quantity);
+    cart.add({ productId: product.id, variantKey: selectedVariant?.key, variantLabel: selectedVariant?.label, name: `${product.specifications?._productType === "pre-order" ? "[Pre-order] " : ""}${selectedVariant ? `${product.name} — ${selectedVariant.label}` : product.name}`, slug: product.slug, price: variantPrice, deliveryFee: product.deliveryFee == null ? null : Number(product.deliveryFee), image: primaryImage?.url ?? "", vendorId: product.vendor.id, categoryId: product.category.id, vendorName: product.vendor.storeName, maxStock: product.stock }, quantity);
     if (andCheckout) router.push("/cart");
   }
 
