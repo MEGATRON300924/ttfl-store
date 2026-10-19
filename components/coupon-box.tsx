@@ -6,7 +6,7 @@ import { api, ApiError } from "@/lib/api-client";
 import { formatNaira } from "@/lib/mock-data";
 import type { CartLine } from "@/lib/cart-context";
 
-export type AppliedCoupon = { code: string; discountAmount: number };
+export type AppliedCoupon = { code: string; type: "PERCENTAGE" | "FIXED" | "FREE_SHIPPING"; discountAmount: number };
 
 export function CouponBox({
   lines,
@@ -31,11 +31,11 @@ export function CouponBox({
       // Same validateCoupon() function real checkout calls — this is a
       // preview, not a second source of truth, so it can never show a
       // discount that checkout itself would reject.
-      const result = await api.post<{ coupon: { code: string }; discountAmount: number }>("/api/coupons/preview", {
+      const result = await api.post<{ coupon: { code: string; type: AppliedCoupon["type"] }; discountAmount: number }>("/api/coupons/preview", {
         code: code.trim(),
         lines: lines.map((l) => ({ vendorId: l.vendorId, categoryId: l.categoryId, productId: l.productId, lineTotal: l.price * l.quantity })),
       });
-      onApply({ code: result.coupon.code, discountAmount: result.discountAmount });
+      onApply({ code: result.coupon.code, type: result.coupon.type, discountAmount: result.discountAmount });
       setCode("");
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Couldn't apply that coupon");
@@ -50,7 +50,7 @@ export function CouponBox({
         <div className="flex items-center gap-2 text-sm text-verified-700">
           <Tag className="h-4 w-4" />
           <span className="font-mono font-semibold">{applied.code}</span>
-          <span>−{formatNaira(applied.discountAmount)}</span>
+          <span>{applied.type === "FREE_SHIPPING" ? "Free shipping" : `−${formatNaira(applied.discountAmount)}`}</span>
         </div>
         <button onClick={onRemove} aria-label="Remove coupon" className="text-verified-700 hover:text-verified-700/70">
           <X className="h-4 w-4" />
