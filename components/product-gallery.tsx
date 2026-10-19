@@ -6,9 +6,12 @@ import { Play } from "lucide-react";
 import type { ApiProductImage } from "@/lib/api-types";
 import { isVideoUrl } from "@/lib/media";
 import { ProductVideoPlayer } from "@/components/product-video-player";
+import { useProductVariation } from "@/components/product-variation-context";
 
 export function ProductGallery({ images, productName }: { images: ApiProductImage[]; productName: string }) {
   const sorted = [...images].sort((a, b) => a.position - b.position);
+  const variationContext = useProductVariation();
+  const variationImageUrl = variationContext?.selectedVariant?.imageUrl?.trim();
   const [activeIndex, setActiveIndex] = useState(0);
   const active = sorted[activeIndex] ?? sorted[0];
   const poster = sorted.find((item) => !isVideoUrl(item.url))?.url;
@@ -17,12 +20,14 @@ export function ProductGallery({ images, productName }: { images: ApiProductImag
     return <div className="aspect-square rounded-card bg-cloud-100" />;
   }
 
-  const activeIsVideo = isVideoUrl(active.url);
+  const activeIsVideo = !variationImageUrl && isVideoUrl(active.url);
 
   return (
     <div>
       <div className="relative aspect-square overflow-hidden rounded-card border border-graphite-200 bg-cloud-100">
-        {activeIsVideo ? (
+        {variationImageUrl ? (
+          <Image src={variationImageUrl} alt={`${productName} — ${variationContext?.selectedVariant?.label ?? "selected variation"}`} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" priority />
+        ) : activeIsVideo ? (
           <ProductVideoPlayer src={active.url} poster={poster} className="h-full w-full rounded-none" />
         ) : (
           <Image src={active.url} alt={productName} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" priority />
