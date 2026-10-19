@@ -8,7 +8,7 @@ import type { ApiCoupon } from "@/lib/api-types";
 
 export default function AdminCouponsPage() {
   const [coupons, setCoupons] = useState<ApiCoupon[] | null>(null);
-  const [form, setForm] = useState({ code: "", type: "PERCENTAGE" as "PERCENTAGE" | "FIXED", value: "" });
+  const [form, setForm] = useState({ code: "", type: "PERCENTAGE" as "PERCENTAGE" | "FIXED" | "FREE_SHIPPING", value: "" });
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -26,7 +26,7 @@ export default function AdminCouponsPage() {
     setError(null);
     setSubmitting(true);
     try {
-      await api.post("/api/coupons/admin", { code: form.code, type: form.type, value: Number(form.value) });
+      await api.post("/api/coupons/admin", { code: form.code, type: form.type, value: form.type === "FREE_SHIPPING" ? 0 : Number(form.value) });
       setForm({ code: "", type: "PERCENTAGE", value: "" });
       await load();
     } catch (err) {
@@ -53,14 +53,14 @@ export default function AdminCouponsPage() {
             <span className="font-medium text-graphite-700">Type</span>
             <select
               value={form.type}
-              onChange={(e) => setForm({ ...form, type: e.target.value as "PERCENTAGE" | "FIXED" })}
+              onChange={(e) => setForm({ ...form, type: e.target.value as "PERCENTAGE" | "FIXED" | "FREE_SHIPPING" })}
               className="rounded-[7px] border border-graphite-200 bg-white px-3 py-2.5 text-sm"
             >
               <option value="PERCENTAGE">Percentage off</option>
-              <option value="FIXED">Fixed amount off (₦)</option>
+              <option value="FIXED">Fixed amount off (₦)</option>\n              <option value="FREE_SHIPPING">Free shipping</option>
             </select>
           </label>
-          <TextField label="Value" type="number" value={form.value} onChange={(v) => setForm({ ...form, value: v })} />
+          {form.type !== "FREE_SHIPPING" ? <TextField label="Value" type="number" value={form.value} onChange={(v) => setForm({ ...form, value: v })} /> : <p className="self-center text-sm text-graphite-600">This coupon removes the delivery charge. No value is needed.</p>}
         </div>
         {error && <p className="rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}
         <button
@@ -83,7 +83,7 @@ export default function AdminCouponsPage() {
               <div>
                 <p className="font-mono text-sm font-semibold text-graphite-900">{c.code}</p>
                 <p className="text-xs text-graphite-600">
-                  {c.type === "PERCENTAGE" ? `${Number(c.value)}% off` : `${formatNaira(Number(c.value))} off`} ·{" "}
+                  {c.type === "FREE_SHIPPING" ? "Free shipping" : c.type === "PERCENTAGE" ? `${Number(c.value)}% off` : `${formatNaira(Number(c.value))} off`} ·{" "}
                   {c._count?.redemptions ?? 0} used
                 </p>
               </div>
