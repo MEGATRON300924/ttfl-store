@@ -9,6 +9,7 @@ import type { ApiProduct, ApiProductVariation, StoreBadge } from "@/lib/api-type
 import type { Product } from "@/lib/mock-data";
 import { isVideoUrl } from "@/lib/media";
 import { ProductGallery } from "@/components/product-gallery";
+import { ProductVariationProvider } from "@/components/product-variation-context";
 import { ProductPurchaseSection } from "@/components/product-purchase-section";
 import { ReviewsSection } from "@/components/reviews-section";
 import { WishlistButton } from "@/components/wishlist-button";
@@ -144,6 +145,17 @@ async function getRelatedProducts(category: string, currentSlug: string): Promis
   }
 }
 
+function cleanProductDisplayName(name: string, brand?: string | null, category?: string | null) {
+  let cleaned = name.replace(/\\s+/g, " ").trim();
+  for (const prefix of [brand, category]) {
+    const value = prefix?.trim();
+    if (!value || value.length < 2) continue;
+    const escaped = value.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\function cleanDescription(value: string, fallback: string) {");
+    cleaned = cleaned.replace(new RegExp("^" + escaped + "(?:\\s*[:–—-]\\s*|\\s+)", "i"), "").trim();
+  }
+  return cleaned || name.trim();
+}
+
 function cleanDescription(value: string, fallback: string) {
   const text = value.replace(/\s+/g, " ").trim();
   return (text || fallback).slice(0, 155);
@@ -165,12 +177,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   }
 
   const brand = product.specifications?.brand?.trim();
-  const displayName =
-    brand && product.name.toLowerCase().startsWith(`${brand.toLowerCase()} `)
-      ? product.name
-      : brand
-        ? `${brand} ${product.name}`
-        : product.name;
+  const displayName = cleanProductDisplayName(product.name, brand, product.category.name);
   const description = cleanDescription(
     product.description,
     `Shop ${displayName} in Nigeria on TTFL Store.`,
@@ -225,7 +232,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
       ? Math.round(100 - (Number(product.price) / Number(product.previousPrice)) * 100)
       : null;
   const brand = getGoogleBrand(product);
-  const displayName = brand && !product.name.toLowerCase().startsWith(`${brand.toLowerCase()} `) ? `${brand} ${product.name}` : product.name;
+  const displayName = cleanProductDisplayName(product.name, brand, product.category.name);
   const gtin = getGoogleGtin(product);
   const mpn = getGoogleMpn(product);
   const imageUrls = Array.from(
@@ -433,6 +440,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
           <span className="truncate text-graphite-900">{product.name}</span>
         </nav>
 
+        <ProductVariationProvider>
         <div className="grid gap-8 lg:grid-cols-2">
           <div className="relative">
             <ProductGallery images={product.images} productName={product.name} />
@@ -610,6 +618,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
             </Link>
           </div>
         </div>
+        </ProductVariationProvider>
 
         {sponsoredRelevant.length > 0 && (
           <section className="mt-10">
