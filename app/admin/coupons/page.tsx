@@ -57,7 +57,8 @@ export default function AdminCouponsPage() {
               className="rounded-[7px] border border-graphite-200 bg-white px-3 py-2.5 text-sm"
             >
               <option value="PERCENTAGE">Percentage off</option>
-              <option value="FIXED">Fixed amount off (₦)</option>\n              <option value="FREE_SHIPPING">Free shipping</option>
+              <option value="FIXED">Fixed amount off (₦)</option>
+              <option value="FREE_SHIPPING">Free shipping</option>
             </select>
           </label>
           {form.type !== "FREE_SHIPPING" ? <TextField label="Value" type="number" value={form.value} onChange={(v) => setForm({ ...form, value: v })} /> : <p className="self-center text-sm text-graphite-600">This coupon removes the delivery charge. No value is needed.</p>}
