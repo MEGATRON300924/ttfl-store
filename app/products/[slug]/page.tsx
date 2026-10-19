@@ -146,11 +146,19 @@ async function getRelatedProducts(category: string, currentSlug: string): Promis
 }
 
 function cleanProductDisplayName(name: string, brand?: string | null, category?: string | null) {
-  let cleaned = name.replace(/\\s+/g, " ").trim();
+  let cleaned = name.replace(/\s+/g, " ").trim();
   for (const prefix of [brand, category]) {
     const value = prefix?.trim();
-    if (!value || value.length < 2) continue;
-    const escaped = value.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\function cleanDescription(value: string, fallback: string) {");
+    if (!value || value.length < 2 || !cleaned.toLowerCase().startsWith(value.toLowerCase())) continue;
+    const remainder = cleaned.slice(value.length);
+    if (!remainder || /^[\s:–—-]/.test(remainder)) {
+      cleaned = remainder.replace(/^[\s:–—-]+/, "").trim();
+    }
+  }
+  return cleaned || name.trim();
+}
+
+function cleanDescription(value: string, fallback: string) {");
     cleaned = cleaned.replace(new RegExp("^" + escaped + "(?:\\s*[:–—-]\\s*|\\s+)", "i"), "").trim();
   }
   return cleaned || name.trim();
