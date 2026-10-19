@@ -10,7 +10,7 @@ const LABELS: Record<string, string> = {
   featured_category_price_per_day: "Category featured price (₦/day)",
   featured_search_price_per_day: "Search featured price (₦/day)",
   featured_store_price_per_day: "Featured store price (₦/day)",
-  min_payout_amount: "Minimum payout amount (₦)",
+  min_payout_amount: "Minimum payout amount (₦)",\n  delivery_fee: "Standard delivery fee (₦)",
 };
 
 export default function AdminSettingsPage() {
