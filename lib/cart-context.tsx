@@ -20,7 +20,7 @@ export type CartLine = {
   unavailable?: boolean;
 };
 
-export type AppliedCoupon = { code: string; discountAmount: number };
+export type AppliedCoupon = { code: string; type: "PERCENTAGE" | "FIXED" | "FREE_SHIPPING"; discountAmount: number };
 
 type CartState = {
   lines: CartLine[];
