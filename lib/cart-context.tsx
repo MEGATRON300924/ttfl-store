@@ -11,6 +11,7 @@ export type CartLine = {
   name: string;
   slug: string;
   price: number;
+  deliveryFee?: number | null;
   image: string;
   vendorId: string;
   vendorName: string;
@@ -42,6 +43,7 @@ type CartValidationResult = {
   price?: number;
   maxStock?: number;
   image?: string;
+  deliveryFee?: number | null;
 };
 
 const CartContext = createContext<CartState | null>(null);
@@ -114,6 +116,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               product: {
                 id: string;
                 price: string;
+                deliveryFee?: string | number | null;
                 stock: number;
                 status: string;
                 sellingMethod: string;
@@ -144,6 +147,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
               price: Number(product.price),
               maxStock: stock,
               image: primaryImage?.url ?? line.image,
+              deliveryFee: product.deliveryFee == null ? null : Number(product.deliveryFee),
             };
           } catch {
             return {
@@ -177,6 +181,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             price: result.price ?? line.price,
             maxStock: result.maxStock ?? line.maxStock,
             image: result.image ?? line.image,
+            deliveryFee: result.deliveryFee === undefined ? line.deliveryFee : result.deliveryFee,
             quantity: Math.min(
               line.quantity,
               result.maxStock ?? line.maxStock,
