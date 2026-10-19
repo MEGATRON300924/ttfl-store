@@ -158,12 +158,6 @@ function cleanProductDisplayName(name: string, brand?: string | null, category?:
   return cleaned || name.trim();
 }
 
-function cleanDescription(value: string, fallback: string) {");
-    cleaned = cleaned.replace(new RegExp("^" + escaped + "(?:\\s*[:–—-]\\s*|\\s+)", "i"), "").trim();
-  }
-  return cleaned || name.trim();
-}
-
 function cleanDescription(value: string, fallback: string) {
   const text = value.replace(/\s+/g, " ").trim();
   return (text || fallback).slice(0, 155);
