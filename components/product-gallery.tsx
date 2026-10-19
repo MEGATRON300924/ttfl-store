@@ -16,11 +16,11 @@ export function ProductGallery({ images, productName }: { images: ApiProductImag
   const active = sorted[activeIndex] ?? sorted[0];
   const poster = sorted.find((item) => !isVideoUrl(item.url))?.url;
 
-  if (!active) {
+  if (!active && !variationImageUrl) {
     return <div className="aspect-square rounded-card bg-cloud-100" />;
   }
 
-  const activeIsVideo = !variationImageUrl && isVideoUrl(active.url);
+  const activeIsVideo = !variationImageUrl && active ? isVideoUrl(active.url) : false;
 
   return (
     <div>
@@ -28,9 +28,9 @@ export function ProductGallery({ images, productName }: { images: ApiProductImag
         {variationImageUrl ? (
           <Image src={variationImageUrl} alt={`${productName} — ${variationContext?.selectedVariant?.label ?? "selected variation"}`} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" priority />
         ) : activeIsVideo ? (
-          <ProductVideoPlayer src={active.url} poster={poster} className="h-full w-full rounded-none" />
+          <ProductVideoPlayer src={active!.url} poster={poster} className="h-full w-full rounded-none" />
         ) : (
-          <Image src={active.url} alt={productName} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" priority />
+          <Image src={active!.url} alt={productName} fill sizes="(max-width: 1024px) 100vw, 50vw" className="object-cover" priority />
         )}
       </div>
       {sorted.length > 1 && (
