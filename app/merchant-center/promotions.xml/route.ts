@@ -60,7 +60,7 @@ function promotionEntry(deal: FlashDeal, now: Date): string | null {
 
   return `    <item>
       <g:promotion_id>${xml(`ttfl-flash-deal-${deal.id}`)}</g:promotion_id>
-      <g:product_applicability> specific_products </g:product_applicability>
+      <g:product_applicability>specific_products</g:product_applicability>
       <g:offer_type>no_code</g:offer_type>
       <g:long_title>${xml(title)}</g:long_title>
       <g:promotion_effective_dates>${xml(effectiveDates)}</g:promotion_effective_dates>
