@@ -54,7 +54,7 @@ export function GoogleCustomerReviewsOptIn({
           merchant_id: 5667260602,
           order_id: orderId,
           email,
-          delivery_country: (deliveryCountry || "NG").toUpperCase(),
+          delivery_country: /^(NG|NIGERIA)$/i.test(deliveryCountry || "") ? "NG" : (deliveryCountry || "NG").toUpperCase(),
           estimated_delivery_date: formattedDate,
         });
       });
