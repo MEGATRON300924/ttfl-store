@@ -36,7 +36,7 @@ export function GoogleCustomerReviewsBadge() {
     script.src = "https://www.gstatic.com/shopping/merchant/merchantwidget.js";
     script.defer = true;
     script.addEventListener("load", start, { once: true });
-    document.body.appendChild(script);
+    document.head.appendChild(script);
     return () => script.removeEventListener("load", start);
   }, []);
 
