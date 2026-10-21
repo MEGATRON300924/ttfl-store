@@ -685,7 +685,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                   More from {product.category.name}
                 </p>
                 <h2 className="mt-1 text-xl font-bold text-graphite-900 dark:text-white">
-                  You may also like
+                  Products you may like
                 </h2>
                 <p className="mt-1 text-sm text-graphite-600 dark:text-graphite-300">
                   Similar products from the same category.
