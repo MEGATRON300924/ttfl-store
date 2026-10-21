@@ -131,18 +131,30 @@ function mapRelatedProduct(p: ApiProduct): Product {
 }
 
 async function getRelatedProducts(category: string, currentSlug: string): Promise<Product[]> {
-  try {
-    const response = await api.get<{ items: ApiProduct[] }>(
-      `/api/products?category=${encodeURIComponent(category)}&sort=popular&page=1&limit=8`,
-    );
+  // Try popular products first, then newest products in the same category.
+  // A fallback prevents an unsupported/empty sort result from hiding the section.
+  for (const sort of ["popular", "newest"]) {
+    try {
+      const response = await api.get<{ items: ApiProduct[] }>(
+        `/api/products?category=${encodeURIComponent(category)}&sort=${sort}&page=1&limit=24`,
+      );
 
-    return (response.items ?? [])
-      .filter((item) => item.slug !== currentSlug && item.status === "ACTIVE")
-      .slice(0, 6)
-      .map(mapRelatedProduct);
-  } catch {
-    return [];
+      const matches = (response.items ?? []).filter(
+        (item) =>
+          item.slug !== currentSlug &&
+          item.status === "ACTIVE" &&
+          item.category?.slug === category,
+      );
+
+      if (matches.length > 0) {
+        return matches.slice(0, 6).map(mapRelatedProduct);
+      }
+    } catch {
+      // Try the next supported sort before giving up.
+    }
   }
+
+  return [];
 }
 
 function cleanProductDisplayName(name: string, brand?: string | null, category?: string | null) {
