@@ -68,14 +68,12 @@ export function GoogleCustomerReviewsOptIn({
       else existingScript.addEventListener("load", render, { once: true });
     } else {
       const script = document.createElement("script");
-      script.src = "https://apis.google.com/js/platform.js";
+      // Google calls renderOptIn when platform.js has finished loading.
+      (window as Window & { renderOptIn?: () => void }).renderOptIn = render;
+      script.src = "https://apis.google.com/js/platform.js?onload=renderOptIn";
       script.async = true;
       script.defer = true;
       script.dataset.ttflGoogleReviews = "true";
-      // Google's callback is called by the script loader; this callback is also
-      // safe to invoke directly if the library is already available.
-      (window as Window & { renderOptIn?: () => void }).renderOptIn = render;
-      script.addEventListener("load", render, { once: true });
       document.head.appendChild(script);
     }
 
