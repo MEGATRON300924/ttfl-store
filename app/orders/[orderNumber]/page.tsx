@@ -8,6 +8,8 @@ import { api, ApiError } from "@/lib/api-client";
 import { formatNaira } from "@/lib/mock-data";
 import type { ApiOrder, OrderStatus } from "@/lib/api-types";
 import { StoreReviewForm } from "@/components/store-review-form";
+import { useAuth } from "@/lib/auth-context";
+import { GoogleCustomerReviewsOptIn } from "@/components/google-customer-reviews";
 
 const STATUS_STYLES: Record<OrderStatus, string> = {
   PENDING: "bg-cloud-100 text-graphite-700",
@@ -24,6 +26,7 @@ const STATUS_STYLES: Record<OrderStatus, string> = {
 export default function OrderPage() {
   const params = useParams<{ orderNumber: string }>();
   const orderNumber = params.orderNumber;
+  const { user } = useAuth();
   const [order, setOrder] = useState<ApiOrder | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +44,22 @@ export default function OrderPage() {
   if (loading) return <main className="shell py-16 text-center"><p className="text-sm text-graphite-600">Loading order…</p></main>;
   if (error || !order) return <main className="shell py-16 text-center"><h1 className="text-xl font-bold text-graphite-900">Order not found</h1><p className="mt-2 text-sm text-graphite-600">{error ?? "This order is unavailable or you don't have access to it."}</p><Link href="/account" className="mt-6 inline-flex rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white">Back to account</Link></main>;
 
+  const explicitDeliveryDates = order.vendorOrders
+    .map((vendorOrder) => vendorOrder.estimatedDeliveryAt)
+    .filter((value): value is string => Boolean(value))
+    .map((value) => new Date(value))
+    .filter((value) => !Number.isNaN(value.getTime()));
+  const estimatedDays = order.vendorOrders
+    .flatMap((vendorOrder) => vendorOrder.items.map((item) => Number(item.estimatedDeliveryDays) || 0))
+    .filter((days) => days > 0);
+  const estimatedDeliveryDate = explicitDeliveryDates.length
+    ? new Date(Math.max(...explicitDeliveryDates.map((date) => date.getTime()))).toISOString()
+    : estimatedDays.length
+      ? new Date(new Date(order.createdAt).getTime() + Math.max(...estimatedDays) * 24 * 60 * 60 * 1000).toISOString()
+      : null;
+
   return <main className="shell py-8">
+    <GoogleCustomerReviewsOptIn orderId={order.orderNumber} email={user?.email ?? ""} deliveryCountry={order.deliveryCountry} estimatedDeliveryDate={estimatedDeliveryDate} enabled={order.paymentStatus === "PAID" && Boolean(user?.email)} />
     <Link href="/account" className="inline-flex items-center gap-2 text-sm font-medium text-graphite-600 hover:text-ember-600"><ArrowLeft className="h-4 w-4" /> Back to account</Link>
     <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
       <div><p className="text-xs font-semibold uppercase tracking-wide text-graphite-500">Order</p><h1 className="mt-1 font-mono text-2xl font-bold text-graphite-900">{order.orderNumber}</h1><p className="mt-1 text-sm text-graphite-500">{new Date(order.createdAt).toLocaleDateString("en-NG", { dateStyle: "medium" })}</p></div>
