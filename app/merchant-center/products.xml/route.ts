@@ -98,7 +98,7 @@ export async function GET() {
       Boolean(product.slug) &&
       Boolean(product.name) &&
       Number.isFinite(Number(product.price)) &&
-      Number(product.price) >= 0
+      Number(product.price) > 0
     );
 
     const body = `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">\n  <channel>\n    <title>TTFL Store Products</title>\n    <link>${SITE_URL}</link>\n    <description>Live product catalogue from TTFL Store</description>\n${eligible.map(productEntry).join("\n")}\n  </channel>\n</rss>\n`;
