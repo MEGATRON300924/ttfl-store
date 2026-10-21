@@ -68,7 +68,7 @@ export function GoogleCustomerReviewsOptIn({
       else existingScript.addEventListener("load", render, { once: true });
     } else {
       const script = document.createElement("script");
-      script.src = "https://apis.google.com/js/platform.js?onload=renderOptIn";
+      script.src = "https://apis.google.com/js/platform.js";
       script.async = true;
       script.defer = true;
       script.dataset.ttflGoogleReviews = "true";
