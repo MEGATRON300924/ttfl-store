@@ -159,6 +159,10 @@ async function getRelatedProducts(category: string, currentSlug: string): Promis
 
 function cleanProductDisplayName(name: string, brand?: string | null, category?: string | null) {
   let cleaned = name.replace(/\s+/g, " ").trim();
+
+  // "iPhone Air" is the actual product name, not a category prefix added to
+  // a generic title. Preserve it even when the product category is "iPhone".
+  if (/^iphone\s+air$/i.test(cleaned)) return cleaned;
   for (const prefix of [brand, category]) {
     const value = prefix?.trim();
     if (!value || value.length < 2 || !cleaned.toLowerCase().startsWith(value.toLowerCase())) continue;
