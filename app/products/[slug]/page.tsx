@@ -157,23 +157,12 @@ async function getRelatedProducts(category: string, currentSlug: string): Promis
   return [];
 }
 
-function cleanProductDisplayName(name: string, brand?: string | null, category?: string | null) {
-  let cleaned = name.replace(/\s+/g, " ").trim();
-
-  // "iPhone Air" is the actual product name, not a category prefix added to
-  // a generic title. Preserve it even when the product category is "iPhone".
-  if (/^iphone\s+air$/i.test(cleaned)) return cleaned;
-  for (const prefix of [brand, category]) {
-    const value = prefix?.trim();
-    if (!value || value.length < 2 || !cleaned.toLowerCase().startsWith(value.toLowerCase())) continue;
-    const remainder = cleaned.slice(value.length);
-    if (!remainder || /^[\s:–—-]/.test(remainder)) {
-      cleaned = remainder.replace(/^[\s:–—-]+/, "").trim();
-    }
-  }
-  return cleaned || name.trim();
+function cleanProductDisplayName(name: string, _brand?: string | null, _category?: string | null) {
+  // The saved product name is authoritative. Category and brand labels are
+  // metadata, not safe signals for deleting words from a real product/model
+  // name (for example, "iPhone Air" in the "iPhone" category).
+  return name.replace(/\\s+/g, " ").trim();
 }
-
 function cleanDescription(value: string, fallback: string) {
   const text = value.replace(/\s+/g, " ").trim();
   return (text || fallback).slice(0, 155);
