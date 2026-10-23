@@ -113,7 +113,7 @@ export default function VendorStoreSettingsPage() {
   useEffect(() => {
     let active = true;
     api.get<{ supportedCountries?: string[] }>("/api/vendors/me/markets")
-      .then((response) => { if (active) setSupportedCountries(response.supportedCountries?.includes("NG") ? response.supportedCountries : ["NG"]); })
+      .then((response) => { if (active) setSupportedCountries(response.supportedCountries?.length ? Array.from(new Set(["NG", ...response.supportedCountries])) : ["NG"]); })
       .catch(() => { if (active) setSupportedCountries(["NG"]); })
       .finally(() => { if (active) setMarketsLoading(false); });
     return () => { active = false; };
