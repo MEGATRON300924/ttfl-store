@@ -1,4 +1,4 @@
-export type Role = "CEUTOMER" | "VENDOR" | "ADMIN";
+export type Role = "CUSTOMER" | "VENDOR" | "ADMIN";
 export type VendorStatus = "PENDING" | "APPROVED" | "REJECTED" | "SUSPENDED";
 export type VendorTier = "FREE" | "PRO" | "BUSINESS" | "ENTERPRISE";
 export type ProductCondition = "NEW" | "USED";
@@ -25,7 +25,7 @@ export type ApiFeaturedStore = { id: string; vendorId: string; durationDays: num
 export type ApiPayout = { id: string; amount: string; status: "PENDING" | "APPROVED" | "REJECTED" | "PAID"; requestedAt: string; paidAt: string | null; note: string | null };
 export type ApiVendorBalance = { grossSales: number; totalCommission: number; totalEarnings: number; paidOut: number; availableBalance: number; payoutAccountConfigured: boolean; payoutAccountVerified: boolean; payoutBankName: string | null; payoutAccountLast4: string | null; payoutAccountName: string | null; settlementPending: number };
 export type ApiPaystackAccount = { configured: boolean; subaccountCode: string | null; bankName: string | null; accountLast4: string | null; accountName: string | null; active: boolean; verified: boolean; settlementSchedule?: string };
-export type ApiSupportConversation = { id: string; status: "OPEN" | "ASSIGNED" | "RESOLVED" | "CLOSED"; createdAt: string; updatedAt: string; messages: { id: string; body: string; senderType: "CEUTOMER" | "AGENT" | "SYSTEM"; createdAt: string }[]; customer?: { firstName: string; lastName: string; email: string } };
+export type ApiSupportConversation = { id: string; status: "OPEN" | "ASSIGNED" | "RESOLVED" | "CLOSED"; createdAt: string; updatedAt: string; messages: { id: string; body: string; senderType: "CUSTOMER" | "AGENT" | "SYSTEM"; createdAt: string }[]; customer?: { firstName: string; lastName: string; email: string } };
 export type ApiProductImage = { id: string; url: string; position: number; isPrimary: boolean };
 export type ApiProductVariation = { key: string; label: string; options: Record<string, string>; price: string; imageUrl?: string };
 export type ApiProduct = { id: string; publicProductId?: string; name: string; slug: string; description: string; price: string; previousPrice: string | null; euPrice?: string | null; euPreviousPrice?: string | null; deliveryFee?: string | number | null; currency: string; condition: ProductCondition; stock: number; status: ProductStatus; comingSoon?: boolean; availableAt?: string | null; launchedAt?: string | null; sponsored?: boolean; sponsoredAt?: string | null; tags?: string[]; sellingMethod: SellingMethod; externalUrl: string | null; whatsappNumber: string | null; location: string | null; viewCount: number; avgRating: string | null; reviewCount: number; specifications: Record<string, string> | null; images: ApiProductImage[]; category: ApiCategory; vendor: { id: string; storeName: string; storeSlug: string; verified: boolean; location: string | null; whatsappNumber?: string | null }; estimatedDeliveryDays?: number };
