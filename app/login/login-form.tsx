@@ -11,9 +11,9 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setAuthenticatedUser } = useAuth();
-  const market = searchParams.get("market") === "US" ? "US" : "NG";
-  const registerHref = market === "US" ? `/register?market=US&next=${encodeURIComponent(searchParams.get("next") || "https://us.ttflstore.name.ng/")}` : "/register";
-  const forgotPasswordHref = market === "US" ? `/forgot-password?market=US&next=${encodeURIComponent(searchParams.get("next") || "https://us.ttflstore.name.ng/")}` : "/forgot-password";
+  const market = searchParams.get("market") === "EU" ? "EU" : "NG";
+  const registerHref = market === "EU" ? `/register?market=EU&next=${encodeURIComponent(searchParams.get("next") || "https://europe.ttflstore.name.ng/")}` : "/register";
+  const forgotPasswordHref = market === "EU" ? `/forgot-password?market=EU&next=${encodeURIComponent(searchParams.get("next") || "https://europe.ttflstore.name.ng/")}` : "/forgot-password";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -42,10 +42,10 @@ export function LoginForm() {
   async function continueToDestination(next: string | null) {
     const destination = next || "/";
     try {
-      if (market === "US") { const marketResult = await api.patch<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/me/market", { market: "US" }).catch(() => null); if (marketResult?.user) setAuthenticatedUser(marketResult.user); }
+      if (market === "EU") { const marketResult = await api.patch<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/me/market", { market: "EU" }).catch(() => null); if (marketResult?.user) setAuthenticatedUser(marketResult.user); }
       const url = new URL(destination, window.location.origin);
-      if (url.hostname === "us.ttflstore.name.ng") url.hostname = "europe.ttflstore.name.ng";
-      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng", "us.ttflstore.name.ng", "europe.ttflstore.name.ng"]);
+      if (url.hostname === "europe.ttflstore.name.ng") url.hostname = "europe.ttflstore.name.ng";
+      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng", "europe.ttflstore.name.ng", "europe.ttflstore.name.ng"]);
       if (url.origin !== window.location.origin && !allowedHosts.has(url.hostname)) throw new Error("Invalid redirect destination");
       if (url.origin === window.location.origin) {
         router.push(url.pathname + url.search + url.hash);
