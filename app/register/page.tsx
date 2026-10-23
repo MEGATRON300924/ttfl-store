@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, Mail } from "lucide-react";
@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth-context";
 import { TextField } from "@/components/text-field";
 import { GoogleSignIn } from "@/components/google-sign-in";
 
-export default function RegisterPage() {
+function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const loginHref = searchParams.get("market") === "US" ? `/login?market=US&next=${encodeURIComponent(searchParams.get("next") || "https://us.ttflstore.name.ng/")}` : "/login";
@@ -130,4 +130,8 @@ export default function RegisterPage() {
       )}
     </>
   );
+}
+
+export default function RegisterPage() {
+  return <Suspense fallback={null}><RegisterContent /></Suspense>;
 }
