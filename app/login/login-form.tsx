@@ -11,6 +11,7 @@ export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { setAuthenticatedUser } = useAuth();
+  const market = searchParams.get("market") === "US" ? "US" : "NG";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,13 +35,14 @@ export function LoginForm() {
     setError(null);
     setAuthenticatedUser(user);
     await continueToDestination(searchParams.get("next"));
-  }, [router, searchParams, setAuthenticatedUser]);
+  }, [router, searchParams, setAuthenticatedUser, market]);
 
   async function continueToDestination(next: string | null) {
     const destination = next || "/";
     try {
+      if (market === "US") await api.patch("/api/auth/me/market", { market: "US" }).catch(() => undefined);
       const url = new URL(destination, window.location.origin);
-      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng"]);
+      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng", "us.ttflstore.name.ng"]);
       if (url.origin !== window.location.origin && !allowedHosts.has(url.hostname)) throw new Error("Invalid redirect destination");
       if (url.origin === window.location.origin) {
         router.push(url.pathname + url.search + url.hash);
