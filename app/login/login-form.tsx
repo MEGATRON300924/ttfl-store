@@ -55,7 +55,8 @@ export function LoginForm() {
       url.searchParams.set("handoff", handoff.token);
       window.location.assign(url.toString());
     } catch {
-      router.push("/");
+      setError("We couldn’t complete sign-in. Please try again.");
+      setSubmitting(false);
     }
   }
 
