@@ -115,6 +115,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => { void refresh(); }, [refresh]);
+  useEffect(() => {
+    if (!user?.id) return;
+    let lastSentAt = 0;
+    const recordActivity = () => {
+      const now = Date.now();
+      if (now - lastSentAt < 5 * 60 * 1000) return;
+      lastSentAt = now;
+      void api.post("/api/auth/activity").catch((error) => {
+        if (error instanceof ApiError && error.status === 401) void refresh();
+      });
+    };
+    recordActivity();
+    const events: Array<keyof WindowEventMap> = ["pointerdown", "keydown", "scroll", "touchstart"];
+    for (const event of events) window.addEventListener(event, recordActivity, { passive: true });
+    return () => { for (const event of events) window.removeEventListener(event, recordActivity); };
+  }, [user?.id, refresh]);
+
   useEffect(() => { if (!loading) void refreshWishlist(); }, [loading, refreshWishlist]);
 
   return (
