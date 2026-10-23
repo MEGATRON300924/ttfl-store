@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle2, Mail } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
@@ -11,6 +11,8 @@ import { GoogleSignIn } from "@/components/google-sign-in";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const loginHref = searchParams.get("market") === "US" ? `/login?market=US&next=${encodeURIComponent(searchParams.get("next") || "https://us.ttflstore.name.ng/")}` : "/login";
   async function continueToDestination() {
     const next = new URLSearchParams(window.location.search).get("next");
     const destination = next || "/";
@@ -98,7 +100,7 @@ export default function RegisterPage() {
 
           <p className="mt-6 text-center text-sm text-graphite-600 dark:text-graphite-400">
             Already have an account?{" "}
-            <Link href="/login" className="font-medium text-ember-600 hover:text-ember-700">Log in</Link>
+            <Link href={loginHref} className="font-medium text-ember-600 hover:text-ember-700">Log in</Link>
           </p>
         </div>
       </div>
