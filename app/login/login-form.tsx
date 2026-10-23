@@ -12,6 +12,8 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const { setAuthenticatedUser } = useAuth();
   const market = searchParams.get("market") === "US" ? "US" : "NG";
+  const registerHref = market === "US" ? `/register?market=US&next=${encodeURIComponent(searchParams.get("next") || "https://us.ttflstore.name.ng/")}` : "/register";
+  const forgotPasswordHref = market === "US" ? `/forgot-password?market=US&next=${encodeURIComponent(searchParams.get("next") || "https://us.ttflstore.name.ng/")}` : "/forgot-password";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -81,7 +83,7 @@ export function LoginForm() {
           <label className="flex flex-col gap-1 text-sm">
             <div className="flex items-center justify-between">
               <span className="font-medium text-graphite-700">Password</span>
-              <Link href="/forgot-password" className="text-xs text-ember-600 hover:text-ember-700">Forgot password?</Link>
+              <Link href={forgotPasswordHref} className="text-xs text-ember-600 hover:text-ember-700">Forgot password?</Link>
             </div>
             <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} className="rounded-[7px] border border-graphite-200 px-3 py-2.5 text-sm outline-none focus:border-ember-600" />
           </label>
@@ -93,7 +95,7 @@ export function LoginForm() {
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-graphite-600">New here? <Link href="/register" className="font-medium text-ember-600 hover:text-ember-700">Create an account</Link></p>
+        <p className="mt-6 text-center text-sm text-graphite-600">New here? <Link href={registerHref} className="font-medium text-ember-600 hover:text-ember-700">Create an account</Link></p>
         <p className="mt-2 text-center text-sm text-graphite-600">Want to sell? <Link href="/sell" className="font-medium text-ember-600 hover:text-ember-700">Become a vendor</Link></p>
       </div>
     </div>
