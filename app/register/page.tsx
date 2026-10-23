@@ -15,8 +15,9 @@ export default function RegisterPage() {
     const next = new URLSearchParams(window.location.search).get("next");
     const destination = next || "/";
     try {
+      if (new URLSearchParams(window.location.search).get("market") === "US") await api.patch("/api/auth/me/market", { market: "US" }).catch(() => undefined);
       const url = new URL(destination, window.location.origin);
-      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng"]);
+      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng", "us.ttflstore.name.ng"]);
       if (url.origin !== window.location.origin && !allowedHosts.has(url.hostname)) throw new Error("Invalid redirect destination");
       if (url.origin === window.location.origin) { router.push(url.pathname + url.search + url.hash); return; }
       const handoff = await api.post<{ token: string }>("/api/auth/handoff/create", {});
@@ -37,6 +38,7 @@ export default function RegisterPage() {
     setSubmitting(true);
     try {
       const { user: createdUser } = await api.post<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/register/customer", { ...form, phone: form.phone.trim() });
+      if (new URLSearchParams(window.location.search).get("market") === "US") await api.patch("/api/auth/me/market", { market: "US" }).catch(() => undefined);
       setAuthenticatedUser(createdUser);
       setVerificationNotice(true);
     } catch (err) {
