@@ -40,8 +40,8 @@ function RegisterContent() {
     setSubmitting(true);
     try {
       const { user: createdUser } = await api.post<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/register/customer", { ...form, phone: form.phone.trim() });
-      if (new URLSearchParams(window.location.search).get("market") === "US") await api.patch("/api/auth/me/market", { market: "US" }).catch(() => undefined);
-      setAuthenticatedUser(createdUser);
+      const marketResult = new URLSearchParams(window.location.search).get("market") === "US" ? await api.patch<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/me/market", { market: "US" }).catch(() => null) : null;
+      setAuthenticatedUser(marketResult?.user ?? createdUser);
       setVerificationNotice(true);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Something went wrong");
