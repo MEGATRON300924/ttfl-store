@@ -42,7 +42,7 @@ export function LoginForm() {
   async function continueToDestination(next: string | null) {
     const destination = next || "/";
     try {
-      if (market === "US") await api.patch("/api/auth/me/market", { market: "US" }).catch(() => undefined);
+      if (market === "US") { const marketResult = await api.patch<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/me/market", { market: "US" }).catch(() => null); if (marketResult?.user) setAuthenticatedUser(marketResult.user); }
       const url = new URL(destination, window.location.origin);
       const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng", "us.ttflstore.name.ng"]);
       if (url.origin !== window.location.origin && !allowedHosts.has(url.hostname)) throw new Error("Invalid redirect destination");
