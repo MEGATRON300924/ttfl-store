@@ -19,6 +19,7 @@ function RegisterContent() {
     try {
       if (new URLSearchParams(window.location.search).get("market") === "US") await api.patch("/api/auth/me/market", { market: "US" }).catch(() => undefined);
       const url = new URL(destination, window.location.origin);
+      if (url.hostname === "us.ttflstore.name.ng") url.hostname = "europe.ttflstore.name.ng";
       const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng", "us.ttflstore.name.ng", "europe.ttflstore.name.ng"]);
       if (url.origin !== window.location.origin && !allowedHosts.has(url.hostname)) throw new Error("Invalid redirect destination");
       if (url.origin === window.location.origin) { router.push(url.pathname + url.search + url.hash); return; }
