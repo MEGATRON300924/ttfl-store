@@ -92,7 +92,7 @@ export function ProductForm({ productId, initial, redirectTo, productType }: { p
     // Keep the selected category in product metadata for SEO instead of repeating it in the title.
     const categoryIsOther = selectedCategory?.name.trim().toLowerCase() === "other";
     const cleanName = categoryIsOther
-      ? rawName.replace(/^other[\\s:–—-]+/i, "").trim()
+      ? rawName.replace(/^other[\s:–—-]+/i, "").trim()
       : rawName;
     const searchableName =
       brand && !cleanName.toLowerCase().startsWith(`${brand.toLowerCase()} `)
