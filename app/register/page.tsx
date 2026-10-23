@@ -12,15 +12,15 @@ import { GoogleSignIn } from "@/components/google-sign-in";
 function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const loginHref = searchParams.get("market") === "US" ? `/login?market=US&next=${encodeURIComponent(searchParams.get("next") || "https://us.ttflstore.name.ng/")}` : "/login";
+  const loginHref = searchParams.get("market") === "EU" ? `/login?market=EU&next=${encodeURIComponent(searchParams.get("next") || "https://europe.ttflstore.name.ng/")}` : "/login";
   async function continueToDestination() {
     const next = new URLSearchParams(window.location.search).get("next");
     const destination = next || "/";
     try {
-      if (new URLSearchParams(window.location.search).get("market") === "US") await api.patch("/api/auth/me/market", { market: "US" }).catch(() => undefined);
+      if (new URLSearchParams(window.location.search).get("market") === "EU") await api.patch("/api/auth/me/market", { market: "EU" }).catch(() => undefined);
       const url = new URL(destination, window.location.origin);
-      if (url.hostname === "us.ttflstore.name.ng") url.hostname = "europe.ttflstore.name.ng";
-      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng", "us.ttflstore.name.ng", "europe.ttflstore.name.ng"]);
+      if (url.hostname === "europe.ttflstore.name.ng") url.hostname = "europe.ttflstore.name.ng";
+      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng", "europe.ttflstore.name.ng", "europe.ttflstore.name.ng"]);
       if (url.origin !== window.location.origin && !allowedHosts.has(url.hostname)) throw new Error("Invalid redirect destination");
       if (url.origin === window.location.origin) { router.push(url.pathname + url.search + url.hash); return; }
       const handoff = await api.post<{ token: string }>("/api/auth/handoff/create", {});
@@ -41,7 +41,7 @@ function RegisterContent() {
     setSubmitting(true);
     try {
       const { user: createdUser } = await api.post<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/register/customer", { ...form, phone: form.phone.trim() });
-      const marketResult = new URLSearchParams(window.location.search).get("market") === "US" ? await api.patch<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/me/market", { market: "US" }).catch(() => null) : null;
+      const marketResult = new URLSearchParams(window.location.search).get("market") === "EU" ? await api.patch<{ user: import("@/lib/api-types").ApiUser }>("/api/auth/me/market", { market: "EU" }).catch(() => null) : null;
       setAuthenticatedUser(marketResult?.user ?? createdUser);
       setVerificationNotice(true);
     } catch (err) {
