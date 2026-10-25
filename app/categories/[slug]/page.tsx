@@ -15,5 +15,50 @@ function mapProduct(p: ApiProduct): Product { return { id: p.id, slug: p.slug, n
 async function getCategory(slug: string) { const response = await api.get<{ categories: Category[] }>("/api/categories"); return response.categories.flatMap(c => [c, ...(c.children ?? [])]).find(c => c.slug === slug); }
 async function getProducts(slug: string): Promise<ApiProduct[]> { const response = await api.get<{ items: ApiProduct[] }>(`/api/products?category=${encodeURIComponent(slug)}&limit=24&page=1&sort=newest`); return response.items ?? []; }
 async function getSponsored(slug: string): Promise<SponsoredCampaign[]> { try { const response = await api.get<{ campaigns: SponsoredCampaign[] }>(`/api/ads/active?category=${encodeURIComponent(slug)}`); return response.campaigns ?? []; } catch { return []; } }
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> { const category = await getCategory(params.slug).catch(() => undefined); const name = category?.name ?? params.slug.replace(/-/g, " "); if (!category) return { title: "Category not found", robots: { index: false, follow: true } }; return { title: `${name} — Buy & Sell in Nigeria`, description: `Browse ${name} products from vendors across Nigeria on TTFL Store.`, alternates: { canonical: `${SITE_URL}/categories/${params.slug}` }, openGraph: { title: `${name} | TTFL Store`, description: `Browse ${name} products on TTFL Store.`, url: `${SITE_URL}/categories/${params.slug}`, images: ["/ttflstore.png"] } }; }
-export default async function CategoryPage({ params }: { params: { slug: string } }) { const [category, products, sponsored] = await Promise.all([getCategory(params.slug).catch(() => undefined), getProducts(params.slug).catch(() => []), getSponsored(params.slug)]); if (!category) notFound(); const name = category.name; const mapped = products.map(mapProduct); return <main className="shell py-8 sm:py-12"><BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Categories", url: "/categories" }, { name, url: `/categories/${params.slug}` }]} /><ItemListJsonLd name={`${name} products`} items={products.map(p => ({ name: p.name, url: `/products/${p.slug}`, image: p.images?.[0]?.url }))} /><nav className="text-xs text-graphite-500"><Link href="/">Home</Link> <span aria-hidden="true">/</span> <Link href="/categories">Categories</Link> <span aria-hidden="true">/</span> <span>{name}</span></nav><h1 className="mt-3 text-3xl font-bold capitalize text-graphite-950">{name}</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-graphite-600">Shop {name} from sellers across Nigeria on TTFL Store.</p>{sponsored.length > 0 && <section aria-label={`Sponsored ${name} results`} className="mt-7"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-bold text-graphite-900">Sponsored in {name}</h2><span className="text-[11px] font-semibold uppercase tracking-wide text-ember-600">Paid placement</span></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{sponsored.slice(0, 6).map(c => <SponsoredPlacementCard key={c.id} campaign={c} />)}</div></section>}{mapped.length ? <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{mapped.map(p => <ProductCard key={p.id} product={p} />)}</div> : <div className="mt-8 rounded-card border border-dashed border-graphite-300 p-10 text-center text-sm text-graphite-600">No products are available in this category yet.</div>}</main>; }
+
+function getCategoryHeading(slug: string, categoryName: string) {
+  // Use shopper language for this important search landing page, even if the
+  // backend category label is shorter or internally named.
+  if (slug === "computers") return "Laptops and Computers in Nigeria";
+  return categoryName;
+}
+
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const category = await getCategory(params.slug).catch(() => undefined);
+  if (!category) return { title: "Category not found", robots: { index: false, follow: true } };
+  const heading = getCategoryHeading(params.slug, category.name);
+  const isComputers = params.slug === "computers";
+  const title = isComputers ? "Laptops and Computers in Nigeria for Sale" : `${heading} — Buy & Sell in Nigeria`;
+  const description = isComputers
+    ? "Browse laptops, desktop computers, gaming PCs and computer accessories for sale across Nigeria on TTFL Store."
+    : `Browse ${heading} products from vendors across Nigeria on TTFL Store.`;
+  return {
+    title,
+    description,
+    alternates: { canonical: `${SITE_URL}/categories/${params.slug}` },
+    openGraph: { title, description, url: `${SITE_URL}/categories/${params.slug}`, images: ["/ttflstore.png"] },
+  };
+}
+
+export default async function CategoryPage({ params }: { params: { slug: string } }) {
+  const [category, products, sponsored] = await Promise.all([
+    getCategory(params.slug).catch(() => undefined),
+    getProducts(params.slug).catch(() => []),
+    getSponsored(params.slug),
+  ]);
+  if (!category) notFound();
+  const heading = getCategoryHeading(params.slug, category.name);
+  const mapped = products.map(mapProduct);
+  const description = params.slug === "computers"
+    ? "Explore laptops, desktop computers, gaming computers and accessories from sellers across Nigeria."
+    : `Shop ${heading} from sellers across Nigeria on TTFL Store.`;
+  return <main className="shell py-8 sm:py-12">
+    <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Categories", url: "/categories" }, { name: heading, url: `/categories/${params.slug}` }]} />
+    <ItemListJsonLd name={`${heading} for sale`} items={products.map(p => ({ name: p.name, url: `/products/${p.slug}`, image: p.images?.[0]?.url }))} />
+    <nav className="text-xs text-graphite-500"><Link href="/">Home</Link> <span aria-hidden="true">/</span> <Link href="/categories">Categories</Link> <span aria-hidden="true">/</span> <span>{heading}</span></nav>
+    <h1 className="mt-3 text-3xl font-bold capitalize text-graphite-950">{heading}</h1>
+    <p className="mt-2 max-w-2xl text-sm leading-6 text-graphite-600">{description}</p>
+    {sponsored.length > 0 && <section aria-label={`Sponsored ${heading} results`} className="mt-7"><div className="mb-3 flex items-center justify-between"><h2 className="text-sm font-bold text-graphite-900">Sponsored in {heading}</h2><span className="text-[11px] font-semibold uppercase tracking-wide text-ember-600">Paid placement</span></div><div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">{sponsored.slice(0, 6).map(c => <SponsoredPlacementCard key={c.id} campaign={c} />)}</div></section>}
+    {mapped.length ? <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">{mapped.map(p => <ProductCard key={p.id} product={p} />)}</div> : <div className="mt-8 rounded-card border border-dashed border-graphite-300 p-10 text-center text-sm text-graphite-600">No products are available in this category yet.</div>}
+  </main>;
+}
