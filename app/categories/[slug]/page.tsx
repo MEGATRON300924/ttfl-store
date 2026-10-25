@@ -19,7 +19,7 @@ async function getSponsored(slug: string): Promise<SponsoredCampaign[]> { try { 
 function getCategoryHeading(slug: string, categoryName: string) {
   // Use shopper language for this important search landing page, even if the
   // backend category label is shorter or internally named.
-  if (slug === "computers") return "Laptops and Computers in Nigeria";
+  if (slug === "computers") return "Laptops and Computers for Sale in Nigeria";
   return categoryName;
 }
 
@@ -28,15 +28,34 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   if (!category) return { title: "Category not found", robots: { index: false, follow: true } };
   const heading = getCategoryHeading(params.slug, category.name);
   const isComputers = params.slug === "computers";
-  const title = isComputers ? "Laptops and Computers in Nigeria for Sale" : `${heading} — Buy & Sell in Nigeria`;
+  const title = isComputers
+    ? "Laptops & Computers for Sale in Nigeria | TTFL Store"
+    : `${heading} for Sale in Nigeria | TTFL Store`;
   const description = isComputers
-    ? "Browse laptops, desktop computers, gaming PCs and computer accessories for sale across Nigeria on TTFL Store."
-    : `Browse ${heading} products from vendors across Nigeria on TTFL Store.`;
+    ? "Shop laptops, desktop computers, gaming PCs and computer accessories for sale in Nigeria. Compare listings and prices from sellers on TTFL Store."
+    : `Browse ${heading.toLowerCase()} for sale in Nigeria. Discover listings from sellers across the country on TTFL Store.`;
+  const canonical = `${SITE_URL}/categories/${params.slug}`;
   return {
     title,
     description,
-    alternates: { canonical: `${SITE_URL}/categories/${params.slug}` },
-    openGraph: { title, description, url: `${SITE_URL}/categories/${params.slug}`, images: ["/ttflstore.png"] },
+    keywords: isComputers
+      ? ["laptops for sale in Nigeria", "computers for sale in Nigeria", "buy laptop Nigeria", "desktop computers Nigeria", "gaming PCs Nigeria", "computer accessories Nigeria"]
+      : [heading, `${heading} for sale in Nigeria`, `buy ${heading.toLowerCase()} in Nigeria`],
+    alternates: { canonical },
+    openGraph: {
+      type: "website",
+      siteName: "TTFL Store",
+      title,
+      description,
+      url: canonical,
+      images: [{ url: "/ttflstore.png", width: 1200, height: 630, alt: "TTFL Store" }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: ["/ttflstore.png"],
+    },
   };
 }
 
@@ -50,7 +69,7 @@ export default async function CategoryPage({ params }: { params: { slug: string 
   const heading = getCategoryHeading(params.slug, category.name);
   const mapped = products.map(mapProduct);
   const description = params.slug === "computers"
-    ? "Explore laptops, desktop computers, gaming computers and accessories from sellers across Nigeria."
+    ? "Browse laptops, desktop computers, gaming PCs and computer accessories listed by sellers across Nigeria. Compare available products and prices before you buy."
     : `Shop ${heading} from sellers across Nigeria on TTFL Store.`;
   return <main className="shell py-8 sm:py-12">
     <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Categories", url: "/categories" }, { name: heading, url: `/categories/${params.slug}` }]} />
