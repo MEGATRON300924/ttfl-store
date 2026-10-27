@@ -15,13 +15,22 @@ type Setup = {
 export default function StoreSetupPage() {
   const [data, setData] = useState<Setup | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    void api
-      .get<Setup>("/api/store-hours/setup")
-      .then(setData)
-      .catch((e) => setError(e instanceof ApiError ? e.message : "Couldn't load your store setup."));
-  }, []);
+  async function loadSetup() {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await api.get<Setup>("/api/store-hours/setup");
+      setData(result);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : "Could not load your store setup.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => { void loadSetup(); }, []);
 
   return (
     <main className="shell py-8">
@@ -37,6 +46,8 @@ export default function StoreSetupPage() {
             </p>
           </div>
         </div>
+
+        {loading && !data && <p className="mt-7 rounded-card border border-graphite-200 bg-white p-5 text-sm text-graphite-600 dark:border-graphite-700 dark:bg-graphite-900 dark:text-graphite-300">Loading your store setup progress…</p>}
 
         {data && (
           <div className="mt-7 rounded-card border border-graphite-200 bg-white p-5 dark:border-graphite-700 dark:bg-graphite-900">
@@ -78,7 +89,7 @@ export default function StoreSetupPage() {
           </div>
         )}
 
-        {error && <p className="mt-4 text-sm font-semibold text-ember-700">{error}</p>}
+        {error && <div className="mt-4 rounded-xl border border-ember-200 bg-ember-50 p-4 dark:border-ember-900 dark:bg-ember-950/30"><p className="text-sm font-semibold text-ember-700 dark:text-ember-300">{error}</p><button type="button" onClick={() => void loadSetup()} disabled={loading} className="mt-3 rounded-lg bg-ember-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{loading ? "Retrying…" : "Try again"}</button></div>}
 
         <div className="mt-5 flex flex-wrap gap-2">
           <Link
