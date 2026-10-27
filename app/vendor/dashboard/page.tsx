@@ -78,6 +78,7 @@ export default function VendorDashboardPage() {
   const [growth, setGrowth] = useState<Growth | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [setup, setSetup] = useState<Setup | null>(null);
+  const [setupError, setSetupError] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [showWhatsAppPopup, setShowWhatsAppPopup] = useState(false);
   const [accountAction, setAccountAction] = useState<"disable" | "delete" | null>(null);
@@ -106,11 +107,11 @@ export default function VendorDashboardPage() {
 
   useEffect(() => {
     if (loading || !user || !membership?.isOwner || user.vendorProfile?.status !== "APPROVED") return;
-    void api.get<Setup>("/api/store-hours/setup").then(setSetup).catch(() => undefined);
+    void api.get<Setup>("/api/store-hours/setup").then((result) => { setSetup(result); setSetupError(null); }).catch((error) => setSetupError(error instanceof ApiError ? error.message : "Could not load store setup progress."));
     void api.get<{ rewards: Array<{ id:string; status:string; rewardTier:string; rewardMonths:number; affiliateDisplayName:string }> }>("/api/affiliates/vendor-rewards").then(r => setVendorRewards(r.rewards || [])).catch(() => setVendorRewards([]));
 
     void Promise.allSettled([
-      api.get<{ products: Product[] }>("/api/products/mine"),
+      api.get<{ products: Product[] }>("/api/products/me/list"),
       api.get<{ subscription: { plan: { tier: string; productLimit: number | null } } | null }>("/api/subscriptions/me"),
       api.get<{ vendorOrders: Array<{ order?: { paymentStatus?: string } }> }>("/api/orders/vendor/me"),
     ]).then(([productResult, subscriptionResult, orderResult]) => {
@@ -288,7 +289,7 @@ export default function VendorDashboardPage() {
               <div className="card p-5 sm:p-6">
                 <div className="flex items-center justify-between"><div><h2 className="font-bold text-graphite-950 dark:text-white">Store setup</h2><p className="mt-1 text-sm text-graphite-500">Build buyer trust.</p></div><strong className="text-sm text-ember-600">{setupPercent}%</strong></div>
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-ember-100 dark:bg-ember-950"><div className="h-full rounded-full bg-ember-600" style={{ width: `${setupPercent}%` }}/></div>
-                <p className="mt-3 text-sm text-graphite-600 dark:text-graphite-400">{setup?.completed ?? 0} of {setup?.total ?? 0} setup items completed.</p>
+                <p className="mt-3 text-sm text-graphite-600 dark:text-graphite-400">{setup ? `${setup.completed} of ${setup.total} setup items completed.` : setupError ? setupError : "Loading your store setup progress…"}</p>
                 <Link href="/vendor/dashboard/store-setup" className="btn-secondary mt-5 w-full">Complete setup <ChevronRight size={16}/></Link>
               </div>
             </div>
