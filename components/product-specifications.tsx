@@ -29,7 +29,8 @@ export function ProductSpecifications({ categoryName, productName, specification
   const category = normalize(categoryName);
   const product = normalize(productName);
   const isComputer = category.includes("computer") || category.includes("laptop") || category.includes("pc");
-  const isPhone = category.includes("phone") || category.includes("tablet") || category === "iphone" || category === "samsung";
+  const isPhoneAccessory = ["phone case", "phone pouch", "phone accessories", "charger", "charging cable", "wireless charger", "power bank", "screen protector", "phone mount", "phone stand", "selfie stick", "phone grip", "stylus", "earphone", "earbud", "bluetooth headset", "memory card", "sim accessory"].some((term) => category.includes(term)) || ["pouch", "charger", "charging cable", "power bank", "screen protector", "phone case", "phone stand", "phone mount", "earbuds", "earphones", "stylus"].some((term) => product.includes(term));
+  const isPhone = !isPhoneAccessory && (category.includes("phone") || category.includes("tablet") || category === "iphone" || category === "samsung");
   const isGaming = category.includes("gaming");
   const fashionTerms = ["fashion", "clothing", "apparel", "garment", "shirt", "dress", "trouser", "jeans", "skirt", "coat", "jacket", "shoe", "footwear", "sneaker", "boot", "sandal", "bag", "handbag", "purse", "ring", "jewell", "jewel", "jewelry", "necklace", "pendant", "bracelet", "bangle", "earring", "watch", "sunglass", "eyewear", "belt", "hat", "cap", "scarf", "lingerie", "underwear", "sportswear", "traditional", "cultural wear"];
   const hasFashionCategory = fashionTerms.some((term) => category.includes(term));
@@ -83,6 +84,22 @@ export function ProductSpecifications({ categoryName, productName, specification
         <div className="grid gap-3 sm:grid-cols-2"><Field label="Screen Size" value={specifications.screenSize} onChange={(value) => set("screenSize", value)} hint="e.g. 14-inch, 15.6-inch" /><Field label="Operating System" value={specifications.operatingSystem} onChange={(value) => set("operatingSystem", value)} hint="e.g. Windows 11, macOS" /></div>
         <div className="grid gap-3 sm:grid-cols-2"><SelectField label="Condition" value={specifications.condition} options={["New", "Used", "Refurbished", "Open box"]} onChange={(value) => set("condition", value)} /><Field label="Warranty" value={specifications.warranty} onChange={(value) => set("warranty", value)} hint="e.g. 12 months, No warranty" /></div>
       </>}
+    </div>}
+
+    {isPhoneAccessory && <div className="flex flex-col gap-3">
+      <p className="text-xs leading-5 text-graphite-500 dark:text-graphite-400">Add compatibility and technical details so customers can find the right accessory through store search and product search engines.</p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        <SelectField label="Accessory type" value={specifications.accessoryType} options={["Phone pouch", "Phone case / cover", "Charger / power adapter", "Charging cable", "Wireless charger", "Power bank", "Screen protector", "Phone mount / stand", "Selfie stick / tripod", "Phone grip / ring holder", "Stylus pen", "Earphones / earbuds", "Bluetooth headset", "Memory card", "SIM accessory", "Other"]} onChange={(value) => set("accessoryType", value)} />
+        <Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} />
+        <Field label="Compatible device / model" value={specifications.compatibleDevice} onChange={(value) => set("compatibleDevice", value)} hint="e.g. iPhone 15 Pro, Samsung Galaxy A55, USB-C devices" />
+        <Field label="Connector / port" value={specifications.connector} onChange={(value) => set("connector", value)} hint="e.g. USB-C, Lightning, Micro-USB, USB-A" />
+        <Field label="Charging output" value={specifications.chargingOutput} onChange={(value) => set("chargingOutput", value)} hint="e.g. 20 W, 45 W, 65 W — chargers only" />
+        <Field label="Cable length" value={specifications.cableLength} onChange={(value) => set("cableLength", value)} hint="e.g. 1 m, 2 m — where applicable" />
+        <SelectField label="Material" value={specifications.material} options={["Silicone", "TPU", "Leather", "Fabric", "Plastic", "Metal", "Tempered glass", "Nylon", "Mixed materials", "Other"]} onChange={(value) => set("material", value)} />
+        <Field label="Colour" value={specifications.colour} onChange={(value) => set("colour", value)} />
+        <Field label="Capacity" value={specifications.capacity} onChange={(value) => set("capacity", value)} hint="e.g. 10,000 mAh — power banks only" />
+        <Field label="Features" value={specifications.keyFeatures} onChange={(value) => set("keyFeatures", value)} hint="e.g. fast charging, MagSafe compatible, shockproof" />
+      </div>
     </div>}
 
     {isPhone && <div className="flex flex-col gap-3">
@@ -143,6 +160,6 @@ export function ProductSpecifications({ categoryName, productName, specification
 
     {isSports && <div className="grid gap-3 sm:grid-cols-2"><Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} /><Field label="Sport" value={specifications.sport} onChange={(value) => set("sport", value)} /><Field label="Size" value={specifications.size} onChange={(value) => set("size", value)} /><Field label="Material" value={specifications.material} onChange={(value) => set("material", value)} /><Field label="Gender" value={specifications.gender} onChange={(value) => set("gender", value)} /><Field label="Age Group" value={specifications.ageGroup} onChange={(value) => set("ageGroup", value)} /></div>}
 
-    {!isComputer && !isPhone && !isGaming && !isFashion && !isBeauty && !isHome && !isVehicle && !isSports && !isSound && <div className="grid gap-3 sm:grid-cols-2"><Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} /><Field label="Model" value={specifications.model} onChange={(value) => set("model", value)} /><Field label="Product Type" value={specifications.productType} onChange={(value) => set("productType", value)} /><Field label="Colour" value={specifications.colour} onChange={(value) => set("colour", value)} /><Field label="Size / Dimensions" value={specifications.size ?? specifications.dimensions} onChange={(value) => { set("size", value); set("dimensions", value); }} /><Field label="Material" value={specifications.material} onChange={(value) => set("material", value)} /><SelectField label="Gender" value={specifications.gender} options={["Women", "Men", "Unisex", "Girls", "Boys", "Kids", "Baby", "Not gender-specific"]} onChange={(value) => set("gender", value)} /><Field label="Key Features" value={specifications.keyFeatures} onChange={(value) => set("keyFeatures", value)} /></div>}
+    {!isComputer && !isPhone && !isPhoneAccessory && !isGaming && !isFashion && !isBeauty && !isHome && !isVehicle && !isSports && !isSound && <div className="grid gap-3 sm:grid-cols-2"><Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} /><Field label="Model" value={specifications.model} onChange={(value) => set("model", value)} /><Field label="Product Type" value={specifications.productType} onChange={(value) => set("productType", value)} /><Field label="Colour" value={specifications.colour} onChange={(value) => set("colour", value)} /><Field label="Size / Dimensions" value={specifications.size ?? specifications.dimensions} onChange={(value) => { set("size", value); set("dimensions", value); }} /><Field label="Material" value={specifications.material} onChange={(value) => set("material", value)} /><SelectField label="Gender" value={specifications.gender} options={["Women", "Men", "Unisex", "Girls", "Boys", "Kids", "Baby", "Not gender-specific"]} onChange={(value) => set("gender", value)} /><Field label="Key Features" value={specifications.keyFeatures} onChange={(value) => set("keyFeatures", value)} /></div>}
   </section>;
 }
