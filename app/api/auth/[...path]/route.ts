@@ -19,6 +19,29 @@ function setCookieValues(headers: Headers): string[] {
     .filter(Boolean);
 }
 
+function persistAuthCookie(cookieValue: string, secure: boolean): string {
+  const [cookiePair, ...rawAttributes] = cookieValue.split(";");
+  const name = cookiePair.split("=")[0]?.trim();
+  if (name !== "ttfl_access" && name !== "ttfl_refresh") return cookieValue;
+
+  const maxAge = name === "ttfl_refresh" ? 30 * 24 * 60 * 60 : 15 * 60;
+  const expires = new Date(Date.now() + maxAge * 1000).toUTCString();
+  const preserved = rawAttributes
+    .map((attribute) => attribute.trim())
+    .filter((attribute) => attribute && !/^(?:max-age|expires|path|secure|httponly|samesite)=?/i.test(attribute));
+
+  return [
+    cookiePair,
+    ...preserved,
+    "Path=/",
+    `Max-Age=${maxAge}`,
+    `Expires=${expires}`,
+    "HttpOnly",
+    ...(secure ? ["Secure"] : []),
+    "SameSite=Lax",
+  ].join("; ");
+}
+
 async function proxyAuth(request: NextRequest, path: string[]) {
   const target = `${API_URL}/api/auth/${path.join("/")}${request.nextUrl.search}`;
   const headers = new Headers();
@@ -48,11 +71,14 @@ async function proxyAuth(request: NextRequest, path: string[]) {
         return NextResponse.json({ message: "Invalid authentication handoff response." }, { status: 502 });
       }
       const response = NextResponse.json({ user: data.user });
+      const secure = request.nextUrl.protocol === "https:";
       response.cookies.set("ttfl_access", data.accessToken, {
-        httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 7,
+        httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 15 * 60,
+        expires: new Date(Date.now() + 15 * 60 * 1000),
       });
       response.cookies.set("ttfl_refresh", data.refreshToken, {
-        httpOnly: true, secure: true, sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 30,
+        httpOnly: true, secure, sameSite: "lax", path: "/", maxAge: 30 * 24 * 60 * 60,
+        expires: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       });
       return response;
     }
@@ -62,8 +88,9 @@ async function proxyAuth(request: NextRequest, path: string[]) {
     const upstreamContentType = upstream.headers.get("content-type");
     if (upstreamContentType) responseHeaders.set("content-type", upstreamContentType);
 
+    const secure = request.nextUrl.protocol === "https:";
     for (const cookieValue of setCookieValues(upstream.headers)) {
-      responseHeaders.append("set-cookie", cookieValue);
+      responseHeaders.append("set-cookie", persistAuthCookie(cookieValue, secure));
     }
 
     return new NextResponse(upstream.body, {
