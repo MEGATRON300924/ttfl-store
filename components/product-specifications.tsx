@@ -31,7 +31,16 @@ export function ProductSpecifications({ categoryName, productName, specification
   const isComputer = category.includes("computer") || category.includes("laptop") || category.includes("pc");
   const isPhone = category.includes("phone") || category.includes("tablet") || category === "iphone" || category === "samsung";
   const isGaming = category.includes("gaming");
-  const isFashion = category.includes("fashion");
+  const fashionTerms = ["fashion", "clothing", "apparel", "garment", "shirt", "dress", "trouser", "jeans", "skirt", "coat", "jacket", "shoe", "footwear", "sneaker", "boot", "sandal", "bag", "handbag", "purse", "ring", "jewell", "jewel", "jewelry", "necklace", "pendant", "bracelet", "bangle", "earring", "watch", "sunglass", "eyewear", "belt", "hat", "cap", "scarf", "lingerie", "underwear", "sportswear", "traditional", "cultural wear"];
+  const isFashion = fashionTerms.some((term) => category.includes(term) || product.includes(term));
+  const isJewellery = ["ring", "jewell", "jewel", "necklace", "pendant", "bracelet", "bangle", "earring", "watch"].some((term) => category.includes(term) || product.includes(term));
+  const isRing = category.includes("ring") || product.includes("ring");
+  const isNecklace = category.includes("necklace") || category.includes("pendant") || product.includes("necklace") || product.includes("pendant");
+  const isBracelet = category.includes("bracelet") || category.includes("bangle") || product.includes("bracelet") || product.includes("bangle");
+  const isEarring = category.includes("earring") || product.includes("earring");
+  const isWatch = category.includes("watch") || product.includes("watch");
+  const isFootwear = ["shoe", "footwear", "sneaker", "boot", "sandal", "slipper"].some((term) => category.includes(term) || product.includes(term));
+  const isBag = ["bag", "handbag", "purse", "backpack", "wallet"].some((term) => category.includes(term) || product.includes(term));
   const isBeauty = category.includes("beauty");
   const isHome = category.includes("home") || category.includes("living");
   const isVehicle = category.includes("vehicle") || category.includes("automotive");
@@ -86,7 +95,31 @@ export function ProductSpecifications({ categoryName, productName, specification
 
     {isGaming && <div className="grid gap-3 sm:grid-cols-2"><SelectField label="Platform" value={specifications.platform} options={["PC", "PlayStation 5", "PlayStation 4", "Xbox Series X/S", "Xbox One", "Nintendo Switch", "Mobile", "Other"]} onChange={(value) => set("platform", value)} /><Field label="Brand / Developer" value={specifications.brand} onChange={(value) => set("brand", value)} /><Field label="Model / Edition" value={specifications.model} onChange={(value) => set("model", value)} /><Field label="Storage" value={specifications.storage} onChange={(value) => set("storage", value)} /><SelectField label="Condition" value={specifications.condition} options={["New", "Used", "Refurbished"]} onChange={(value) => set("condition", value)} /><Field label="Warranty" value={specifications.warranty} onChange={(value) => set("warranty", value)} /></div>}
 
-    {isFashion && <div className="grid gap-3 sm:grid-cols-2"><Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} /><Field label="Size" value={specifications.size} onChange={(value) => set("size", value)} /><Field label="Colour" value={specifications.colour} onChange={(value) => set("colour", value)} /><Field label="Material" value={specifications.material} onChange={(value) => set("material", value)} /><Field label="Gender" value={specifications.gender} onChange={(value) => set("gender", value)} /><Field label="Fit" value={specifications.fit} onChange={(value) => set("fit", value)} /></div>}
+    {isFashion && <div className="flex flex-col gap-3">
+      <div className="grid gap-3 sm:grid-cols-2"><Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} /><SelectField label="Gender" value={specifications.gender} options={["Women", "Men", "Unisex", "Girls", "Boys", "Kids", "Baby", "Not gender-specific"]} onChange={(value) => set("gender", value)} /></div>
+      <div className="grid gap-3 sm:grid-cols-2"><Field label="Colour" value={specifications.colour} onChange={(value) => set("colour", value)} /><SelectField label="Material" value={specifications.material} options={["Gold", "Silver", "Stainless steel", "Platinum", "Titanium", "Brass", "Leather", "Cotton", "Wool", "Linen", "Silk", "Polyester", "Denim", "Nylon", "Plastic", "Wood", "Gemstone", "Mixed materials", "Other"]} onChange={(value) => set("material", value)} /></div>
+      {isJewellery ? <>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {isRing ? <Field label="Ring size" value={specifications.ringSize ?? specifications.size} onChange={(value) => { set("ringSize", value); set("size", value); }} hint="e.g. US 7, UK N, EU 54, or adjustable" /> : null}
+          {isNecklace ? <Field label="Necklace length" value={specifications.necklaceLength ?? specifications.size} onChange={(value) => { set("necklaceLength", value); set("size", value); }} hint="e.g. 40 cm, 18 in" /> : null}
+          {isBracelet ? <Field label="Bracelet / bangle size" value={specifications.braceletSize ?? specifications.size} onChange={(value) => { set("braceletSize", value); set("size", value); }} hint="e.g. 18 cm, small, adjustable" /> : null}
+          {isEarring ? <SelectField label="Earring style" value={specifications.earringStyle} options={["Studs", "Hoops", "Drops", "Dangles", "Huggies", "Cuffs", "Clip-on", "Other"]} onChange={(value) => set("earringStyle", value)} /> : null}
+          {isWatch ? <><Field label="Watch case size" value={specifications.watchCaseSize} onChange={(value) => set("watchCaseSize", value)} hint="e.g. 38 mm, 42 mm" /><SelectField label="Watch movement" value={specifications.watchMovement} options={["Quartz", "Automatic", "Mechanical", "Digital", "Smartwatch", "Other"]} onChange={(value) => set("watchMovement", value)} /></> : null}
+          <Field label="Stone / gemstone" value={specifications.gemstone} onChange={(value) => set("gemstone", value)} hint="e.g. diamond, cubic zirconia, pearl, none" />
+          <Field label="Finish / plating" value={specifications.finish} onChange={(value) => set("finish", value)} hint="e.g. 18K gold-plated, polished, matte" />
+          <Field label="Quantity in pack" value={specifications.packQuantity} onChange={(value) => set("packQuantity", value)} />
+        </div>
+      </> : <>
+        <div className="grid gap-3 sm:grid-cols-2">
+          {isFootwear ? <><Field label="Shoe size" value={specifications.shoeSize ?? specifications.size} onChange={(value) => { set("shoeSize", value); set("size", value); }} hint="e.g. EU 39, UK 6, US 8" /><SelectField label="Width" value={specifications.width} options={["Narrow", "Regular", "Wide", "Extra wide"]} onChange={(value) => set("width", value)} /></> : null}
+          {isBag ? <><Field label="Bag dimensions" value={specifications.dimensions} onChange={(value) => set("dimensions", value)} hint="e.g. 30 × 20 × 12 cm" /><Field label="Capacity" value={specifications.capacity} onChange={(value) => set("capacity", value)} hint="e.g. 20 L" /></> : null}
+          {!isFootwear && !isBag ? <><SelectField label="Clothing size" value={specifications.size} options={["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "One size", "Custom / made to measure"]} onChange={(value) => set("size", value)} /><Field label="Fit" value={specifications.fit} onChange={(value) => set("fit", value)} hint="e.g. slim, regular, relaxed, oversized" /></> : null}
+          <Field label="Pattern / style" value={specifications.pattern} onChange={(value) => set("pattern", value)} />
+          <Field label="Care instructions" value={specifications.careInstructions} onChange={(value) => set("careInstructions", value)} />
+          <Field label="Age group" value={specifications.ageGroup} onChange={(value) => set("ageGroup", value)} hint="e.g. adult, teen, child" />
+        </div>
+      </>}
+    </div>}
 
     {isBeauty && <div className="grid gap-3 sm:grid-cols-2"><Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} /><Field label="Product Type" value={specifications.productType} onChange={(value) => set("productType", value)} /><Field label="Size / Volume" value={specifications.size} onChange={(value) => set("size", value)} /><Field label="Skin / Hair Type" value={specifications.skinHairType} onChange={(value) => set("skinHairType", value)} /><Field label="Ingredients" value={specifications.ingredients} onChange={(value) => set("ingredients", value)} /><Field label="Expiry Date" value={specifications.expiryDate} onChange={(value) => set("expiryDate", value)} /></div>}
 
@@ -108,6 +141,6 @@ export function ProductSpecifications({ categoryName, productName, specification
 
     {isSports && <div className="grid gap-3 sm:grid-cols-2"><Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} /><Field label="Sport" value={specifications.sport} onChange={(value) => set("sport", value)} /><Field label="Size" value={specifications.size} onChange={(value) => set("size", value)} /><Field label="Material" value={specifications.material} onChange={(value) => set("material", value)} /><Field label="Gender" value={specifications.gender} onChange={(value) => set("gender", value)} /><Field label="Age Group" value={specifications.ageGroup} onChange={(value) => set("ageGroup", value)} /></div>}
 
-    {!isComputer && !isPhone && !isGaming && !isFashion && !isBeauty && !isHome && !isVehicle && !isSports && !isSound && <div className="grid gap-3 sm:grid-cols-2"><Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} /><Field label="Model" value={specifications.model} onChange={(value) => set("model", value)} /><Field label="Product Type" value={specifications.productType} onChange={(value) => set("productType", value)} /><Field label="Key Features" value={specifications.keyFeatures} onChange={(value) => set("keyFeatures", value)} /></div>}
+    {!isComputer && !isPhone && !isGaming && !isFashion && !isBeauty && !isHome && !isVehicle && !isSports && !isSound && <div className="grid gap-3 sm:grid-cols-2"><Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} /><Field label="Model" value={specifications.model} onChange={(value) => set("model", value)} /><Field label="Product Type" value={specifications.productType} onChange={(value) => set("productType", value)} /><Field label="Colour" value={specifications.colour} onChange={(value) => set("colour", value)} /><Field label="Size / Dimensions" value={specifications.size ?? specifications.dimensions} onChange={(value) => { set("size", value); set("dimensions", value); }} /><Field label="Material" value={specifications.material} onChange={(value) => set("material", value)} /><SelectField label="Gender" value={specifications.gender} options={["Women", "Men", "Unisex", "Girls", "Boys", "Kids", "Baby", "Not gender-specific"]} onChange={(value) => set("gender", value)} /><Field label="Key Features" value={specifications.keyFeatures} onChange={(value) => set("keyFeatures", value)} /></div>}
   </section>;
 }
