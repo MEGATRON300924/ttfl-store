@@ -52,13 +52,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             if (authEpoch.current === epochAtStart) setUser(user);
             return;
           } catch (err) {
-            if (!(err instanceof ApiError && err.status === 401)) {
-              if (authEpoch.current === epochAtStart) {
-                console.error(err);
-                setUser(null);
-              }
-              return;
-            }
+            // A transient /me failure during a hard reload must not skip session
+            // restoration. Always try the persistent refresh cookie before clearing auth.
+            if (!(err instanceof ApiError && err.status === 401)) console.error("Auth bootstrap /me request failed; trying refresh cookie.", err);
           }
 
           await api.post("/api/auth/refresh");
