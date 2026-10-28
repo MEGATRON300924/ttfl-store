@@ -195,11 +195,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const variationKeywords = variations.flatMap((variant) =>
     Object.entries(variant.options).flatMap(([name, value]) => [name, value]),
   );
+  const specificationKeywords = Object.entries(product.specifications ?? {})
+    .filter(([key, value]) => !key.startsWith("_") && String(value).trim())
+    .flatMap(([key, value]) => [key.replace(/([A-Z])/g, " $1").trim(), String(value).trim()]);
 
   return {
     title: `${product.comingSoon ? "Coming soon: " : product.specifications?._productType === "pre-order" ? "Pre-order: " : ""}${displayName} | TTFL Store`,
     description,
-    keywords: [displayName, brand, product.category.name, ...(product.tags ?? []), ...variationKeywords].filter(
+    keywords: [displayName, brand, product.category.name, ...(product.tags ?? []), ...variationKeywords, ...specificationKeywords].filter(
       Boolean,
     ) as string[],
     alternates: { canonical },
