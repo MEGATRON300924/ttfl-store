@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { api } from "@/lib/api-client";
@@ -9,6 +10,22 @@ import { SponsoredPlacementCard } from "@/components/sponsored-placement-card";
 import { BreadcrumbJsonLd, ItemListJsonLd } from "@/components/seo-jsonld";
 
 const SITE_URL = "https://ttflstore.name.ng";
+const EUROPE_SITE_URL = "https://europe.ttflstore.name.ng";
+
+function getStoreMarket() {
+  const requestHeaders = headers();
+  const host = (requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "")
+    .split(",")[0].trim().toLowerCase();
+  const isEurope = host === "europe.ttflstore.name.ng";
+  return {
+    regionName: isEurope ? "Europe" : "Nigeria",
+    siteUrl: isEurope ? EUROPE_SITE_URL : SITE_URL,
+    cityKeyword: isEurope ? "Berlin" : "Abuja",
+    locationPhrase: isEurope
+      ? "Berlin, Paris, Amsterdam, Madrid and other European cities"
+      : "Abuja, Lagos, Port Harcourt and other Nigerian cities",
+  };
+}
 type Category = { id: string; name: string; slug: string; children?: Category[] };
 type SponsoredCampaign = { id: string; target_type: "STORE" | "PRODUCT" | "SERVICE" | "COMING_SOON"; storeName: string; storeSlug: string; storeLogoUrl: string | null; storeVerified: boolean; productSlug: string | null; productName: string | null; serviceSlug: string | null; serviceTitle: string | null };
 function mapProduct(p: ApiProduct): Product { return { id: p.id, slug: p.slug, name: p.name, price: Number(p.price), previousPrice: p.previousPrice ? Number(p.previousPrice) : undefined, image: p.images?.[0]?.url ?? "", vendor: p.vendor.storeName, vendorSlug: p.vendor.storeSlug, verified: p.vendor.verified, location: p.location ?? p.vendor.location ?? "", rating: p.avgRating ? Number(p.avgRating) : 0, reviewCount: p.reviewCount, sellingMethod: p.sellingMethod === "EXTERNAL_LINK" ? "external" : p.sellingMethod === "WHATSAPP" ? "whatsapp" : "checkout" }; }
@@ -90,23 +107,26 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const category = await getCategory(params.slug).catch(() => undefined);
   if (!category) return { title: "Category not found", robots: { index: false, follow: true } };
   const heading = getCategoryHeading(params.slug, category.name);
-  const isComputers = params.slug === "computers";
-  const categorySeo = CATEGORY_SEO[params.slug];
-  const title = categorySeo?.title ?? (isComputers
+  const market = getStoreMarket();
+  const isComputers = params.slug === "computers" || params.slug === "computers-laptops";
+  // Keep hand-written Nigeria SEO for priority categories; every other category
+  // gets a useful regional title, description and search phrases automatically.
+  const categorySeo = market.regionName === "Nigeria" ? CATEGORY_SEO[params.slug] : undefined;
+  const title = categorySeo?.title ?? (isComputers && market.regionName === "Nigeria"
     ? "Laptops & Computers for Sale in Nigeria | TTFL Store"
-    : `${heading} for Sale in Nigeria | TTFL Store`);
-  const description = categorySeo?.description ?? (isComputers
+    : `${heading} for Sale in ${market.regionName} | TTFL Store`);
+  const description = categorySeo?.description ?? (isComputers && market.regionName === "Nigeria"
     ? "Shop laptops, desktop computers, gaming PCs and computer accessories for sale in Nigeria. Compare listings and prices from sellers on TTFL Store."
-    : `Shop ${heading.toLowerCase()} for sale in Nigeria. Compare products, specifications and prices from sellers across Nigeria, including options for shoppers in Abuja, Lagos, Port Harcourt and other cities.`);
+    : `Shop ${heading.toLowerCase()} for sale in ${market.regionName}. Compare products, specifications and prices from sellers across ${market.regionName}, including ${market.locationPhrase}.`);
   const keywords = categorySeo?.keywords ?? [
     heading,
-    `${heading} for sale in Nigeria`,
-    `buy ${heading.toLowerCase()} in Nigeria`,
-    `${heading.toLowerCase()} Abuja`,
-    `affordable ${heading.toLowerCase()} Nigeria`,
-    `${heading.toLowerCase()} for sale Lagos`
+    `${heading} for sale in ${market.regionName}`,
+    `buy ${heading.toLowerCase()} online ${market.regionName}`,
+    `cheap ${heading.toLowerCase()} for sale in ${market.cityKeyword}`,
+    `affordable ${heading.toLowerCase()} ${market.regionName}`,
+    `${heading.toLowerCase()} near me`
   ];
-  const canonical = `${SITE_URL}/categories/${params.slug}`;
+  const canonical = `${market.siteUrl}/categories/${params.slug}`;
   return {
     title,
     description,
@@ -137,10 +157,11 @@ export default async function CategoryPage({ params }: { params: { slug: string 
   ]);
   if (!category) notFound();
   const heading = getCategoryHeading(params.slug, category.name);
+  const market = getStoreMarket();
   const mapped = products.map(mapProduct);
-  const description = params.slug === "computers"
+  const description = (params.slug === "computers" || params.slug === "computers-laptops") && market.regionName === "Nigeria"
     ? "Browse laptops, desktop computers, gaming PCs and computer accessories listed by sellers across Nigeria. Compare available products and prices before you buy."
-    : `Shop ${heading} from sellers across Nigeria on TTFL Store.`;
+    : `Shop ${heading.toLowerCase()} from sellers across ${market.regionName} on TTFL Store. Compare product details and prices from local sellers.`;
   return <main className="shell py-8 sm:py-12">
     <BreadcrumbJsonLd items={[{ name: "Home", url: "/" }, { name: "Categories", url: "/categories" }, { name: heading, url: `/categories/${params.slug}` }]} />
     <ItemListJsonLd name={`${heading} for sale`} items={products.map(p => ({ name: p.name, url: `/products/${p.slug}`, image: p.images?.[0]?.url }))} />
