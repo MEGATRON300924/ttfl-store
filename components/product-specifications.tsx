@@ -34,7 +34,7 @@ export function ProductSpecifications({ categoryName, productName, specification
   const fashionTerms = ["fashion", "clothing", "apparel", "garment", "shirt", "dress", "trouser", "jeans", "skirt", "coat", "jacket", "shoe", "footwear", "sneaker", "boot", "sandal", "bag", "handbag", "purse", "ring", "jewell", "jewel", "jewelry", "necklace", "pendant", "bracelet", "bangle", "earring", "watch", "sunglass", "eyewear", "belt", "hat", "cap", "scarf", "lingerie", "underwear", "sportswear", "traditional", "cultural wear"];
   const hasFashionCategory = fashionTerms.some((term) => category.includes(term));
   const isGenericCategory = !category || ["other", "uncategorized", "general"].some((term) => category.includes(term));
-  const isFashion = hasFashionCategory || (isGenericCategory && fashionTerms.some((term) => product.includes(term));
+  const isFashion = hasFashionCategory || (isGenericCategory && fashionTerms.some((term) => product.includes(term)));
   const isJewellery = ["ring", "jewell", "jewel", "necklace", "pendant", "bracelet", "bangle", "earring", "watch"].some((term) => category.includes(term) || product.includes(term));
   const isRing = category.includes("ring") || product.includes("ring");
   const isNecklace = category.includes("necklace") || category.includes("pendant") || product.includes("necklace") || product.includes("pendant");
