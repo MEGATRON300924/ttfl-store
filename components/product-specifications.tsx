@@ -107,6 +107,9 @@ export function ProductSpecifications({ categoryName, productName, specification
         <Field label="Colour" value={specifications.colour} onChange={(value) => set("colour", value)} />
         <Field label="Capacity" value={specifications.capacity} onChange={(value) => set("capacity", value)} hint="e.g. 10,000 mAh — power banks only" />
         <Field label="Features" value={specifications.keyFeatures} onChange={(value) => set("keyFeatures", value)} hint="e.g. fast charging, MagSafe compatible, shockproof" />
+        <SelectField label="MagSafe / magnetic compatibility" value={specifications.magneticCompatibility} options={["MagSafe compatible", "Qi2 compatible", "Magnetic but not MagSafe certified", "Not compatible", "Not applicable", "Not specified"]} onChange={(value) => set("magneticCompatibility", value)} />
+        <Field label="Warranty" value={specifications.warranty} onChange={(value) => set("warranty", value)} hint="e.g. 6 months, 1 year, no warranty" />
+        <Field label="Package contents" value={specifications.packageContents} onChange={(value) => set("packageContents", value)} hint="e.g. charger only, cable included, pouch + strap" />
       </div>
     </div>}
 
@@ -124,10 +127,10 @@ export function ProductSpecifications({ categoryName, productName, specification
 
     {isFashion && <div className="flex flex-col gap-3">
       <div className="grid gap-3 sm:grid-cols-2"><Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} /><SelectField label="Gender" value={specifications.gender} options={["Women", "Men", "Unisex", "Girls", "Boys", "Kids", "Baby", "Not gender-specific"]} onChange={(value) => set("gender", value)} /></div>
-      <div className="grid gap-3 sm:grid-cols-2"><Field label="Colour" value={specifications.colour} onChange={(value) => set("colour", value)} /><SelectField label="Material" value={specifications.material} options={["Gold", "Silver", "Stainless steel", "Platinum", "Titanium", "Brass", "Leather", "Cotton", "Wool", "Linen", "Silk", "Polyester", "Denim", "Nylon", "Plastic", "Wood", "Gemstone", "Mixed materials", "Other"]} onChange={(value) => set("material", value)} /></div>
+      <div className="grid gap-3 sm:grid-cols-2"><Field label="Colour" value={specifications.colour} onChange={(value) => set("colour", value)} /><SelectField label="Material" value={specifications.material} options={["Gold", "14K gold", "18K gold", "22K gold", "White gold", "Rose gold", "Silver", "Sterling silver", "Platinum", "Stainless steel", "Surgical steel", "Titanium", "Tungsten", "Ceramic", "Brass", "Leather", "Cotton", "Wool", "Linen", "Silk", "Polyester", "Denim", "Nylon", "Plastic", "Wood", "Gemstone", "Mixed materials", "Other"]} onChange={(value) => set("material", value)} /></div>
       {isJewellery ? <>
         <div className="grid gap-3 sm:grid-cols-2">
-          {isRing ? <Field label="Ring size" value={specifications.ringSize ?? specifications.size} onChange={(value) => { set("ringSize", value); set("size", value); }} hint="e.g. US 7, UK N, EU 54, or adjustable" /> : null}
+          {isRing ? <><Field label="Ring size" value={specifications.ringSize ?? specifications.size} onChange={(value) => { set("ringSize", value); set("size", value); }} hint="e.g. US 7, UK N, EU 54, or adjustable" /><SelectField label="Ring sizing system" value={specifications.ringSizeSystem} options={["US / Canada", "UK / Ireland", "EU / ISO", "Japan", "Adjustable / one size", "Not specified"]} onChange={(value) => set("ringSizeSystem", value)} /><SelectField label="Adjustable ring" value={specifications.adjustable} options={["Yes", "No"]} onChange={(value) => set("adjustable", value)} /></> : null}
           {isNecklace ? <Field label="Necklace length" value={specifications.necklaceLength ?? specifications.size} onChange={(value) => { set("necklaceLength", value); set("size", value); }} hint="e.g. 40 cm, 18 in" /> : null}
           {isBracelet ? <Field label="Bracelet / bangle size" value={specifications.braceletSize ?? specifications.size} onChange={(value) => { set("braceletSize", value); set("size", value); }} hint="e.g. 18 cm, small, adjustable" /> : null}
           {isEarring ? <SelectField label="Earring style" value={specifications.earringStyle} options={["Studs", "Hoops", "Drops", "Dangles", "Huggies", "Cuffs", "Clip-on", "Other"]} onChange={(value) => set("earringStyle", value)} /> : null}
@@ -135,6 +138,8 @@ export function ProductSpecifications({ categoryName, productName, specification
           <Field label="Stone / gemstone" value={specifications.gemstone} onChange={(value) => set("gemstone", value)} hint="e.g. diamond, cubic zirconia, pearl, none" />
           <Field label="Finish / plating" value={specifications.finish} onChange={(value) => set("finish", value)} hint="e.g. 18K gold-plated, polished, matte" />
           <Field label="Ring / jewellery style" value={specifications.jewelleryStyle} onChange={(value) => set("jewelleryStyle", value)} hint="e.g. wedding band, signet, engagement, stacking ring" />
+          <Field label="Metal purity / stamp" value={specifications.metalPurity} onChange={(value) => set("metalPurity", value)} hint="e.g. 925 sterling silver, 18K gold; only state if verified" />
+          <Field label="Occasion" value={specifications.occasion} onChange={(value) => set("occasion", value)} hint="e.g. wedding, engagement, everyday, gift" />
           <Field label="Quantity in pack" value={specifications.packQuantity} onChange={(value) => set("packQuantity", value)} />
         </div>
       </> : <>
@@ -143,6 +148,7 @@ export function ProductSpecifications({ categoryName, productName, specification
           {isBag ? <><Field label="Bag dimensions" value={specifications.dimensions} onChange={(value) => set("dimensions", value)} hint="e.g. 30 × 20 × 12 cm" /><Field label="Capacity" value={specifications.capacity} onChange={(value) => set("capacity", value)} hint="e.g. 20 L" /></> : null}
           {!isFootwear && !isBag ? <><SelectField label="Clothing size" value={specifications.size} options={["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "One size", "Custom / made to measure"]} onChange={(value) => set("size", value)} /><Field label="Fit" value={specifications.fit} onChange={(value) => set("fit", value)} hint="e.g. slim, regular, relaxed, oversized" /></> : null}
           <Field label="Pattern / style" value={specifications.pattern} onChange={(value) => set("pattern", value)} />
+          {!isFootwear && !isBag ? <><SelectField label="Size system" value={specifications.sizeSystem} options={["International (XS–4XL)", "UK", "US", "EU", "Custom / made to measure", "Not specified"]} onChange={(value) => set("sizeSystem", value)} /><Field label="Waist / inseam" value={specifications.waistInseam} onChange={(value) => set("waistInseam", value)} hint="e.g. 32-inch waist, 30-inch inseam" /><Field label="Sleeve length / neckline" value={specifications.sleeveNeckline} onChange={(value) => set("sleeveNeckline", value)} hint="Where relevant to the garment" /><Field label="Occasion" value={specifications.occasion} onChange={(value) => set("occasion", value)} hint="e.g. casual, office, wedding, sportswear" /></> : null}
           <Field label="Care instructions" value={specifications.careInstructions} onChange={(value) => set("careInstructions", value)} />
           <Field label="Age group" value={specifications.ageGroup} onChange={(value) => set("ageGroup", value)} hint="e.g. adult, teen, child" />
         </div>
