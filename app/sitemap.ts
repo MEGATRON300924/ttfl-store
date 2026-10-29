@@ -34,10 +34,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     url: `${SITE_URL}${path}`,
     lastModified: new Date(),
     changeFrequency: (path === "/" || path === "/deals" ? "daily" : "weekly") as "daily" | "weekly",
-    priority: path === "/" ? 1 : 0.7,
+    priority: path === "/" ? 1 : path === "/black-friday" ? 0.9 : 0.7,
   }));
 
-  staticPages.push({ url: `${SITE_URL}/black-friday`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.9 });
 
   // Load categories and products independently. A temporary failure in one
   // API endpoint should not remove successfully retrieved URLs from the sitemap.
