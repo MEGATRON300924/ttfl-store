@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { ArrowLeft, CalendarClock, CheckCircle2, CircleAlert, ExternalLink, Flame, Save, ShieldCheck, ToggleLeft, ToggleRight } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
+import { BlackFridayDealsManager } from "@/components/admin/black-friday-deals-manager";
 import { useAuth } from "@/lib/auth-context";
 
 type BlackFridayConfig = {
@@ -165,6 +166,7 @@ export default function BlackFridayAdminPage() {
           {error && <p role="alert" className="flex items-start gap-2 rounded-card border border-ember-200 bg-ember-50 p-3 text-sm text-ember-700"><CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />{error}</p>}
           <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between"><p className="text-xs leading-5 text-graphite-500">Saving settings does not change product prices by itself. Promotional pricing controls will be connected to the existing product and flash-deal flows.</p><button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-card bg-graphite-950 px-5 py-3 text-sm font-bold text-white hover:bg-graphite-800 disabled:cursor-not-allowed disabled:opacity-60"><Save className="h-4 w-4" />{saving ? "Saving campaign…" : "Save campaign settings"}</button></div>
         </form>
+        <div className="mt-5"><BlackFridayDealsManager campaign={{ startsAt: config.startsAt, endsAt: config.endsAt }} /></div>
       </div>
     </div>
   );
