@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { CircleAlert, Flame, Plus, Search, Trash2, LoaderCircle, CheckCircle2, Tag } from "lucide-react";
+import { CircleAlert, Plus, Search, Trash2, LoaderCircle, CheckCircle2, Tag } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import type { ApiProduct } from "@/lib/api-types";
 import { formatNaira } from "@/lib/mock-data";
@@ -99,7 +99,7 @@ export function BlackFridayDealsManager({ campaign }: { campaign: Campaign }) {
         <div className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="relative sm:col-span-2">
             <label htmlFor="bf-product-search" className="block text-sm font-medium text-graphite-700">Product</label>
-            <div className="relative mt-2"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-graphite-400" /><input id="bf-product-search" value={selectedProduct ? selectedProduct.name : search} onChange={(event) => { setSelectedProductId(""); setSearch(event.target.value); setDropdownOpen(true); }} onFocus={() => setDropdownOpen(true)} placeholder="Search product or store…" autoComplete="off" className="w-full rounded-card border border-graphite-200 bg-white py-2.5 pl-9 pr-3 text-sm text-graphite-900 outline-none focus:border-ember-600" /></div>
+            <div className="relative mt-2"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-graphite-400" /><input id="bf-product-search" value={selectedProduct ? selectedProduct.name : search} onChange={(event) => { setSelectedProductId(""); setSearch(event.target.value); setDropdownOpen(true); }} onFocus={() => { if (!selectedProduct) setDropdownOpen(true); }} placeholder="Search product or store…" autoComplete="off" className="w-full rounded-card border border-graphite-200 bg-white py-2.5 pl-9 pr-3 text-sm text-graphite-900 outline-none focus:border-ember-600" /></div>
             {dropdownOpen && !selectedProduct && <div className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-card border border-graphite-200 bg-white p-1 shadow-lg">{filteredProducts.length ? filteredProducts.map((product) => <button type="button" key={product.id} onClick={() => { setSelectedProductId(product.id); setSearch(""); setDropdownOpen(false); }} className="flex w-full items-center justify-between gap-3 rounded-[6px] px-3 py-2.5 text-left hover:bg-cloud-50"><span className="min-w-0"><span className="block truncate text-sm font-semibold text-graphite-900">{product.name}</span><span className="block truncate text-xs text-graphite-500">{product.vendor.storeName}</span></span><span className="shrink-0 font-mono text-xs text-graphite-700">{formatNaira(Number(product.price))}</span></button>) : <p className="px-3 py-4 text-sm text-graphite-500">No matching available products.</p>}</div>}
             {selectedProduct && <button type="button" onClick={() => { setSelectedProductId(""); setSearch(""); setDropdownOpen(true); }} className="mt-2 text-xs font-semibold text-ember-700">Change product</button>}
             {dropdownOpen && <button type="button" aria-label="Close product search" onClick={() => setDropdownOpen(false)} className="fixed inset-0 z-10 cursor-default" />}
