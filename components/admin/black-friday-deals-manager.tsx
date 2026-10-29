@@ -47,6 +47,7 @@ export function BlackFridayDealsManager({ campaign }: { campaign: Campaign }) {
   }
 
   useEffect(() => { void load(); }, []);
+  useEffect(() => { setStartsAt(localDateTime(campaign.startsAt)); setEndsAt(localDateTime(campaign.endsAt)); }, [campaign.startsAt, campaign.endsAt]);
 
   const selectedProduct = products.find((product) => product.id === selectedProductId) ?? null;
   const filteredProducts = useMemo(() => {
