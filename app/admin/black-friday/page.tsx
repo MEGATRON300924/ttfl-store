@@ -19,8 +19,8 @@ type BlackFridayConfig = {
 
 const defaults: BlackFridayConfig = {
   enabled: false,
-  startsAt: "2026-11-27T00:00:00.000Z",
-  endsAt: "2026-11-28T00:00:00.000Z",
+  startsAt: "2026-11-26T23:00:00.000Z",
+  endsAt: "2026-11-27T23:00:00.000Z",
   headline: "Black Friday at TTFL Store",
   subheadline: "Discover limited-time deals from Nigerian sellers.",
   discountMode: "vendor-approval",
@@ -136,7 +136,7 @@ export default function BlackFridayAdminPage() {
               <label className="block text-sm font-medium text-graphite-700">Starts at<input type="datetime-local" required value={startsAt} onChange={(event) => setStartsAt(event.target.value)} className="mt-2 block w-full rounded-card border border-graphite-200 bg-white px-3 py-2.5 text-sm text-graphite-900 outline-none focus:border-ember-600" /></label>
               <label className="block text-sm font-medium text-graphite-700">Ends at<input type="datetime-local" required value={endsAt} onChange={(event) => setEndsAt(event.target.value)} className="mt-2 block w-full rounded-card border border-graphite-200 bg-white px-3 py-2.5 text-sm text-graphite-900 outline-none focus:border-ember-600" /></label>
             </div>
-            <p className="mt-3 text-xs text-graphite-500">Black Friday 2026 falls on Friday, 27 November. The default campaign window is set for that day in UTC; adjust it to TTFL Store’s intended local trading hours before activation.</p>
+            <p className="mt-3 text-xs text-graphite-500">Black Friday 2026 falls on Friday, 27 November. The default campaign window is set for 27 November in Nigeria time (WAT). Adjust it if you want a different trading window.</p>
           </section>
 
           <section className="rounded-card border border-graphite-200 bg-white p-5 sm:p-6">
