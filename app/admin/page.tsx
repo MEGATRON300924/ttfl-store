@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Users, Package, BarChart3, Wallet, Ticket, Megaphone, Layers, MessageCircle, Settings, FileText, Mail, ShoppingBag, Send, UserPlus, MessageSquare, UserMinus, BellRing, CalendarDays, Gift, AlertTriangle, KeyRound, Flame } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api-client";
+import { BlackFridayQuickToggle } from "@/components/admin/black-friday-quick-toggle";
 
 type AdminUser = { id: string; email: string; firstName: string; lastName: string; status: string; emailVerified: boolean; createdAt: string; lastLoginAt: string | null };
 const LINKS = [["/admin/events", CalendarDays, "Partner events", "Review partner events and manage event plans"],["/admin/vendors", Users, "Vendor applications", "Approve, reject, or suspend vendors"],["/admin/products", Package, "Product moderation", "Suspend or reinstate listings"],["/admin/orders", ShoppingBag, "Orders & refunds", "View orders, issue Paystack refunds"],["/admin/analytics", BarChart3, "Analytics", "Platform-wide stats and commission center"],["/admin/plans", Layers, "Vendor plans", "Edit tier pricing, limits, commission"],["/admin/categories", Layers, "Categories", "Create categories so vendors can list products"],["/admin/settings", Settings, "Platform settings", "Pricing, payouts and WhatsApp notification numbers"],["/admin/rewards", Gift, "TTFL Rewards", "Configure signup, purchase, review and referral points"],["/admin/payouts", Wallet, "Payouts", "Review and approve vendor withdrawal requests"],["/admin/coupons", Ticket, "Coupons", "Platform-wide discount codes"],["/admin/black-friday", Flame, "Black Friday Special", "Campaign toggle, schedule, storefront and SEO"],["/admin/featured", Megaphone, "Featured listings", "Active paid promotions"],["/admin/waitlists", BellRing, "Coming Soon waitlists", "See customer demand for upcoming products"],["/admin/broadcast", Send, "Broadcast center", "Send targeted popup and email announcements"],["/admin/support", MessageCircle, "Support & reported problems", "Customer conversations and problem reports"],["/admin/audit-logs", FileText, "Audit logs", "Sensitive admin action history"],["/admin/error-logs", AlertTriangle, "Error logs", "Search customer error codes and investigate failures"],["/admin/email-settings", Mail, "Email configuration", "Check provider, sender and test delivery"],["/admin/email-logs", Mail, "Email logs", "Delivery status for queued emails"]] as const;
@@ -202,6 +203,8 @@ export default function AdminDashboardPage() {
               <h2 className="text-2xl font-bold text-graphite-900">Good to see you, {user.firstName || "Admin"}.</h2>
               <p className="mt-1 text-sm text-graphite-600">Keep an eye on the marketplace, vendors, orders, growth and platform health from one workspace.</p>
             </div>
+
+            <BlackFridayQuickToggle />
 
             <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
               <OverviewCard label="Registered users" value={platformOverview?.users.total.toLocaleString() ?? "—"} icon={Users} href="/admin/analytics" />
