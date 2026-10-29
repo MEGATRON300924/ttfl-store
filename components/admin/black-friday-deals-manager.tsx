@@ -22,6 +22,7 @@ function isoDateTime(value: string) {
 export function BlackFridayDealsManager({ campaign }: { campaign: Campaign }) {
   const [products, setProducts] = useState<ApiProduct[]>([]);
   const [deals, setDeals] = useState<FlashDeal[]>([]);
+  const [pendingDeals, setPendingDeals] = useState<FlashDeal[]>([]);
   const [search, setSearch] = useState("");
   const [selectedProductId, setSelectedProductId] = useState("");
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -36,12 +37,14 @@ export function BlackFridayDealsManager({ campaign }: { campaign: Campaign }) {
   const [error, setError] = useState("");
 
   async function load() {
-    const [productResult, dealResult] = await Promise.allSettled([
+    const [productResult, dealResult, pendingResult] = await Promise.allSettled([
       api.get<{ items: ApiProduct[] }>("/api/products?limit=100&sort=newest"),
       api.get<{ deals: FlashDeal[] }>("/api/flash-deals"),
+      api.get<{ deals: FlashDeal[] }>("/api/flash-deals/admin/black-friday/pending"),
     ]);
     if (productResult.status === "fulfilled") setProducts(productResult.value.items.filter((product) => product.status === "ACTIVE" && !product.comingSoon));
     if (dealResult.status === "fulfilled") setDeals((dealResult.value.deals ?? []).filter((deal) => deal.blackFriday));
+    if (pendingResult.status === "fulfilled") setPendingDeals(pendingResult.value.deals ?? []);
     if (productResult.status === "rejected" && dealResult.status === "rejected") setError("Could not load products or current flash deals.");
     setLoading(false);
   }
@@ -81,6 +84,20 @@ export function BlackFridayDealsManager({ campaign }: { campaign: Campaign }) {
     } finally { setSaving(false); }
   }
 
+
+  async function reviewProposal(deal: FlashDeal, approved: boolean) {
+    setError("");
+    setMessage("");
+    try {
+      await api.patch(`/api/flash-deals/admin/${deal.id}/black-friday-approval`, { approved });
+      setPendingDeals((current) => current.filter((item) => item.id !== deal.id));
+      setMessage(approved ? `Approved Black Friday deal for ${deal.name}.` : `Rejected Black Friday deal for ${deal.name}.`);
+      await load();
+    } catch (reason) {
+      setError(reason instanceof ApiError ? reason.message : "Could not review the Black Friday proposal.");
+    }
+  }
+
   async function removeDeal(deal: FlashDeal) {
     if (!window.confirm(`Remove the flash deal for “${deal.name}”? This will remove the promotion, not the product.`)) return;
     setRemovingId(deal.id); setError(""); setMessage("");
@@ -116,6 +133,8 @@ export function BlackFridayDealsManager({ campaign }: { campaign: Campaign }) {
       </form>
       {message && <p role="status" className="mt-4 flex items-start gap-2 rounded-card bg-verified-50 px-3 py-2.5 text-sm text-verified-700"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />{message}</p>}
       {error && <p role="alert" className="mt-4 flex items-start gap-2 rounded-card bg-ember-50 px-3 py-2.5 text-sm text-ember-700"><CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />{error}</p>}
+
+      {pendingDeals.length > 0 && <div className="mt-6"><div className="flex items-center justify-between gap-3"><h3 className="font-bold text-graphite-900">Vendor proposals awaiting approval</h3><span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-bold text-amber-800">{pendingDeals.length} pending</span></div><div className="mt-3 divide-y divide-graphite-200 border-t border-graphite-200">{pendingDeals.map((deal) => <div key={deal.id} className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><p className="truncate text-sm font-semibold text-graphite-900">{deal.name}</p><p className="mt-1 text-xs text-graphite-600">{deal.storeName} · {Number(deal.discountPercent)}% requested discount</p><p className="mt-1 font-mono text-xs text-graphite-700">{formatNaira(Number(deal.salePrice))} from {formatNaira(Number(deal.price))}</p><p className="mt-1 text-xs text-graphite-500">Starts {new Date(deal.startsAt).toLocaleString("en-NG")}</p></div><div className="flex gap-2"><button type="button" onClick={() => void reviewProposal(deal, false)} className="rounded-card border border-ember-200 px-3 py-2 text-xs font-semibold text-ember-700">Reject</button><button type="button" onClick={() => void reviewProposal(deal, true)} className="rounded-card bg-verified-700 px-3 py-2 text-xs font-semibold text-white">Approve</button></div></div>)}</div></div>}
       <div className="mt-6"><div className="flex items-center justify-between gap-3"><h3 className="font-bold text-graphite-900">Currently live flash deals</h3><button type="button" onClick={() => void load()} className="text-xs font-semibold text-ember-700 hover:underline">Refresh</button></div>
         {loading ? <p className="py-5 text-sm text-graphite-500">Loading deals…</p> : deals.length === 0 ? <p className="mt-3 rounded-card border border-dashed border-graphite-300 px-4 py-6 text-center text-sm text-graphite-500">No live flash deals right now. Scheduled deals appear here when they start.</p> : <div className="mt-3 divide-y divide-graphite-200 border-t border-graphite-200">{deals.map((deal) => <div key={deal.id} className="flex flex-col gap-3 py-3 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><p className="truncate text-sm font-semibold text-graphite-900">{deal.name}</p><p className="mt-1 text-xs text-graphite-600">{deal.storeName} · {Number(deal.discountPercent)}% off · {deal.remaining == null ? "No quantity cap" : `${deal.remaining} remaining`}</p><p className="mt-1 font-mono text-xs"><span className="font-bold text-ember-700">{formatNaira(Number(deal.salePrice))}</span> <span className="text-graphite-400 line-through">{formatNaira(Number(deal.price))}</span></p></div><button type="button" onClick={() => void removeDeal(deal)} disabled={removingId === deal.id} className="inline-flex w-fit items-center gap-2 rounded-card border border-ember-200 px-3 py-2 text-xs font-semibold text-ember-700 disabled:opacity-60"><Trash2 className="h-3.5 w-3.5" />{removingId === deal.id ? "Removing…" : "Remove deal"}</button></div>)}</div>}
       </div>
