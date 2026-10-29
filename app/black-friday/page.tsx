@@ -22,7 +22,7 @@ async function getCampaign() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const { campaign, isLive } = await getCampaign();
-  const title = isLive ? campaign.headline : "TTFL Store Black Friday 2026 Is Around the Corner";
+  const title = isLive ? campaign.headline : "Black Friday 2026 Is Around the Corner";
   const description = isLive
     ? campaign.subheadline
     : "TTFL Store Black Friday Week is almost here! Count down to November 23–30, 2026 and get ready to discover limited-time shopping deals across Nigeria.";
