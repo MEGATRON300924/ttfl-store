@@ -21,8 +21,16 @@ export async function Hero() {
   }
 
   const verifiedStoreLabel = verifiedStoreCount > 0 ? verifiedStoreCount.toLocaleString() : "Live";
+  let blackFriday: { campaign: { headline: string; subheadline: string }; isLive: boolean } | null = null;
+  try {
+    blackFriday = await api.get<{ campaign: { headline: string; subheadline: string }; isLive: boolean }>("/api/settings/black-friday/public");
+  } catch {
+    blackFriday = null;
+  }
 
   return (
+    <>
+    {blackFriday?.isLive && <div className="bg-ember-600 text-white"><div className="shell flex flex-wrap items-center justify-between gap-2 py-2.5"><div className="flex min-w-0 items-center gap-2 text-xs font-semibold sm:text-sm"><span aria-hidden="true">🔥</span><span className="truncate">{blackFriday.campaign.headline}</span><span className="hidden text-white/80 sm:inline">{blackFriday.campaign.subheadline}</span></div><Link href="/black-friday" className="inline-flex shrink-0 items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-graphite-950">Shop deals <span aria-hidden="true">→</span></Link></div></div>}
     <section className="border-b border-graphite-200 bg-graphite-950">
       <div className="shell grid gap-5 py-7 sm:gap-8 sm:py-14 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:py-16">
         <div>
@@ -84,5 +92,6 @@ export async function Hero() {
         </div>
       </div>
     </section>
+    </>
   );
 }
