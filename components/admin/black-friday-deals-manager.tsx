@@ -7,7 +7,7 @@ import type { ApiProduct } from "@/lib/api-types";
 import { formatNaira } from "@/lib/mock-data";
 
 type Campaign = { startsAt: string; endsAt: string };
-type FlashDeal = { id: string; productId: string; name: string; slug: string; price: number | string; salePrice: number | string; storeName: string; storeSlug: string; startsAt: string; endsAt: string; discountPercent: number | string; quantityCap?: number | null; remaining?: number | null };
+type FlashDeal = { id: string; productId: string; name: string; slug: string; price: number | string; salePrice: number | string; storeName: string; storeSlug: string; startsAt: string; endsAt: string; discountPercent: number | string; quantityCap?: number | null; remaining?: number | null; blackFriday?: boolean };
 
 function localDateTime(value: string) {
   const date = new Date(value);
@@ -41,7 +41,7 @@ export function BlackFridayDealsManager({ campaign }: { campaign: Campaign }) {
       api.get<{ deals: FlashDeal[] }>("/api/flash-deals"),
     ]);
     if (productResult.status === "fulfilled") setProducts(productResult.value.items.filter((product) => product.status === "ACTIVE" && !product.comingSoon));
-    if (dealResult.status === "fulfilled") setDeals(dealResult.value.deals ?? []);
+    if (dealResult.status === "fulfilled") setDeals((dealResult.value.deals ?? []).filter((deal) => deal.blackFriday));
     if (productResult.status === "rejected" && dealResult.status === "rejected") setError("Could not load products or current flash deals.");
     setLoading(false);
   }
@@ -67,6 +67,7 @@ export function BlackFridayDealsManager({ campaign }: { campaign: Campaign }) {
       await api.post("/api/flash-deals/admin", {
         productId: selectedProductId,
         discountPercent: percent,
+        blackFriday: true,
         startsAt: startIso,
         endsAt: endIso,
         ...(quantityCap.trim() ? { quantityCap: Number(quantityCap) } : {}),
