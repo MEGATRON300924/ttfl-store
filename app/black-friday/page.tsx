@@ -7,7 +7,7 @@ import type { ApiProduct } from "@/lib/api-types";
 import type { Product } from "@/lib/mock-data";
 
 type Campaign = { enabled: boolean; startsAt: string; endsAt: string; headline: string; subheadline: string; discountMode: "vendor" | "admin" | "vendor-approval"; participation: "both" | "vendors" | "ttfl" };
-type FlashDeal = { id: string; productId: string; name: string; slug: string; price: number | string; salePrice: number | string; storeName: string; storeSlug: string; verified: boolean; imageUrl?: string | null; startsAt?: string; endsAt?: string; discountPercent?: number | string };
+type FlashDeal = { id: string; productId: string; name: string; slug: string; price: number | string; salePrice: number | string; storeName: string; storeSlug: string; verified: boolean; imageUrl?: string | null; startsAt?: string; endsAt?: string; discountPercent?: number | string; blackFriday?: boolean };
 
 const SITE_URL = "https://ttflstore.name.ng";
 
@@ -80,7 +80,7 @@ export default async function BlackFridayPage() {
     api.get<{ deals: FlashDeal[] }>("/api/flash-deals"),
     api.get<{ items: ApiProduct[] }>("/api/products?sort=relevance&limit=24"),
   ]);
-  const deals = dealsResult.status === "fulfilled" ? dealsResult.value.deals ?? [] : [];
+  const deals = dealsResult.status === "fulfilled" ? (dealsResult.value.deals ?? []).filter((deal) => deal.blackFriday) : [];
   const products = productsResult.status === "fulfilled" ? productsResult.value.items ?? [] : [];
   const campaignProducts = deals.map(toProduct);
   const featuredProducts = products.filter((product) => !product.comingSoon && product.status === "ACTIVE").map(toRegularProduct);
