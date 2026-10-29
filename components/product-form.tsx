@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Check, ChevronDown, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { api, ApiError } from "@/lib/api-client";
 import { TextField } from "@/components/text-field";
@@ -26,7 +27,7 @@ const EMPTY: ProductFormValues = {
 
 export function ProductForm({ productId, initial, redirectTo, productType }: { productId?: string; initial?: Partial<ProductFormValues>; redirectTo?: string; productType?: ProductListingType }) {
   const router = useRouter(); const [categories, setCategories] = useState<ApiCategory[]>([]); const [loadingCategories, setLoadingCategories] = useState(true); const [supportsEU, setSupportsEU] = useState(false); const [supportsUS, setSupportsUS] = useState(false);
-  const [form, setForm] = useState<ProductFormValues>({ ...EMPTY, ...initial }); const [preOrderReleaseDate, setPreOrderReleaseDate] = useState(""); const [preOrderTerms, setPreOrderTerms] = useState("Full payment is collected at checkout. The vendor will fulfil the order on or after the expected release date."); const [tagInput, setTagInput] = useState(""); const [error, setError] = useState<string | null>(null); const [submitting, setSubmitting] = useState(false);
+  const [form, setForm] = useState<ProductFormValues>({ ...EMPTY, ...initial }); const [categoryMenuOpen, setCategoryMenuOpen] = useState(false); const [categorySearch, setCategorySearch] = useState(""); const [preOrderReleaseDate, setPreOrderReleaseDate] = useState(""); const [preOrderTerms, setPreOrderTerms] = useState("Full payment is collected at checkout. The vendor will fulfil the order on or after the expected release date."); const [tagInput, setTagInput] = useState(""); const [error, setError] = useState<string | null>(null); const [submitting, setSubmitting] = useState(false);
   useEffect(() => { let active = true; api.get<{ supportedCountries?: string[] }>("/api/vendors/me/markets").then((response) => { if (active) { setSupportsEU(Boolean(response.supportedCountries?.includes("EU"))); setSupportsUS(Boolean(response.supportedCountries?.includes("US"))); } }).catch(() => { if (active) setSupportsEU(false); }); return () => { active = false; }; }, []);
   useEffect(() => { let mounted = true; async function loadCategories() { try { setLoadingCategories(true); const response = await api.get<{ categories: ApiCategory[] }>("/api/categories"); if (mounted) setCategories(response.categories); } catch (err) { if (mounted) setError(err instanceof ApiError ? err.message : "Unable to load product categories. Please refresh the page and try again."); } finally { if (mounted) setLoadingCategories(false); } } void loadCategories(); return () => { mounted = false; }; }, []);
   function set<K extends keyof ProductFormValues>(key: K, value: ProductFormValues[K]) { setForm((current) => ({ ...current, [key]: value })); }
@@ -115,16 +116,33 @@ export function ProductForm({ productId, initial, redirectTo, productType }: { p
     <label className="flex flex-col gap-1 text-sm"><span className="font-medium text-graphite-700 dark:text-graphite-300">Description</span><span className="text-xs text-graphite-500 dark:text-graphite-400">Supports Markdown formatting: **bold**, *italic*, # headings, - bullet lists, 1. numbered lists, `code`, links and emojis/unicode.</span><textarea required rows={8} value={form.description} onChange={(e) => set("description", e.target.value)} placeholder={"Example:\n**Key Features**\n- Fast performance ⚡\n- Premium design\n\nGreat for everyday use."} className="rounded-[7px] border border-graphite-200 bg-white px-3 py-2.5 text-sm outline-none focus:border-ember-600 dark:border-graphite-700 dark:bg-graphite-900 dark:text-white" /></label>
     <fieldset className="flex flex-col gap-2 text-sm" disabled={loadingCategories || categories.length === 0}>
       <legend className="mb-1 font-medium text-graphite-700 dark:text-graphite-300">Category <span className="text-ember-600">*</span></legend>
-      <p className="text-xs text-graphite-500 dark:text-graphite-400">Choose the category that best describes your product.</p>
-      {loadingCategories ? <div className="rounded-xl border border-graphite-200 p-4 text-graphite-500 dark:border-graphite-700">Loading categories…</div> : categories.length === 0 ? <div className="rounded-xl border border-graphite-200 p-4 text-graphite-500 dark:border-graphite-700">No categories are available right now.</div> : <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-        {categories.flatMap((category) => [category, ...(category.children ?? [])]).map((category) => {
-          const selected = form.categorySlug === category.slug;
-          return <button key={category.id} type="button" aria-pressed={selected} onClick={() => set("categorySlug", category.slug)} className={`group flex min-h-[76px] items-center gap-3 rounded-xl border p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember-500 ${selected ? "border-ember-600 bg-ember-50 ring-1 ring-ember-600 dark:bg-ember-950/30" : "border-graphite-200 bg-white hover:border-ember-300 hover:bg-cloud-50 dark:border-graphite-700 dark:bg-graphite-900 dark:hover:bg-graphite-800"}`}>
-            <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-lg ${selected ? "bg-ember-600 text-white" : "bg-cloud-100 text-graphite-600 group-hover:text-ember-600 dark:bg-graphite-800 dark:text-graphite-300"}`}><span className="text-base font-semibold">{category.name.trim().charAt(0).toUpperCase()}</span></span>
-            <span className="min-w-0 flex-1"><span className={`block line-clamp-2 font-semibold ${selected ? "text-ember-700 dark:text-ember-300" : "text-graphite-800 dark:text-graphite-100"}`}>{category.name}</span>{category.children?.length ? <span className="mt-0.5 block text-[11px] text-graphite-500">{category.children.length} subcategories</span> : null}</span>
-            {selected && <span className="text-ember-600" aria-hidden="true">✓</span>}
-          </button>;
-        })}
+      <p className="text-xs text-graphite-500 dark:text-graphite-400">Search and select the category that best describes your product.</p>
+      {loadingCategories ? <div className="rounded-xl border border-graphite-200 p-4 text-graphite-500 dark:border-graphite-700">Loading categories…</div> : categories.length === 0 ? <div className="rounded-xl border border-graphite-200 p-4 text-graphite-500 dark:border-graphite-700">No categories are available right now.</div> : <div className="relative">
+        <button type="button" aria-haspopup="listbox" aria-expanded={categoryMenuOpen} onClick={() => setCategoryMenuOpen((open) => !open)} className={`flex w-full items-center gap-3 rounded-xl border bg-white p-3 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember-500 dark:bg-graphite-900 ${categoryMenuOpen ? "border-ember-500 ring-1 ring-ember-500/20" : "border-graphite-200 hover:border-graphite-300 dark:border-graphite-700"}`}>
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-cloud-100 text-base font-semibold text-graphite-600 dark:bg-graphite-800 dark:text-graphite-200">{selectedCategory?.name.trim().charAt(0).toUpperCase() || "?"}</span>
+          <span className="min-w-0 flex-1"><span className="block text-[11px] font-medium uppercase tracking-wide text-graphite-400">Selected category</span><span className={`mt-0.5 block truncate text-sm font-semibold ${selectedCategory ? "text-graphite-900 dark:text-white" : "text-graphite-400"}`}>{selectedCategory?.name ?? "Choose a category"}</span></span>
+          <ChevronDown className={`h-4 w-4 shrink-0 text-graphite-500 transition-transform ${categoryMenuOpen ? "rotate-180" : ""}`} />
+        </button>
+        {categoryMenuOpen && <div className="absolute z-30 mt-2 w-full overflow-hidden rounded-xl border border-graphite-200 bg-white shadow-xl shadow-black/10 dark:border-graphite-700 dark:bg-graphite-900">
+          <div className="border-b border-graphite-100 p-3 dark:border-graphite-800">
+            <div className="flex items-center gap-2 rounded-lg border border-graphite-200 bg-cloud-50 px-3 focus-within:border-ember-500 focus-within:ring-2 focus-within:ring-ember-500/10 dark:border-graphite-700 dark:bg-graphite-950">
+              <Search className="h-4 w-4 shrink-0 text-graphite-400" />
+              <input autoFocus type="search" value={categorySearch} onChange={(event) => setCategorySearch(event.target.value)} onKeyDown={(event) => { if (event.key === "Escape") setCategoryMenuOpen(false); }} placeholder="Search categories…" aria-label="Search product categories" className="min-w-0 flex-1 bg-transparent py-2.5 text-sm text-graphite-900 outline-none placeholder:text-graphite-400 dark:text-white" />
+              {categorySearch && <button type="button" onClick={() => setCategorySearch("")} className="rounded-md px-1.5 py-1 text-xs font-medium text-graphite-500 hover:bg-cloud-100 dark:hover:bg-graphite-800">Clear</button>}
+            </div>
+            <p className="mt-2 text-[11px] text-graphite-400">{categories.flatMap((category) => [category, ...(category.children ?? [])]).filter((category) => { const parent = categories.find((item) => item.children?.some((child) => child.id === category.id)); return `${category.name} ${parent?.name ?? ""}`.toLowerCase().includes(categorySearch.trim().toLowerCase()); }).length} categories found</p>
+          </div>
+          <div role="listbox" aria-label="Product categories" className="max-h-72 overflow-y-auto p-1.5">
+            {categories.flatMap((category) => [ { ...category, parentCategoryName: "" }, ...(category.children ?? []).map((child) => ({ ...child, parentCategoryName: category.name })) ]).filter((category) => `${category.name} ${category.parentCategoryName}`.toLowerCase().includes(categorySearch.trim().toLowerCase())).length === 0 ? <div className="px-4 py-8 text-center"><Search className="mx-auto mb-2 h-5 w-5 text-graphite-300" /><p className="text-sm font-medium text-graphite-600 dark:text-graphite-300">No matching categories</p><p className="mt-1 text-xs text-graphite-400">Try another name or keyword.</p></div> : categories.flatMap((category) => [ { ...category, parentCategoryName: "" }, ...(category.children ?? []).map((child) => ({ ...child, parentCategoryName: category.name })) ]).filter((category) => `${category.name} ${category.parentCategoryName}`.toLowerCase().includes(categorySearch.trim().toLowerCase())).map((category) => {
+              const selected = form.categorySlug === category.slug;
+              return <button key={category.id} type="button" role="option" aria-selected={selected} onClick={() => { set("categorySlug", category.slug); setCategoryMenuOpen(false); setCategorySearch(""); }} className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition ${selected ? "bg-ember-50 dark:bg-ember-950/30" : "hover:bg-cloud-50 dark:hover:bg-graphite-800"}`}>
+                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg text-sm font-semibold ${selected ? "bg-ember-600 text-white" : "bg-cloud-100 text-graphite-600 dark:bg-graphite-800 dark:text-graphite-300"}`}>{category.name.trim().charAt(0).toUpperCase()}</span>
+                <span className="min-w-0 flex-1"><span className={`block truncate text-sm font-medium ${selected ? "text-ember-700 dark:text-ember-300" : "text-graphite-800 dark:text-graphite-100"}`}>{category.name}</span>{category.parentCategoryName && <span className="mt-0.5 block truncate text-[11px] text-graphite-400">{category.parentCategoryName} / Subcategory</span>}{category.children?.length ? <span className="mt-0.5 block text-[11px] text-graphite-400">{category.children.length} subcategories</span> : null}</span>
+                {selected && <Check className="h-4 w-4 shrink-0 text-ember-600" />}
+              </button>;
+            })}
+          </div>
+        </div>}
       </div>}
       <input type="hidden" required value={form.categorySlug} readOnly aria-label="Selected category" />
     </fieldset>
