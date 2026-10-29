@@ -53,7 +53,7 @@ export function ProductSpecifications({ categoryName, productName, specification
             : "Clothing";
   const fashionProductType = specifications.fashionProductType || inferredFashionType;
   const hasExplicitFashionType = Boolean(specifications.fashionProductType);
-  const isJewellery = fashionProductType === "Jewellery" || (!hasExplicitFashionType && ["ring", "jewell", "jewel", "necklace", "pendant", "bracelet", "bangle", "earring"].some((term) => category.includes(term) || product.includes(term)));
+  const isJewellery = fashionProductType === "Jewellery" || fashionProductType === "Watches" || (!hasExplicitFashionType && ["ring", "jewell", "jewel", "necklace", "pendant", "bracelet", "bangle", "earring"].some((term) => category.includes(term) || product.includes(term)));
   const isRing = isJewellery && (category.includes("ring") || product.includes("ring"));
   const isNecklace = isJewellery && (category.includes("necklace") || category.includes("pendant") || product.includes("necklace") || product.includes("pendant"));
   const isBracelet = isJewellery && (category.includes("bracelet") || category.includes("bangle") || product.includes("bracelet") || product.includes("bangle"));
