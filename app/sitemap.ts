@@ -37,6 +37,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "/" ? 1 : 0.7,
   }));
 
+  const campaign = await api.get<{ campaign: { enabled: boolean } }>("/api/settings/black-friday/public").catch(() => null);
+  if (campaign?.campaign.enabled) staticPages.push({ url: `${SITE_URL}/black-friday`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.9 });
+
   // Load categories and products independently. A temporary failure in one
   // API endpoint should not remove successfully retrieved URLs from the sitemap.
   const [categoriesResult, products] = await Promise.all([
