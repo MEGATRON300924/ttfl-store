@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Flame, ArrowRight, CalendarClock, Tag } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
+import { BlackFridayCountdown } from "@/components/black-friday-countdown";
 import { api } from "@/lib/api-client";
 import type { ApiProduct } from "@/lib/api-types";
 import type { Product } from "@/lib/mock-data";
@@ -21,14 +22,22 @@ async function getCampaign() {
 
 export async function generateMetadata(): Promise<Metadata> {
   const { campaign, isLive } = await getCampaign();
-  const title = isLive ? campaign.headline : "Black Friday Deals in Nigeria";
-  const description = isLive ? campaign.subheadline : "Discover Black Friday deals and limited-time offers on TTFL Store, the Nigerian online marketplace.";
+  const title = isLive ? campaign.headline : "TTFL Store Black Friday 2026 Is Around the Corner";
+  const description = isLive
+    ? campaign.subheadline
+    : "TTFL Store Black Friday Week is almost here! Count down to November 23–30, 2026 and get ready to discover limited-time shopping deals across Nigeria.";
+  const keywords = [
+    "TTFL Store Black Friday", "Black Friday Nigeria 2026", "Black Friday deals Nigeria",
+    "TTFL Store Black Friday Week", "Black Friday countdown", "online shopping deals Nigeria",
+    "Cyber Monday Nigeria", "TTFL Store deals",
+  ];
   return {
     title,
     description,
+    keywords,
     alternates: { canonical: `${SITE_URL}/black-friday` },
-    robots: campaign.enabled ? { index: true, follow: true } : { index: false, follow: true },
-    openGraph: { type: "website", siteName: "TTFL Store", title, description, url: `${SITE_URL}/black-friday`, locale: "en_NG", images: [{ url: "/ttflstore.png", width: 1200, height: 630, alt: "TTFL Store Black Friday" }] },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1 } },
+    openGraph: { type: "website", siteName: "TTFL Store", title, description, url: `${SITE_URL}/black-friday`, locale: "en_NG", images: [{ url: "/ttflstore.png", width: 1200, height: 630, alt: "TTFL Store Black Friday Week 2026 countdown" }] },
     twitter: { card: "summary_large_image", title, description, images: ["/ttflstore.png"] },
   };
 }
@@ -93,8 +102,9 @@ export default async function BlackFridayPage() {
         <div className="pointer-events-none absolute inset-0 opacity-30" style={{ backgroundImage: "radial-gradient(circle at 80% 15%, rgba(249,115,22,.55), transparent 35%), radial-gradient(circle at 10% 100%, rgba(220,38,38,.35), transparent 35%)" }} />
         <div className="shell relative py-12 sm:py-16 lg:py-20">
           <span className="inline-flex items-center gap-2 rounded-full border border-ember-500/40 bg-ember-500/10 px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-ember-300"><Flame className="h-4 w-4" /> TTFL Store Special</span>
-          <h1 className="mt-5 max-w-3xl text-3xl font-extrabold tracking-tight sm:text-5xl">{campaign.headline}</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-graphite-300 sm:text-base">{campaign.subheadline}</p>
+          <h1 className="mt-5 max-w-3xl text-3xl font-extrabold tracking-tight sm:text-5xl">{isLive ? campaign.headline : "TTFL Store Black Friday Is Around the Corner"}</h1>
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-graphite-300 sm:text-base">{isLive ? campaign.subheadline : "Black Friday Week is coming to TTFL Store from November 23–30, 2026. Get ready to explore limited-time offers from the marketplace, compare products, and find great deals—all online."}</p>
+          <BlackFridayCountdown />
           {isLive ? <div className="mt-7 inline-flex items-center gap-2 rounded-card bg-ember-600 px-4 py-3 text-sm font-bold"><Tag className="h-4 w-4" /> Black Friday deals are live</div> : isScheduled ? <div className="mt-7 inline-flex items-center gap-2 rounded-card border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white"><CalendarClock className="h-4 w-4 text-ember-400" /> Starts {dateLabel}</div> : <div className="mt-7 inline-flex items-center gap-2 rounded-card border border-white/15 bg-white/5 px-4 py-3 text-sm font-semibold text-white"><CalendarClock className="h-4 w-4 text-ember-400" /> Campaign not active yet</div>}
           <div className="mt-6 flex flex-wrap gap-3"><Link href="/shop" className="inline-flex items-center gap-2 rounded-card bg-white px-4 py-3 text-sm font-bold text-graphite-950 hover:bg-cloud-100">Explore the marketplace <ArrowRight className="h-4 w-4" /></Link><Link href="/deals" className="inline-flex items-center gap-2 rounded-card border border-white/20 px-4 py-3 text-sm font-semibold text-white hover:bg-white/10">View all deals</Link></div>
         </div>
