@@ -29,7 +29,7 @@ async function getAllProducts(): Promise<ApiProduct[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticPaths = ["/", "/shop", "/deals", "/categories", "/brands", "/locations", "/featured", "/stores", "/services", "/events", "/partners", "/support", "/support/vendors", "/support/refunds", "/about", "/trust", "/legal/terms", "/legal/privacy", "/docs", "/sell", "/sell/pricing"];
+  const staticPaths = ["/", "/shop", "/black-friday", "/deals", "/categories", "/brands", "/locations", "/featured", "/stores", "/services", "/events", "/partners", "/support", "/support/vendors", "/support/refunds", "/about", "/trust", "/legal/terms", "/legal/privacy", "/docs", "/sell", "/sell/pricing"];
   const staticPages = staticPaths.map(path => ({
     url: `${SITE_URL}${path}`,
     lastModified: new Date(),
@@ -37,8 +37,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "/" ? 1 : 0.7,
   }));
 
-  const campaign = await api.get<{ campaign: { enabled: boolean } }>("/api/settings/black-friday/public").catch(() => null);
-  if (campaign?.campaign.enabled) staticPages.push({ url: `${SITE_URL}/black-friday`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.9 });
+  staticPages.push({ url: `${SITE_URL}/black-friday`, lastModified: new Date(), changeFrequency: "daily" as const, priority: 0.9 });
 
   // Load categories and products independently. A temporary failure in one
   // API endpoint should not remove successfully retrieved URLs from the sitemap.
