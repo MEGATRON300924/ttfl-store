@@ -61,6 +61,17 @@ export function ProductSpecifications({ categoryName, productName, specification
   const isWatch = fashionProductType === "Watches" || (!hasExplicitFashionType && (category.includes("watch") || product.includes("watch")));
   const isFootwear = fashionProductType === "Footwear" || (!hasExplicitFashionType && ["shoe", "footwear", "sneaker", "boot", "sandal", "slipper"].some((term) => category.includes(term) || product.includes(term)));
   const isBag = fashionProductType === "Bags" || (!hasExplicitFashionType && ["bag", "handbag", "purse", "backpack", "wallet"].some((term) => category.includes(term) || product.includes(term)));
+  const fashionMaterialOptions = fashionProductType === "Jewellery"
+    ? ["Yellow gold", "White gold", "Rose gold", "Gold-plated", "Gold vermeil", "Sterling silver", "Silver-plated", "Platinum", "Titanium", "Stainless steel", "Surgical steel", "Tungsten", "Brass", "Copper", "Ceramic", "Resin", "Acrylic", "Pearl", "Gemstone", "Mixed metals", "Other"]
+    : fashionProductType === "Footwear"
+      ? ["Leather", "Synthetic leather", "Suede", "Nubuck", "Canvas", "Cotton textile", "Mesh", "Knit textile", "Rubber", "EVA foam", "PVC", "PU", "Nylon", "Polyester", "Mixed materials", "Other"]
+      : fashionProductType === "Bags"
+        ? ["Leather", "Faux leather", "Suede", "Canvas", "Cotton", "Nylon", "Polyester", "Denim", "Jute", "Straw / raffia", "PVC", "PU", "Recycled materials", "Mixed materials", "Other"]
+        : fashionProductType === "Watches"
+          ? ["Stainless steel", "Titanium", "Aluminium", "Ceramic", "Resin", "Plastic", "Leather strap", "Silicone strap", "Rubber strap", "Nylon strap", "Fabric strap", "Mixed materials", "Other"]
+          : fashionProductType === "Accessories"
+            ? ["Leather", "Faux leather", "Cotton", "Wool", "Silk", "Linen", "Polyester", "Nylon", "Canvas", "Wood", "Resin", "Acrylic", "Stainless steel", "Other"]
+            : ["Cotton", "Cotton blend", "Polyester", "Linen", "Wool", "Silk", "Denim", "Rayon / viscose", "Nylon", "Spandex / elastane", "Acrylic knit", "Jersey", "Fleece", "Satin", "Chiffon", "Lace", "Mesh", "Canvas", "Leather", "Faux leather", "Suede", "Other"];
   const isBeauty = category.includes("beauty");
   const isHome = category.includes("home") || category.includes("living");
   const isVehicle = category.includes("vehicle") || category.includes("automotive");
@@ -140,11 +151,11 @@ export function ProductSpecifications({ categoryName, productName, specification
 
     {isFashion && <div className="flex flex-col gap-2.5">
       <div className="rounded-lg border border-graphite-200 bg-cloud-50/70 p-3 dark:border-graphite-700 dark:bg-graphite-900/60">
-        <SelectField label="Fashion product type" value={fashionProductType} options={["Clothing", "Footwear", "Jewellery", "Bags", "Watches", "Accessories", "Other"]} onChange={(value) => set("fashionProductType", value)} />
+        <SelectField label="Fashion product type" value={fashionProductType} options={["Clothing", "Footwear", "Jewellery", "Bags", "Watches", "Accessories", "Other"]} onChange={(value) => { set("fashionProductType", value); set("material", ""); }} />
         <p className="mt-1.5 text-xs leading-4 text-graphite-500 dark:text-graphite-400">Choose what you are selling. TTFL will show only the relevant size and product fields.</p>
       </div>
       <div className="grid gap-2.5 sm:grid-cols-2"><Field label="Brand" value={specifications.brand} onChange={(value) => set("brand", value)} /><SelectField label="Gender" value={specifications.gender} options={["Women", "Men", "Unisex", "Girls", "Boys", "Kids", "Baby", "Not gender-specific"]} onChange={(value) => set("gender", value)} /></div>
-      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2"><Field label="Colour" value={specifications.colour} onChange={(value) => set("colour", value)} /><SelectField label="Material" value={specifications.material} options={["Gold", "14K gold", "18K gold", "22K gold", "White gold", "Rose gold", "Silver", "Sterling silver", "Platinum", "Stainless steel", "Surgical steel", "Titanium", "Tungsten", "Ceramic", "Brass", "Leather", "Cotton", "Wool", "Linen", "Silk", "Polyester", "Denim", "Nylon", "Plastic", "Wood", "Gemstone", "Mixed materials", "Other"]} onChange={(value) => set("material", value)} /></div>
+      <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2"><Field label="Colour" value={specifications.colour} onChange={(value) => set("colour", value)} /><SelectField label="Material" value={specifications.material} options={fashionMaterialOptions} onChange={(value) => set("material", value)} /></div>
       {isJewellery ? <>
         <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
           {isRing ? <><Field label="Ring size" value={specifications.ringSize ?? specifications.size} onChange={(value) => { set("ringSize", value); set("size", value); }} hint="e.g. US 7, UK N, EU 54, or adjustable" /><SelectField label="Ring sizing system" value={specifications.ringSizeSystem} options={["US / Canada", "UK / Ireland", "EU / ISO", "Japan", "Adjustable / one size", "Not specified"]} onChange={(value) => set("ringSizeSystem", value)} /><SelectField label="Adjustable ring" value={specifications.adjustable} options={["Yes", "No"]} onChange={(value) => set("adjustable", value)} /></> : null}
