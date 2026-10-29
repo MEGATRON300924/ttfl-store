@@ -177,16 +177,16 @@ export default function VendorDashboardPage() {
       )}
 
       <header className="sticky top-0 z-40 border-b border-graphite-200 bg-white/95 backdrop-blur dark:border-graphite-800 dark:bg-graphite-950/95">
-        <div className="flex h-16 items-center gap-3 px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 min-w-0 items-center gap-2 px-3 sm:gap-3 sm:px-6 lg:px-8">
           <button className="btn-secondary !px-2.5 lg:hidden" onClick={() => setMobileOpen(true)} aria-label="Open menu"><Menu size={19}/></button>
-          <Link href="/" className="flex items-center gap-2 font-bold text-graphite-950 dark:text-white">
+          <Link href="/" className="flex min-w-0 items-center gap-2 font-bold text-graphite-950 dark:text-white">
             <span className="grid h-9 w-9 place-items-center rounded-xl bg-ember-600 text-white"><StoreIcon className="h-5 w-5"/></span>
-            <span>TTFL Store</span>
+            <span className="truncate">TTFL Store</span>
             <span className="hidden border-l border-graphite-200 pl-3 text-sm font-semibold text-graphite-500 sm:block">Vendor dashboard</span>
           </Link>
-          <div className="ml-auto flex items-center gap-2">
-            <Link href="/vendor/dashboard/max-ai" className="inline-flex items-center justify-center gap-2 rounded-xl border border-graphite-200 bg-white px-4 py-2.5 text-sm font-semibold text-graphite-800 shadow-sm transition hover:border-ember-300 hover:bg-ember-50 hover:text-ember-700 dark:border-graphite-700 dark:bg-graphite-900 dark:text-white dark:hover:border-ember-500/50 dark:hover:bg-ember-950/20"><Bot size={16}/> Max AI</Link>
-            <Link href="/vendor/dashboard/products/new" className="inline-flex items-center justify-center gap-2 rounded-xl bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-ember-700"><Plus size={16}/> Add product</Link>
+          <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-2">
+            <Link href="/vendor/dashboard/max-ai" className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-graphite-200 bg-white px-2.5 py-2.5 text-sm font-semibold text-graphite-800 shadow-sm transition hover:border-ember-300 hover:bg-ember-50 hover:text-ember-700 sm:gap-2 sm:px-4 dark:border-graphite-700 dark:bg-graphite-900 dark:text-white dark:hover:border-ember-500/50 dark:hover:bg-ember-950/20"><Bot size={16}/><span className="hidden sm:inline">Max AI</span></Link>
+            <Link href="/vendor/dashboard/products/new" className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-ember-600 px-2.5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-ember-700 sm:gap-2 sm:px-4"><Plus size={16}/><span className="hidden sm:inline">Add product</span></Link>
           </div>
         </div>
       </header>
@@ -295,12 +295,12 @@ export default function VendorDashboardPage() {
             </div>
 
             <div className="mt-7 grid gap-5 lg:grid-cols-[1.2fr_.8fr]">
-              <div className="card p-5 sm:p-6">
-                <div className="flex items-center justify-between"><div><h2 className="font-bold text-graphite-950 dark:text-white">Recent products</h2><p className="mt-1 text-sm text-graphite-500">Your latest marketplace listings.</p></div><Link href="/vendor/dashboard/products" className="text-sm font-semibold text-ember-600">View all</Link></div>
-                <div className="mt-5 divide-y divide-graphite-200 dark:divide-graphite-800">
+              <div className="card min-w-0 p-3 sm:p-6">
+                <div className="flex min-w-0 items-center justify-between gap-3"><div className="min-w-0"><h2 className="font-bold text-graphite-950 dark:text-white">Recent products</h2><p className="mt-1 text-sm text-graphite-500">Your latest marketplace listings.</p></div><Link href="/vendor/dashboard/products" className="text-sm font-semibold text-ember-600">View all</Link></div>
+                <div className="mt-3 divide-y divide-graphite-200 dark:divide-graphite-800 sm:mt-5">
                   {recentProducts.map(product => (
-                    <div key={product.id} className="flex items-center gap-3 py-3">
-                      {product.images?.[0]?.url ? <img src={product.images[0].url} alt="" className="h-12 w-12 rounded-xl object-cover"/> : <div className="grid h-12 w-12 place-items-center rounded-xl bg-cloud-100 text-graphite-400 dark:bg-graphite-800"><Package size={18}/></div>}
+                    <div key={product.id} className="flex min-w-0 items-center gap-2.5 py-2.5 sm:gap-3 sm:py-3">
+                      {product.images?.[0]?.url ? <img src={product.images[0].url} alt="" className="h-10 w-10 shrink-0 rounded-lg object-cover sm:h-12 sm:w-12 sm:rounded-xl"/> : <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-cloud-100 text-graphite-400 sm:h-12 sm:w-12 sm:rounded-xl dark:bg-graphite-800"><Package size={18}/></div>}
                       <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-graphite-900 dark:text-white">{product.name}</p><p className="mt-1 text-xs text-graphite-500">{Number(product.viewCount || 0)} views · {product.status || "Listed"}</p></div>
                       {product.slug && <Link href={`/products/${product.slug}`} className="text-graphite-400 hover:text-ember-600"><ExternalLink size={16}/></Link>}
                     </div>
@@ -309,7 +309,7 @@ export default function VendorDashboardPage() {
                 </div>
               </div>
 
-              <div className="card p-5 sm:p-6">
+              <div className="card min-w-0 p-3 sm:p-6">
                 <h2 className="font-bold text-graphite-950 dark:text-white">Quick actions</h2>
                 <p className="mt-1 text-sm text-graphite-500">Jump straight into the tools you use most.</p>
                 <div className="mt-5 grid gap-2">
