@@ -70,7 +70,7 @@ export default function BlackFridayAdminPage() {
     setSaving(true);
     setMessage("");
     setError("");
-    const payload = { ...config, startsAt: toIso(startsAt), endsAt: toIso(endsAt) };
+    const payload = { ...config, participation: "both" as const, startsAt: toIso(startsAt), endsAt: toIso(endsAt) };
     if (!payload.startsAt || !payload.endsAt || new Date(payload.endsAt) <= new Date(payload.startsAt)) {
       setError("Choose a valid end date and time after the start date and time.");
       setSaving(false);
@@ -156,9 +156,7 @@ export default function BlackFridayAdminPage() {
               <fieldset><legend className="text-sm font-semibold text-graphite-800">Discount management</legend><div className="mt-3 space-y-2">
                 {[["vendor-approval", "Vendor proposes, admin approves", "Recommended for marketplace price integrity."], ["vendor", "Vendors manage their own sale prices", "Requires vendor-side campaign controls."], ["admin", "Admins set all campaign prices", "Central control for selected promotions."]].map(([value, title, description]) => <label key={value} className={`flex cursor-pointer gap-3 rounded-card border p-3 ${config.discountMode === value ? "border-ember-500 bg-ember-50" : "border-graphite-200"}`}><input type="radio" name="discountMode" checked={config.discountMode === value} onChange={() => update("discountMode", value as BlackFridayConfig["discountMode"])} className="mt-1 accent-orange-600" /><span><span className="block text-sm font-semibold text-graphite-900">{title}</span><span className="mt-1 block text-xs leading-5 text-graphite-600">{description}</span></span></label>)}
               </div></fieldset>
-              <fieldset><legend className="text-sm font-semibold text-graphite-800">Campaign participation</legend><div className="mt-3 space-y-2">
-                {[["both", "Marketplace + TTFL featured deals", "All eligible vendors and TTFL Store promotions."], ["vendors", "Marketplace vendors only", "Include eligible vendor listings."], ["ttfl", "TTFL featured deals only", "Only TTFL-managed featured promotions."]].map(([value, title, description]) => <label key={value} className={`flex cursor-pointer gap-3 rounded-card border p-3 ${config.participation === value ? "border-ember-500 bg-ember-50" : "border-graphite-200"}`}><input type="radio" name="participation" checked={config.participation === value} onChange={() => update("participation", value as BlackFridayConfig["participation"])} className="mt-1 accent-orange-600" /><span><span className="block text-sm font-semibold text-graphite-900">{title}</span><span className="mt-1 block text-xs leading-5 text-graphite-600">{description}</span></span></label>)}
-              </div></fieldset>
+              <div className="rounded-card border border-graphite-200 bg-cloud-50 p-4"><p className="text-sm font-semibold text-graphite-800">Campaign participation</p><p className="mt-1 text-xs leading-5 text-graphite-600">Black Friday includes eligible vendor-submitted promotions and TTFL-admin-curated deals. Vendor submissions follow the approval mode selected alongside this setting.</p></div>
             </div>
           </section>
 
