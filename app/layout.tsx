@@ -58,11 +58,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-NG" className={`${jakarta.variable} ${mono.variable}`}>
       <body>
-        <Script
-          async
-          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
-          crossOrigin="anonymous"
-        />
         <SiteStructuredData />
         <AuthProvider>
           <CartProvider>
