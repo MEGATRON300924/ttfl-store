@@ -29,7 +29,7 @@ async function getAllProducts(): Promise<ApiProduct[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticPaths = ["/", "/shop", "/black-friday", "/deals", "/categories", "/brands", "/locations", "/featured", "/stores", "/services", "/events", "/partners", "/support", "/support/vendors", "/support/refunds", "/about", "/trust", "/legal/terms", "/legal/privacy", "/docs", "/sell", "/sell/pricing"];
+  const staticPaths = ["/", "/shop", "/black-friday", "/deals", "/categories", "/brands", "/locations", "/featured", "/stores", "/services", "/events", "/partners", "/support", "/support/vendors", "/support/refunds", "/contact", "/about", "/trust", "/legal/terms", "/legal/privacy", "/docs", "/sell", "/sell/pricing"];
   const staticPages = staticPaths.map(path => ({
     url: `${SITE_URL}${path}`,
     lastModified: new Date(),
@@ -45,13 +45,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getAllProducts().catch(() => [] as ApiProduct[]),
   ]);
   const allCategories = (categoriesResult.categories ?? []).flatMap(category => [category, ...(category.children ?? [])]);
-  const categoryPages = allCategories.map(c => ({
+  const categoryPages = allCategories.filter(c => products.some(p => p.status === "ACTIVE" && p.category?.slug === c.slug && p.description?.trim().length >= 80)).map(c => ({
     url: `${SITE_URL}/categories/${c.slug}`,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
   const productPages = products
-    .filter(p => !p.comingSoon && p.status === "ACTIVE" && Boolean(p.slug))
+    .filter(p => !p.comingSoon && p.status === "ACTIVE" && Boolean(p.slug) && p.description?.trim().length >= 80 && (p.images?.length ?? 0) > 0)
     .map(p => ({
       url: `${SITE_URL}/products/${p.slug}`,
       lastModified: new Date(),
