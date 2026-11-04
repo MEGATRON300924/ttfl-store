@@ -425,7 +425,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
   return (
     <>
-      <AdSenseLoader enabled={product.status === "ACTIVE" && product.description.trim().length >= 120 && Object.entries(product.specifications ?? {}).filter(([key, value]) => key !== "_variations" && String(value).trim()).length >= 2 && product.images.length > 0} />
+      <AdSenseLoader enabled={product.status === "ACTIVE" && sponsoredRelevant.length === 0 && !product.comingSoon && product.description.trim().length >= 120 && Object.entries(product.specifications ?? {}).filter(([key, value]) => key !== "_variations" && String(value).trim()).length >= 2 && product.images.length > 0} />
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: "/" },
