@@ -29,7 +29,7 @@ async function getAllProducts(): Promise<ApiProduct[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticPaths = ["/", "/shop", "/black-friday", "/deals", "/categories", "/brands", "/locations", "/featured", "/stores", "/services", "/events", "/partners", "/support", "/support/vendors", "/support/refunds", "/about", "/trust", "/legal/terms", "/legal/privacy", "/docs", "/sell", "/sell/pricing"];
+  const staticPaths = ["/", "/shop", "/black-friday", "/deals", "/categories", "/brands", "/locations", "/featured", "/stores", "/services", "/events", "/partners", "/support", "/support/vendors", "/support/refunds", "/contact", "/about", "/trust", "/legal/terms", "/legal/privacy", "/docs", "/sell", "/sell/pricing"];
   const staticPages = staticPaths.map(path => ({
     url: `${SITE_URL}${path}`,
     lastModified: new Date(),
@@ -44,25 +44,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     api.get<{ categories: ApiCategory[] }>("/api/categories").catch(() => ({ categories: [] as ApiCategory[] })),
     getAllProducts().catch(() => [] as ApiProduct[]),
   ]);
+  const indexableProducts = products.filter(p => !p.comingSoon && p.status === "ACTIVE" && Boolean(p.slug) && p.description?.trim().length >= 80 && (p.images?.length ?? 0) > 0);
   const allCategories = (categoriesResult.categories ?? []).flatMap(category => [category, ...(category.children ?? [])]);
-  const categoryPages = allCategories.map(c => ({
+  const categoryPages = allCategories.filter(c => indexableProducts.some(p => p.category?.slug === c.slug)).map(c => ({
     url: `${SITE_URL}/categories/${c.slug}`,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
-  const productPages = products
-    .filter(p => !p.comingSoon && p.status === "ACTIVE" && Boolean(p.slug))
+  const productPages = indexableProducts
     .map(p => ({
       url: `${SITE_URL}/products/${p.slug}`,
       lastModified: new Date(),
       changeFrequency: "weekly" as const,
       priority: 0.8,
     }));
-  const storePages = Array.from(new Set(products.map(p => p.vendor?.storeSlug).filter((slug): slug is string => Boolean(slug))))
+  const storePages = Array.from(new Set(indexableProducts.map(p => p.vendor?.storeSlug).filter((slug): slug is string => Boolean(slug))))
     .map(slug => ({ url: `${SITE_URL}/store/${slug}`, changeFrequency: "weekly" as const, priority: 0.65 }));
-  const brands = Array.from(new Map(products.map(p => String(p.specifications?.brand ?? "").trim()).filter(Boolean).map(brand => [slugify(brand), brand])).entries()).filter(([slug]) => slug);
+  const brands = Array.from(new Map(indexableProducts.map(p => String(p.specifications?.brand ?? "").trim()).filter(Boolean).map(brand => [slugify(brand), brand])).entries()).filter(([slug]) => slug);
   const brandPages = brands.map(([slug]) => ({ url: `${SITE_URL}/brands/${slug}`, changeFrequency: "weekly" as const, priority: 0.65 }));
-  const locations = Array.from(new Map(products.map(p => String(p.location ?? p.vendor?.location ?? "").trim()).filter(Boolean).map(location => [slugify(location), location])).entries()).filter(([slug]) => slug);
+  const locations = Array.from(new Map(indexableProducts.map(p => String(p.location ?? p.vendor?.location ?? "").trim()).filter(Boolean).map(location => [slugify(location), location])).entries()).filter(([slug]) => slug);
   const locationPages = locations.map(([slug]) => ({ url: `${SITE_URL}/locations/${slug}`, changeFrequency: "weekly" as const, priority: 0.65 }));
 
   return [...staticPages, ...categoryPages, ...productPages, ...storePages, ...brandPages, ...locationPages];

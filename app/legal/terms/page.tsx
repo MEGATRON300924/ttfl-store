@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function TermsPage() {
   return (
     <SeoContentPage
-      eyebrow="Legal · Version 2026-10-01-v1"
+      eyebrow="Legal · Version 2026-11-04-v2"
       title="TTFL Store Terms and Conditions"
       description="These Terms govern the use of TTFL Store by customers, vendors, staff and visitors. They are written to make the marketplace rules clear before you use account, shopping or vendor features."
       sections={[
@@ -28,7 +28,7 @@ export default function TermsPage() {
         },
         {
           title: "4. Vendor responsibilities",
-          body: "Vendors must list products and services accurately, use genuine and lawful products, disclose relevant condition or limitations, keep prices and stock current, fulfil accepted orders within the stated or agreed timeframe, communicate with customers appropriately and cooperate with TTFL Store investigations. Counterfeit, stolen, fraudulent, prohibited or unlawfully supplied goods are not allowed.",
+          body: "Vendors must list products and services accurately, use genuine and lawful products, disclose relevant condition or limitations, keep prices and stock current, fulfil accepted orders within the stated or agreed timeframe, communicate with customers appropriately and cooperate with TTFL Store investigations. Vendors must own or have permission to use every product image, description, video, logo and other material they upload. Listings must not copy protected material without permission, impersonate a brand or seller, make unsupported claims, conceal material product information, or misrepresent authenticity, condition, origin, availability or price. Counterfeit, stolen, fraudulent, prohibited or unlawfully supplied goods are not allowed.",
         },
         {
           title: "5. Orders, payments and fulfilment",
@@ -56,22 +56,26 @@ export default function TermsPage() {
         },
         {
           title: "11. Prohibited conduct",
-          body: "You must not use TTFL Store for scams, money laundering, fraudulent payment activity, counterfeit or stolen goods, unlawful goods or services, malicious code, harassment, review manipulation, account abuse, unauthorised data collection, attempts to bypass security, or transactions intended to evade TTFL Store's marketplace safeguards.",
+          body: "You must not use TTFL Store for scams, money laundering, fraudulent payment activity, counterfeit or stolen goods, unlawful goods or services, malicious code, harassment, review manipulation, account abuse, unauthorised data collection, attempts to bypass security, copyright or trademark infringement, deceptive product claims, false affiliations, or transactions intended to evade TTFL Store's marketplace safeguards. Do not upload content that you do not have the right to publish. TTFL Store may remove listings, restrict accounts or suspend vendor access while investigating suspected violations.",
         },
         {
-          title: "12. Privacy and personal information",
+          title: "12. Listing content, intellectual property and reports",
+          body: "Vendors retain responsibility for ensuring that their listings, images, descriptions, logos and other uploaded materials are accurate and lawful. By submitting content, a vendor confirms that they own it or have the permissions needed to display it on TTFL Store. Rights holders and users may report suspected infringement, counterfeit goods or misleading listings through the support process. TTFL Store may restrict access to reported material while reviewing a complaint and may take action where a violation is confirmed.",
+        },
+        {
+          title: "13. Privacy and personal information",
           body: "TTFL Store processes personal information as described in its Privacy Policy and applicable data-protection requirements. Personal information should only be collected, shared or used through TTFL Store features for legitimate marketplace purposes. Do not post another person's private information in reviews, reports, listings or messages.",
         },
         {
-          title: "13. Complaints and disputes",
+          title: "14. Complaints and disputes",
           body: "Customers and vendors should first use TTFL Store support and the available order, report or dispute processes. Provide accurate records such as order numbers, receipts, messages and relevant evidence when requested. TTFL Store may ask both sides for information before resolving a marketplace complaint.",
         },
         {
-          title: "14. Changes to these Terms",
+          title: "15. Changes to these Terms",
           body: "TTFL Store may update these Terms as the marketplace develops or when legal, security or operational requirements change. When a material update requires renewed acceptance, the platform may ask you to review and accept the new version before continuing to use affected account features.",
         },
         {
-          title: "15. Acceptance",
+          title: "16. Acceptance",
           body: "By selecting “Agree and continue” after reviewing the current Terms, you confirm that you have had an opportunity to read them and agree to follow the marketplace rules applicable to your use of TTFL Store. Your acceptance records the current Terms version and the time of acceptance.",
         },
       ]}

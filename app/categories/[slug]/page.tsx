@@ -104,7 +104,10 @@ const CATEGORY_SEO: Record<string, { title: string; description: string; keyword
 };
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
-  const category = await getCategory(params.slug).catch(() => undefined);
+  const [category, products] = await Promise.all([
+    getCategory(params.slug).catch(() => undefined),
+    getProducts(params.slug).catch(() => []),
+  ]);
   if (!category) return { title: "Category not found", robots: { index: false, follow: true } };
   const heading = getCategoryHeading(params.slug, category.name);
   const market = getStoreMarket();
@@ -130,6 +133,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return {
     title,
     description,
+    robots: { index: products.some(p => p.status === "ACTIVE" && p.description?.trim().length >= 80 && (p.images?.length ?? 0) > 0), follow: true },
     keywords,
     alternates: { canonical },
     openGraph: {

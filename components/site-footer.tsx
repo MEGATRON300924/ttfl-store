@@ -5,7 +5,7 @@ const columns = [
   { title: "Shop", links: [{ label: "All categories", href: "/categories" }, { label: "Deals", href: "/deals" }, { label: "Featured stores", href: "/featured" }, { label: "New arrivals", href: "/new" }, { label: "Events & Opportunities", href: "/events" }] },
   { title: "Sell", links: [{ label: "Become a vendor", href: "/sell" }, { label: "Vendor tiers & pricing", href: "/sell/pricing" }, { label: "Vendor login", href: "/vendor/login" }, { label: "Seller help center", href: "/support/vendors" }] },
   { title: "Earn", links: [{ label: "Affiliate program", href: "/affiliate" }, { label: "Affiliate dashboard", href: "/affiliate/dashboard" }, { label: "Become a vendor", href: "/sell" }, { label: "Vendor login", href: "/vendor/login" }] },
-  { title: "Support", links: [{ label: "Help center", href: "/support" }, { label: "Error code checker", href: "/error-codes" }, { label: "Track an order", href: "/orders/track" }, { label: "Returns & refunds", href: "/support/refunds" }, { label: "Report a problem", href: "/support/report" }, { label: "TTFL docs", href: "/docs" }] },
+  { title: "Support", links: [{ label: "Help center", href: "/support" }, { label: "Contact us", href: "/contact" }, { label: "Error code checker", href: "/error-codes" }, { label: "Track an order", href: "/orders/track" }, { label: "Returns & refunds", href: "/support/refunds" }, { label: "Report a problem", href: "/support/report" }, { label: "TTFL docs", href: "/docs" }] },
   { title: "Company", links: [{ label: "About The Tron Forge Limited", href: "/about" }, { label: "Trust & safety", href: "/trust" }, { label: "Terms of service", href: "/legal/terms" }, { label: "Privacy policy", href: "/legal/privacy" }] },
 ];
 

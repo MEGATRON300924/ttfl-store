@@ -6,7 +6,7 @@ import { FileText, Loader2, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api-client";
 
-export const CURRENT_TERMS_VERSION = "2026-10-01-v1";
+export const CURRENT_TERMS_VERSION = "2026-11-04-v2";
 
 export function TermsGate() {
   const { user, loading, refresh } = useAuth();
