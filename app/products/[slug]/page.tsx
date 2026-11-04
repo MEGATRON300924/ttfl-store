@@ -1,3 +1,4 @@
+import { AdSenseLoader } from "@/components/adsense-loader";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -202,6 +203,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return {
     title: `${product.comingSoon ? "Coming soon: " : product.specifications?._productType === "pre-order" ? "Pre-order: " : ""}${displayName} | TTFL Store`,
     description,
+    robots: { index: product.description.trim().length >= 80, follow: true },
     keywords: [displayName, brand, product.category.name, ...(product.tags ?? []), ...variationKeywords, ...specificationKeywords].filter(
       Boolean,
     ) as string[],
@@ -423,6 +425,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
 
   return (
     <>
+      <AdSenseLoader enabled={product.status === "ACTIVE" && product.description.trim().length >= 120 && Object.entries(product.specifications ?? {}).filter(([key, value]) => key !== "_variations" && String(value).trim()).length >= 2 && product.images.length > 0} />
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: "/" },
