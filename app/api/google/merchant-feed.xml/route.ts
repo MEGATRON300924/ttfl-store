@@ -1,4 +1,9 @@
 import { NextResponse } from "next/server";
+
+// This feed fetches live marketplace data with cache: "no-store". It must be
+// handled as a dynamic route rather than evaluated during static generation.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 import { getGoogleBrand, getGoogleGtin, getGoogleMpn, getGoogleProductCategory, getGoogleVariantSpec } from "@/lib/google-product-data";
 
 const SITE_URL = "https://ttflstore.name.ng";
