@@ -10,7 +10,9 @@ import { useEffect } from "react";
  */
 export function AdSenseLoader({ enabled = true }: { enabled?: boolean }) {
   useEffect(() => {
-    if (!enabled) return;
+    // The Europe storefront is intentionally excluded until a Google-certified
+    // consent-management platform is configured for EEA/UK/Swiss visitors.
+    if (!enabled || window.location.hostname === "europe.ttflstore.name.ng") return;
 
     const scriptId = "ttfl-adsense-loader";
     if (!document.getElementById(scriptId)) {
