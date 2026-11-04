@@ -14,6 +14,7 @@ export function AdSenseLoader({ enabled = true }: { enabled?: boolean }) {
     // consent-management platform is configured for EEA/UK/Swiss visitors.
     if (!enabled || window.location.hostname === "europe.ttflstore.name.ng") return;
 
+    document.body.dataset.ttflAdsAllowed = "true";
     const scriptId = "ttfl-adsense-loader";
     if (!document.getElementById(scriptId)) {
       const script = document.createElement("script");
@@ -26,6 +27,7 @@ export function AdSenseLoader({ enabled = true }: { enabled?: boolean }) {
     }
 
     return () => {
+      delete document.body.dataset.ttflAdsAllowed;
       document.getElementById(scriptId)?.remove();
 
       // Remove Google-injected ad containers when leaving an eligible page.
