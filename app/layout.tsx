@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
+import { AdSensePolicyGuard } from "@/components/adsense-policy-guard";
 import { SiteFooter } from "@/components/site-footer";
 import { AffiliateTracker } from "@/components/affiliate-tracker";
 import { BroadcastPopup } from "@/components/broadcast-popup";
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-NG" className={`${jakarta.variable} ${mono.variable}`}>
       <body>
+        <AdSensePolicyGuard />
         <SiteStructuredData />
         <AuthProvider>
           <CartProvider>
