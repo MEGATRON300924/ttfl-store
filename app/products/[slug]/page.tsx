@@ -1,3 +1,4 @@
+import { canServeAdSenseForRequest } from "@/lib/adsense-eligibility";
 import { AdSenseLoader } from "@/components/adsense-loader";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -419,13 +420,14 @@ export default async function ProductPage({ params }: { params: { slug: string }
   const sponsoredRelevant = sponsored
     .filter((c) => c.productSlug !== product.slug || c.target_type !== "PRODUCT")
     .slice(0, 6);
+  const adsAllowed = canServeAdSenseForRequest();
   const isSponsoredDestination = sponsored.some(
     (c) => c.target_type === "PRODUCT" && c.productSlug === product.slug,
   );
 
   return (
     <>
-      <AdSenseLoader enabled={product.status === "ACTIVE" && sponsoredRelevant.length === 0 && !product.comingSoon && product.description.trim().length >= 120 && Object.entries(product.specifications ?? {}).filter(([key, value]) => key !== "_variations" && String(value).trim()).length >= 2 && product.images.length > 0} />
+      <AdSenseLoader enabled={adsAllowed && product.status === "ACTIVE" && sponsoredRelevant.length === 0 && !product.comingSoon && product.description.trim().length >= 120 && Object.entries(product.specifications ?? {}).filter(([key, value]) => key !== "_variations" && String(value).trim()).length >= 2 && product.images.length > 0} />
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: "/" },
