@@ -55,7 +55,7 @@ export default function EditProductPage(){
 
   return <div className="shell max-w-2xl py-8">
     <h1 className="text-xl font-bold text-graphite-900">Edit product</h1>
-    {initial&&<section className="mt-5 rounded-xl border border-graphite-200 bg-white p-4 dark:border-graphite-700 dark:bg-graphite-900">
+    {initial&&(status==="ACTIVE"||status==="OUT_OF_STOCK")&&<section className="mt-5 rounded-xl border border-graphite-200 bg-white p-4 dark:border-graphite-700 dark:bg-graphite-900">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-graphite-900 dark:text-white">Product availability</p>
