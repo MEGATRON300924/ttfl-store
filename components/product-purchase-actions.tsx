@@ -26,6 +26,8 @@ export function ProductPurchaseActions({ product, selectedVariant = null }: { pr
     try { const { destination } = await api.post<{ destination: string }>(`/api/products/by-id/${product.id}/referral`, { source: "product_page" }); window.open(destination, "_blank", "noopener,noreferrer"); } catch (err) { console.error(err); } finally { setRedirecting(false); }
   }
 
+  if (outOfStock) return <div role="status" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center dark:border-red-900/50 dark:bg-red-950/20"><p className="text-sm font-bold tracking-wide text-red-700 dark:text-red-300">SOLD OUT</p><p className="mt-1 text-xs text-red-600 dark:text-red-400">This product is currently unavailable.</p></div>;
+
   if (product.sellingMethod === "EXTERNAL_LINK") return <button onClick={handleReferralClick} disabled={redirecting} className="flex w-full items-center justify-center gap-2 rounded-card bg-graphite-900 px-5 py-3.5 text-sm font-semibold text-white hover:bg-graphite-800 disabled:opacity-60"><ExternalLink className="h-4 w-4" />{redirecting ? "Opening…" : "Buy on seller's website"}</button>;
   if (product.sellingMethod === "WHATSAPP") return <button onClick={handleReferralClick} disabled={redirecting} className="flex w-full items-center justify-center gap-2 rounded-card bg-verified-600 px-5 py-3.5 text-sm font-semibold text-white hover:bg-verified-700 disabled:opacity-60"><MessageCircle className="h-4 w-4" />{redirecting ? "Opening…" : "Contact seller on WhatsApp"}</button>;
 

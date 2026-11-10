@@ -402,11 +402,11 @@ export default async function ProductPage({ params }: { params: { slug: string }
               product.condition === "USED"
                 ? "https://schema.org/UsedCondition"
                 : "https://schema.org/NewCondition",
-            availability: product.comingSoon
-              ? "https://schema.org/PreOrder"
-              : product.stock > 0
-                ? "https://schema.org/InStock"
-                : "https://schema.org/OutOfStock",
+            availability: product.status === "OUT_OF_STOCK" || product.stock <= 0
+              ? "https://schema.org/OutOfStock"
+              : product.comingSoon
+                ? "https://schema.org/PreOrder"
+                : "https://schema.org/InStock",
             url: canonical,
             seller: {
               "@type": "Organization",
@@ -468,6 +468,11 @@ export default async function ProductPage({ params }: { params: { slug: string }
             {product.comingSoon && (
               <span className="forge-tag mb-2 inline-block bg-graphite-900 py-1 pl-2.5 pr-4 font-mono text-xs font-medium text-white">
                 COMING SOON
+              </span>
+            )}
+            {(product.status === "OUT_OF_STOCK" || product.stock <= 0) && (
+              <span className="forge-tag mb-2 ml-2 inline-block bg-red-700 py-1 pl-2.5 pr-4 font-mono text-xs font-bold text-white">
+                SOLD OUT
               </span>
             )}
             {discount && (
@@ -564,7 +569,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 <div className="mt-6 border-t border-graphite-200 pt-6">
                   <ProductPurchaseSection product={product} variations={variations} />
                 </div>
-                {product.stock <= 0 && (
+                {(product.stock <= 0 || product.status === "OUT_OF_STOCK") && (
                   <ProductAlerts
                     productId={product.id}
                     productName={product.name}
@@ -592,7 +597,7 @@ export default async function ProductPage({ params }: { params: { slug: string }
                 )}
               </div>
             )}
-            {product.stock > 0 && !product.comingSoon && (
+            {product.stock > 0 && product.status !== "OUT_OF_STOCK" && !product.comingSoon && (
               <ProductAlerts
                 productId={product.id}
                 productName={product.name}
