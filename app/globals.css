@@ -14,7 +14,7 @@
   html.dark { color-scheme: dark; }
   html { -webkit-text-size-adjust: 100%; }
   body {
-    @apply bg-cloud-50 text-graphite-900 antialiased;
+    @apply bg-cloud-50 text-graphite-900 antialiased font-sans;
     transition: background-color 180ms ease, color 180ms ease;
   }
   ::selection { @apply bg-ember-100 text-ember-700; }
