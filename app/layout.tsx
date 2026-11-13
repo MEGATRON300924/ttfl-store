@@ -36,13 +36,14 @@ export async function generateMetadata(): Promise<Metadata> {
   } catch {
     // Keep the normal storefront metadata available if the campaign API is temporarily unavailable.
   }
-  const defaultTitle = campaignLive ? campaignHeadline : "TTFL Store — Buy & Sell in Nigeria";
-  const defaultDescription = campaignLive ? campaignDescription : "Shop products from vendors across Nigeria on TTFL Store, the marketplace from The Tron Forge Limited.";
+  const defaultTitle = campaignLive ? campaignHeadline : "TTFL Store — Nigeria’s Online Marketplace";
+  const defaultDescription = campaignLive ? campaignDescription : "Shop products from vendors across Nigeria on TTFL Store, the online marketplace launched by The Tron Forge Limited.";
   return {
   metadataBase: new URL(SITE_URL),
   title: { default: defaultTitle, template: "%s | TTFL Store" },
   description: defaultDescription,
   applicationName: "TTFL Store",
+  category: "shopping",
   category: "shopping",
   creator: "The Tron Forge Limited",
   publisher: "The Tron Forge Limited",
