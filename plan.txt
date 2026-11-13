@@ -1,23 +1,29 @@
 # Founder Page Implementation Plan
 
 ## Request
-Create an indexable `/founder` page introducing Zion Opaaje (MegaTron), his role at The Tron Forge Limited, and the related ventures with their verified milestone dates.
+Create an indexable `/founder` page introducing Zion Opaaje (MegaTron), his role at The Tron Forge Limited, and the related ventures with their milestone dates.
 
 ## Confirmed facts
 - The Tron Forge Limited was founded on 1 September 2024.
 - TTFL Store launched on 1 September 2025.
 - Production of The MAX AI Ecosystem began in December 2025.
-- Founder portrait source: `https://zionopaaje.name.ng/zionopaaje.png` (from the `zionopaaje` repository's `public/zionopaaje.png`).
+- Founder portrait: `https://zionopaaje.name.ng/zionopaaje.png`, sourced from `MEGATRON300924/zionopaaje/public/zionopaaje.png`.
 
-## Progress
+## Implementation
 - [x] Inspected the Next.js App Router structure, global layout, shared header/footer, and design tokens.
-- [ ] Add `app/founder/page.tsx` with SEO metadata, profile content, milestone timeline, cross-links, and structured data.
-- [ ] Add a Founder link to the shared footer.
-- [ ] Update this plan with commit references and verification results.
+- [x] Added `app/founder/page.tsx` with responsive founder profile, portrait, milestone timeline, cross-links, metadata, and Person/ProfilePage structured data.
+- [x] Added the Founder link to the shared footer.
+- [x] Verified source files contain the expected dates, route, image, and footer link.
+
+## Commits
+- Initial plan: `1d01bfbe1c522c105a6134f390508d8bb6d2b648`
+- Founder page: `fa3613f2e440f41a380eab2d4cc9498b8aa9650d`
+- Footer link: `da22cbaab5f2a8c8d708bbef0e9d0866ba63ac33`
 
 ## Tests and deployment
-- Build/test status: pending.
-- Production route status: pending.
+- Source-level verification: passed.
+- Local Next.js build: not run in this session.
+- Vercel production deployment for the latest commit: BUILDING at last check. Live route is not yet confirmed.
 
 ## Next steps
-- Verify the page builds and that `https://ttflstore.name.ng/founder` is indexable after deployment.
+- Recheck the Vercel build and verify `https://ttflstore.name.ng/founder` returns HTTP 200 with the expected canonical metadata.
