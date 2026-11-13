@@ -13,17 +13,19 @@ Create an indexable `/founder` page introducing Zion Opaaje (MegaTron), his role
 - [x] Inspected the Next.js App Router structure, global layout, shared header/footer, and design tokens.
 - [x] Added `app/founder/page.tsx` with responsive founder profile, portrait, milestone timeline, cross-links, metadata, and Person/ProfilePage structured data.
 - [x] Added the Founder link to the shared footer.
-- [x] Verified source files contain the expected dates, route, image, and footer link.
+- [x] Added TTFL's founding date to the parent-organization structured data used by the Store site.
+- [x] Verified source files contain the expected dates, route, image, structured data, and footer link.
 
 ## Commits
 - Initial plan: `1d01bfbe1c522c105a6134f390508d8bb6d2b648`
 - Founder page: `fa3613f2e440f41a380eab2d4cc9498b8aa9650d`
 - Footer link: `da22cbaab5f2a8c8d708bbef0e9d0866ba63ac33`
+- Parent-organization founding date: `d9be2bffaedcd3877f3955871845e62c252c638d`
 
 ## Tests and deployment
 - Source-level verification: passed.
 - Local Next.js build: not run in this session.
-- Vercel production deployment for the latest commit: BUILDING at last check. Live route is not yet confirmed.
+- Vercel production build: pending final verification; route is not yet confirmed live.
 
 ## Next steps
 - Recheck the Vercel build and verify `https://ttflstore.name.ng/founder` returns HTTP 200 with the expected canonical metadata.
