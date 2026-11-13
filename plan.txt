@@ -1,0 +1,23 @@
+# Founder Page Implementation Plan
+
+## Request
+Create an indexable `/founder` page introducing Zion Opaaje (MegaTron), his role at The Tron Forge Limited, and the related ventures with their verified milestone dates.
+
+## Confirmed facts
+- The Tron Forge Limited was founded on 1 September 2024.
+- TTFL Store launched on 1 September 2025.
+- Production of The MAX AI Ecosystem began in December 2025.
+- Founder portrait source: `https://zionopaaje.name.ng/zionopaaje.png` (from the `zionopaaje` repository's `public/zionopaaje.png`).
+
+## Progress
+- [x] Inspected the Next.js App Router structure, global layout, shared header/footer, and design tokens.
+- [ ] Add `app/founder/page.tsx` with SEO metadata, profile content, milestone timeline, cross-links, and structured data.
+- [ ] Add a Founder link to the shared footer.
+- [ ] Update this plan with commit references and verification results.
+
+## Tests and deployment
+- Build/test status: pending.
+- Production route status: pending.
+
+## Next steps
+- Verify the page builds and that `https://ttflstore.name.ng/founder` is indexable after deployment.
