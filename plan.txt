@@ -30,3 +30,26 @@ Create an indexable `/founder` page introducing Zion Opaaje (MegaTron), his role
 
 ## Next steps
 - Confirm the follow-up schema deployment finishes and run an HTTP check on `https://ttflstore.name.ng/founder`.
+
+
+## Current task: Consistent homepage brand identity and Google site-name signals
+
+### Request
+Update the homepage title, meta description, Open Graph identity, and existing Schema.org WebSite/Organization data so search engines and sharing platforms receive a clear, consistent official site name. Scope is limited to these four public-facing repositories: TTFLWEB, ttfl-store, max-web, and zionopaaje. Do not modify backend repositories or mobile apps.
+
+### Confirmed identity facts
+- The Tron Forge Limited — founded 1 September 2024.
+- TTFL Store — launched 1 September 2025.
+- The MAX AI Ecosystem — production began December 2025.
+- Founder: Zion Opaaje (MegaTron).
+
+### Implementation checklist
+- [ ] Audit existing homepage metadata and JSON-LD; update existing nodes rather than adding duplicate site entities.
+- [ ] Normalize official brand capitalization and clear site-name metadata on all four homepages.
+- [ ] Preserve each site's own identity: company, store, MAX AI ecosystem, and founder profile.
+- [ ] Correct any directly relevant conflicting founding-date structured data found during the audit.
+- [ ] Validate source consistency and record commits, build/deployment state, failures, and remaining checks.
+
+### Status
+- Repository files and existing plan.txt reviewed; implementation in progress.
+- Live Google site-name display and indexing cannot be guaranteed by source changes alone; Search Console and Google's selection remain separate verification steps.
