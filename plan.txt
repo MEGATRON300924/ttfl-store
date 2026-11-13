@@ -53,3 +53,20 @@ Update the homepage title, meta description, Open Graph identity, and existing S
 ### Status
 - Repository files and existing plan.txt reviewed; implementation in progress.
 - Live Google site-name display and indexing cannot be guaranteed by source changes alone; Search Console and Google's selection remain separate verification steps.
+
+
+### Implementation result (2026-11-13)
+- Updated default homepage title and description while preserving the live campaign-title override, applicationName, Open Graph siteName, and Twitter metadata.
+- Updated the existing WebSite schema node with the official TTFL Store identity, alternateName, launch description, and en-NG language.
+- Source validation: expected WebSite/OnlineStore/parent-organization identity fields present; duplicate inLanguage property removed.
+- No Vercel deployment for the final source commit was found at verification time; live production status remains unverified.
+
+### Code commits
+- Store homepage metadata: `6c64cf55abc47626b28ff7b7926e907aaf11db24`
+- WebSite structured data: `887b510084aca6995d02a103f7dec00806a130a7`
+- Duplicate schema property cleanup: `ca0e3f67debe7bff55739f9ad6216a488da136e4`
+
+### Remaining verification
+- Confirm the final source commit receives a successful production deployment.
+- Inspect rendered homepage HTML and canonical URLs on the live domain.
+- Submit/inspect the canonical homepage in Google Search Console and monitor Google-selected site-name display; metadata/schema are signals, not a guarantee of Google's final presentation.
