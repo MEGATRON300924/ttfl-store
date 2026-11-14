@@ -155,3 +155,22 @@ Implement a shared legal/business verification workflow across TTFL Store, TTFL 
 - [x] Frontend GitHub Actions production build passed on the current frontend commit.
 - [x] Vercel production deployment READY for commit `620844aa00881481725c659c967615face33d81d` (latest inspected deployment: `dpl_5XSpQx6ddsPkDMk3Jv3g3w8mmDD7`).
 - [ ] End-to-end production test of vendor upload and admin approval is still required after the shared backend deploy becomes live.
+
+
+# Store typography — ChunkFive
+
+## Request
+Change the TTFL Store website typography to the ChunkFive typeface.
+
+## Implementation
+- [x] Loaded ChunkFive (weight 800) through the Fontsource CDN stylesheet in the global stylesheet.
+- [x] Set the site-wide base font and Tailwind `font-sans` family to ChunkFive with Georgia/serif fallbacks.
+- [x] Preserved the existing monospace font configuration for code and numeric utility text.
+- [ ] Run frontend CI/build and inspect the live storefront after deployment.
+
+## License and delivery
+- ChunkFive is distributed under the SIL Open Font License 1.1; Fontsource documents the webfont package and license.
+- The font stylesheet is currently served from jsDelivr. The storefront therefore needs CDN access for ChunkFive; serif fallbacks remain available if the CDN is unreachable.
+
+## Commits and verification
+- Source change committed in this task; build and production deployment verification pending.
