@@ -32,7 +32,8 @@ const NAV_GROUPS = [
     { href: "/vendor/dashboard/subscription", icon: CreditCard, title: "Subscription" },
   ]},
   { label: "Store", items: [
-    { href: "/vendor/dashboard/verify-store", icon: ShieldCheck, title: "Verify Store" },\n    { href: "/vendor/dashboard/store-settings", icon: Store, title: "Store settings" },
+    { href: "/vendor/dashboard/verify-store", icon: ShieldCheck, title: "Verify Store" },
+    { href: "/vendor/dashboard/store-settings", icon: Store, title: "Store settings" },
     { href: "/vendor/dashboard/store-setup", icon: CalendarDays, title: "Store setup" },
     { href: "/vendor/dashboard/public-profile", icon: Palette, title: "Public profile" },
     { href: "/vendor/dashboard/business-hours", icon: CalendarDays, title: "Business hours" },
