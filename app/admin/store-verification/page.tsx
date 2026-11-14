@@ -12,7 +12,7 @@ type Verification = {
   documents:Document[];submittedAt?:string|null;storeName:string;storeSlug:string;ownerEmail:string;
   firstName:string;lastName:string;rejectionReason?:string|null;
 };
-const tabs=[["SUBMITTED","Pending review"],["UNDER_REVIEW","Under review"],["APPROVED","Approved"],["REJECTED","Rejected"]] as const;
+const tabs=[["SUBMITTED","Pending review"],["APPROVED","Approved"],["REJECTED","Rejected"]] as const;
 export default function StoreVerificationAdminPage(){
  const [tab,setTab]=useState<string>("SUBMITTED"),[items,setItems]=useState<Verification[]|null>(null),[busy,setBusy]=useState<string|null>(null),[notice,setNotice]=useState(""),[error,setError]=useState("");
  async function load(status=tab){setItems(null);setError("");try{const data=await api.get<{verifications:Verification[]}>(`/api/vendor-verification/admin?status=${status}`);setItems(data.verifications);}catch(e){setError(e instanceof ApiError?e.message:"Unable to load verification applications.");setItems([]);}}
