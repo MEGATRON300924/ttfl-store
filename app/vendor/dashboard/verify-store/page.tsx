@@ -33,7 +33,7 @@ export default function VerifyStorePage(){
     try{
       const data=await api.get<{verification:Verification|null}>("/api/vendor-verification/me");
       setVerification(data.verification);
-      if(data.verification) setForm({...empty,...data.verification,declarationAccepted:true});
+      if(data.verification) setForm({...empty,...data.verification,registrationNumber:data.verification.registrationNumber??"",state:data.verification.state??"",city:data.verification.city??"",representativeRole:data.verification.representativeRole??"",taxId:data.verification.taxId??"",website:data.verification.website??"",declarationAccepted:true});
     }catch(e){setError(e instanceof ApiError?e.message:"Unable to load verification details.");}
     finally{setLoading(false);}
   }
@@ -42,7 +42,7 @@ export default function VerifyStorePage(){
   async function save(){
     setSaving(true);setNotice("");setError("");
     try{
-      const data=await api.put<{verification:Verification;message:string}>("/api/vendor-verification/me",form);
+      const data=await api.put<{verification:Verification;message:string}>("/api/vendor-verification/me",{...form,website:form.website||null,registrationNumber:form.registrationNumber||null,state:form.state||null,city:form.city||null,representativeRole:form.representativeRole||null,taxId:form.taxId||null});
       setVerification(data.verification);setNotice(data.message);
     }catch(e){setError(e instanceof ApiError?e.message:"Unable to save legal information.");}
     finally{setSaving(false);}
