@@ -179,3 +179,9 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - Root layout cleanup commit: `24ab77b6a158465491f5cba63e5277c1a6b95bc1`
 - Plan update commit: `d9e4745d682559cfcfd0a96cdd7731973b6b73f1`
 - Build and production deployment verification pending.
+
+
+## TTFL Foods shared authentication handoff — 2026-11-14
+- [x] Extend the safe cross-subdomain authentication redirect allowlist to include foods.ttflstore.name.ng.
+- [x] Preserve the `next` return URL when a Foods customer moves from login to new account registration and back.
+- [ ] Merge and deploy together with the Foods production release after the current Vercel build-rate limit clears.
