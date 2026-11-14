@@ -151,3 +151,7 @@ Implement a shared legal/business verification workflow across TTFL Store, TTFL 
 ### Current limitation
 - TTFL Homes listings use the shared TTFL vendor identity, so the main verification flow applies directly.
 - Cars stores linked to a TTFL seller profile use the same verification record. Standalone Cars sellers are prompted to create/link a main TTFL seller profile first; they do not yet have a separate legal-verification record type.
+
+- [x] Frontend GitHub Actions production build passed on the current frontend commit.
+- [x] Vercel production deployment READY for commit `620844aa00881481725c659c967615face33d81d` (latest inspected deployment: `dpl_5XSpQx6ddsPkDMk3Jv3g3w8mmDD7`).
+- [ ] End-to-end production test of vendor upload and admin approval is still required after the shared backend deploy becomes live.
