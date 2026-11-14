@@ -44,7 +44,6 @@ export async function generateMetadata(): Promise<Metadata> {
   description: defaultDescription,
   applicationName: "TTFL Store",
   category: "shopping",
-  category: "shopping",
   creator: "The Tron Forge Limited",
   publisher: "The Tron Forge Limited",
   icons: { icon: "/ttflstore.png", apple: "/ttflstore.png" },
