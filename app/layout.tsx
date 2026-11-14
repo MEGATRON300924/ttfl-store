@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
+import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { SiteHeader } from "@/components/site-header";
 import { AdSensePolicyGuard } from "@/components/adsense-policy-guard";
@@ -19,7 +19,6 @@ import { api } from "@/lib/api-client";
 
 const SITE_URL = "https://ttflstore.name.ng";
 const ADSENSE_CLIENT = "ca-pub-2236157159704579";
-const jakarta = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-jakarta", display: "swap" });
 const mono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap", weight: ["400", "500"] });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -57,7 +56,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en-NG" className={`${jakarta.variable} ${mono.variable}`}>
+    <html lang="en-NG" className={mono.variable}>
       <body>
         <AdSensePolicyGuard />
         <SiteStructuredData />
