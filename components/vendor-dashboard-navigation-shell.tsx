@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import {
-  BarChart3, Bell, Bot, CalendarDays, CreditCard, LayoutDashboard, LogOut,
+  BarChart3, Bell, Bot, CalendarDays, CreditCard, LayoutDashboard, LogOut, ShieldCheck,
   Megaphone, Menu, MessageCircle, Package, Palette, Plus, ShoppingBag,
   Store, Ticket, TrendingUp, Users, Wallet, Wrench, X, Zap
 } from "lucide-react";
@@ -32,7 +32,7 @@ const NAV_GROUPS = [
     { href: "/vendor/dashboard/subscription", icon: CreditCard, title: "Subscription" },
   ]},
   { label: "Store", items: [
-    { href: "/vendor/dashboard/store-settings", icon: Store, title: "Store settings" },
+    { href: "/vendor/dashboard/verify-store", icon: ShieldCheck, title: "Verify Store" },\n    { href: "/vendor/dashboard/store-settings", icon: Store, title: "Store settings" },
     { href: "/vendor/dashboard/store-setup", icon: CalendarDays, title: "Store setup" },
     { href: "/vendor/dashboard/public-profile", icon: Palette, title: "Public profile" },
     { href: "/vendor/dashboard/business-hours", icon: CalendarDays, title: "Business hours" },
