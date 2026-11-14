@@ -11,10 +11,10 @@ import { formatNaira } from "@/lib/mock-data";
 export const dynamic = "force-dynamic";
 
 const FALLBACK_PLANS: Array<{ tier: VendorTier; name: string; price: number; commissionRate: number; productLimit: number | null; features: string[] }> = [
-  { tier: "FREE", name: "Free", price: 0, commissionRate: 8, productLimit: 20, features: ["Basic store page", "Checkout, external links and WhatsApp selling", "Basic order management", "Customer reviews", "Basic analytics", "3 Coming Soon products", "Notify Me waitlists", "Basic discounts"] },
-  { tier: "PRO", name: "Pro", price: 15000, commissionRate: 6, productLimit: 200, features: ["Everything in Free", "20 Coming Soon products", "3 active Flash Deals", "5 Sponsored Products", "2 Featured Products", "Advanced analytics", "Launch scheduling", "Priority support"] },
-  { tier: "BUSINESS", name: "Business", price: 45000, commissionRate: 4, productLimit: 1000, features: ["Everything in Pro", "100 Coming Soon products", "10 active Flash Deals", "20 Sponsored Products", "8 Featured Products", "2 Featured Stores", "Advanced promotion analytics", "Bulk catalog tools", "Priority support"] },
-  { tier: "ENTERPRISE", name: "Enterprise", price: 150000, commissionRate: 2, productLimit: null, features: ["Everything in Business", "Unlimited Coming Soon products", "25 active Flash Deals", "100 Sponsored Products", "20 Featured Products", "10 Featured Stores", "Advanced promotion analytics", "Bulk catalog tools", "API access", "Dedicated support"] },
+  { tier: "FREE", name: "Free", price: 0, commissionRate: 12, productLimit: 50, features: ["Up to 50 products", "Basic store page", "TTFL checkout, external links and WhatsApp selling", "Basic order management", "Customer reviews", "Basic analytics", "3 Coming Soon products", "Notify Me waitlists", "Basic discounts"] },
+  { tier: "PRO", name: "Pro", price: 2500, commissionRate: 8, productLimit: 500, features: ["Up to 500 products", "Everything in Free", "20 Coming Soon products", "3 active Flash Deals", "5 Sponsored Products", "2 Featured Products", "Advanced analytics", "Launch scheduling", "Priority support"] },
+  { tier: "BUSINESS", name: "Business", price: 5000, commissionRate: 6, productLimit: 10000, features: ["Up to 10,000 products", "Everything in Pro", "100 Coming Soon products", "10 active Flash Deals", "20 Sponsored Products", "8 Featured Products", "2 Featured Stores", "Advanced promotion analytics", "Bulk catalog tools", "Priority support"] },
+  { tier: "ENTERPRISE", name: "Enterprise", price: 10000, commissionRate: 5, productLimit: null, features: ["Unlimited products", "Everything in Business", "Unlimited Coming Soon products", "25 active Flash Deals", "100 Sponsored Products", "20 Featured Products", "10 Featured Stores", "Advanced promotion analytics", "Bulk catalog tools", "API access", "Dedicated support"] },
 ];
 
 function normalizePlans(plans: ApiVendorPlan[]) {
