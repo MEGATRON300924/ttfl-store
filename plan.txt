@@ -165,6 +165,7 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 ## Implementation
 - [x] Loaded ChunkFive (weight 800) through the Fontsource CDN stylesheet in the global stylesheet.
 - [x] Set the site-wide base font and Tailwind `font-sans` family to ChunkFive with Georgia/serif fallbacks.
+- [x] Removed the now-unused Plus Jakarta Sans download from the root layout; retained JetBrains Mono.
 - [x] Preserved the existing monospace font configuration for code and numeric utility text.
 - [ ] Run frontend CI/build and inspect the live storefront after deployment.
 
@@ -173,4 +174,8 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - The font stylesheet is currently served from jsDelivr. The storefront therefore needs CDN access for ChunkFive; serif fallbacks remain available if the CDN is unreachable.
 
 ## Commits and verification
-- Source change committed in this task; build and production deployment verification pending.
+- Global stylesheet commit: `27236001a1fa42fe22fb3ee51618ce83e181a8bd`
+- Tailwind font-family commit: `8211e1ba6fb3bf03e62e7f72af5109243a981268`
+- Root layout cleanup commit: `24ab77b6a158465491f5cba63e5277c1a6b95bc1`
+- Plan update commit: `d9e4745d682559cfcfd0a96cdd7731973b6b73f1`
+- Build and production deployment verification pending.
