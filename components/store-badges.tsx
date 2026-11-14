@@ -12,7 +12,8 @@ type BadgeConfig = {
   className: string;
 };
 
-const BADGES: Record<StoreBadge, BadgeConfig> = {\n  REGISTERED: { label: "Registered Store", message: "This store has completed TTFL Store registration and default platform checks. Its legal identity has not yet been approved by TTFL or The Tron Forge Limited.", icon: Store, className: "border-graphite-200 bg-cloud-100 text-graphite-700" },
+const BADGES: Record<StoreBadge, BadgeConfig> = {
+  REGISTERED: { label: "Registered Store", message: "This store has completed TTFL Store registration and default platform checks. Its legal identity has not yet been approved by TTFL or The Tron Forge Limited.", icon: Store, className: "border-graphite-200 bg-cloud-100 text-graphite-700" },
   VERIFIED: {
     label: "Verified Store",
     message: "This store’s legal information and supporting documents have been reviewed and approved by TTFL Store / The Tron Forge Limited.",
