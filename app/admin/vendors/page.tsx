@@ -55,12 +55,12 @@ export default function AdminVendorsPage() {
     const lifetime = (document.getElementById(`grant-lifetime-${app.id}`) as HTMLInputElement)?.checked ?? false;
     if (!tier) return;
     const duration = lifetime ? "lifetime" : "1 month";
-    if (!confirm(`Grant ${app.storeName} the ${tier} plan for ${duration} without payment? This will also make the store verified and approved.`)) return;
+    if (!confirm(`Grant ${app.storeName} the ${tier} plan for ${duration} without payment? This activates the plan and approves marketplace access, but legal verification remains separate.`)) return;
     setBusyId(`grant:${app.id}`);
     try {
       await api.post(`/api/vendors/admin/${app.id}/grant-subscription`, { tier, lifetime });
       await load(tab);
-      alert(`${app.storeName} is now on the ${tier} plan and has been verified.`);
+      alert(`${app.storeName} is now on the ${tier} plan. Legal verification remains separate.`);
     } catch (err) {
       alert(err instanceof ApiError ? err.message : "Unable to grant subscription.");
     } finally { setBusyId(null); }
