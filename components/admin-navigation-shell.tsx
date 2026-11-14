@@ -16,7 +16,7 @@ import {
   MessageCircle,
   Package,
   Send,
-  Settings,
+  Settings,\n  ShieldCheck,
   ShoppingBag,
   Ticket,
   Users,
@@ -28,7 +28,7 @@ import { useState } from "react";
 const GROUPS = [
   { label: "Overview", links: [["/admin", "Overview", BarChart3]] as const },
   { label: "Marketplace", links: [
-    ["/admin/vendors", "Vendors", Users],
+    ["/admin/vendors", "Vendors", Users],\n    ["/admin/store-verification", "Store verification", ShieldCheck],
     ["/admin/products", "Products", Package],
     ["/admin/orders", "Orders & refunds", ShoppingBag],
     ["/admin/categories", "Categories", Layers],
