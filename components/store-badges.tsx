@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { BadgeCheck, Building2, Crown, Gem, X } from "lucide-react";
+import { BadgeCheck, Building2, Crown, Gem, Store, X } from "lucide-react";
 
-export type StoreBadge = "VERIFIED" | "BUSINESS" | "ENTERPRISE" | "PLATINUM";
+export type StoreBadge = "REGISTERED" | "VERIFIED" | "BUSINESS" | "ENTERPRISE" | "PLATINUM";
 
 type BadgeConfig = {
   label: string;
@@ -12,16 +12,16 @@ type BadgeConfig = {
   className: string;
 };
 
-const BADGES: Record<StoreBadge, BadgeConfig> = {
+const BADGES: Record<StoreBadge, BadgeConfig> = {\n  REGISTERED: { label: "Registered Store", message: "This store has completed TTFL Store registration and default platform checks. Its legal identity has not yet been approved by TTFL or The Tron Forge Limited.", icon: Store, className: "border-graphite-200 bg-cloud-100 text-graphite-700" },
   VERIFIED: {
     label: "Verified Store",
-    message: "This store is verified by TTFL Store. Its identity and store information have been reviewed and verified.",
+    message: "This store’s legal information and supporting documents have been reviewed and approved by TTFL Store / The Tron Forge Limited.",
     icon: BadgeCheck,
     className: "border-verified-100 bg-verified-100 text-verified-700",
   },
   BUSINESS: {
     label: "Business Store",
-    message: "This store has a Business Store badge on TTFL Store, recognizing it as an established business seller.",
+    message: "This store has been legally approved as a business by TTFL Store / The Tron Forge Limited. The Business Store badge is awarded together with Verified Store.",
     icon: Building2,
     className: "border-graphite-200 bg-cloud-100 text-graphite-700",
   },
