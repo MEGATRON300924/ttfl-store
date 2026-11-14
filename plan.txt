@@ -125,3 +125,29 @@ Implement a shared legal/business verification workflow across TTFL Store, TTFL 
 
 ## Next steps
 - Complete the repository audit and implement the shared backend workflow first, then wire each frontend to it.
+
+
+## Progress update — 2026-11-14
+- [x] Audited existing badges, vendor dashboard navigation, admin navigation, and shared backend integration.
+- [x] Added the Registered Store badge and revised Verified Store / Business Store descriptions.
+- [x] Added the vendor “Verify Store” page with legal entity, representative, contact, address, declaration, and document upload fields.
+- [x] Added the admin “Store verification” review page with private document viewing and approve/reject decisions.
+- [x] Removed Verified and Business from ordinary manual badge toggles; these are now reserved for legal verification approval.
+- [x] Added Cars seller entry point and linking flow to the shared TTFL seller profile; added seller status labels to Cars and Homes listings.
+- [x] Added Homes seller entry points to the shared TTFL seller onboarding and verification pages.
+- [x] Backend migration backfills Registered Store and removes legacy legal badges unless a legal verification record is approved.
+- [ ] Re-run frontend CI after resolving the unrelated duplicate metadata property; latest CI is pending.
+- [ ] Confirm live production deployments and test the full vendor upload/admin decision flow against the production backend.
+
+### Commits
+- Vendor legal verification page: `a71b3892cc9502dfe1566433b90918c10d855362`
+- Admin review page: `ed73e960f662751d04f2fb3e069d4a7c559bf436` (later corrections: `4881390535d0cc6ab1d75c915ec4398c69a5f63d`)
+- Badge definitions: `5a738295acefbf1cb73892d34c7c027f702a6edf`
+- Vendor navigation: `947dae92601334f1ae3fe186781107a5aed5819f`
+- Admin navigation: `f9ac86c7a557a87c7b14a5c121b07a81915a5520`
+- Duplicate metadata cleanup: `e761edeea66e9d18fb5e9e2627b099dd2ff08208`
+- CI previously exposed a duplicate `category` field in `app/layout.tsx`; removed before the latest CI run.
+
+### Current limitation
+- TTFL Homes listings use the shared TTFL vendor identity, so the main verification flow applies directly.
+- Cars stores linked to a TTFL seller profile use the same verification record. Standalone Cars sellers are prompted to create/link a main TTFL seller profile first; they do not yet have a separate legal-verification record type.
