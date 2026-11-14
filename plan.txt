@@ -74,3 +74,54 @@ Update the homepage title, meta description, Open Graph identity, and existing S
 
 ### Deployment blocker update (2026-11-13)
 - Vercel deployment check: latest observed deployment `dpl_8YXiriGsmqkh75YoYpCoP4ijMv6S` was READY for commit `7f545378d43df5bd2f7bc84e0bacf0c2044b76a0`; it does not include the later final plan commit `b117fc043b5ce52a60931a2a5ed907e6969a4d44`. A manual production deployment attempt was blocked by Vercel HTTP 402 `api-deployments-free-per-day` (retry after 24 hours). Live deployment of the final source state is not confirmed.
+
+
+# Vendor Legal Verification — Cross-Marketplace Plan
+
+## Request
+Implement a shared legal/business verification workflow across TTFL Store, TTFL Store Cars, and TTFL Store Homes.
+
+## Product rules
+- Registered Store: default badge for a newly registered/default store after platform registration checks; it does not mean legal identity has been verified.
+- Verified Store: granted only after TTFL Store / The Tron Forge Limited completes and approves legal verification.
+- Business Store: automatically granted together with Verified Store when legal/business verification is approved.
+- Enterprise and Platinum remain existing commercial/status badges and must not be confused with legal verification.
+- Rejected, withdrawn, or revoked legal verification must not leave a misleading Verified Store or Business Store badge.
+- Existing vendor approval for marketplace access remains distinct from legal verification approval.
+
+## Planned workflow
+1. Vendor dashboard page: “Verify Store” with legal entity type, legal name, registration details where applicable, representative details, contact/address information, document uploads, declarations, and submission status.
+2. Backend: authenticated vendor submission/read endpoints; private document storage/references; validation; audit trail; admin review queue/details; approve/reject with reason; controlled badge transitions.
+3. Admin: dedicated legal verification review page/section, view submitted information/documents, approve or reject, and record reviewer/time/reason.
+4. Public: show Registered Store by default; only show Verified Store + Business Store after legal approval.
+5. Cars and Homes: expose the same verification state and vendor workflow using their existing account/store context, backed by the shared TTFL backend where possible.
+
+## Security and data handling
+- Legal documents must not be exposed through public store APIs or public static URLs.
+- Admin-only document access; vendor can view own submission/status.
+- Validate MIME type, size, and allowed document categories server-side.
+- Do not mark a store verified merely because a vendor account/store is approved or has a paid tier.
+- Preserve existing Enterprise and Platinum entitlements.
+- Record every submission/review/decision in the audit log.
+
+## Repositories
+- Frontend: MEGATRON300924/ttfl-store
+- Shared backend: MEGATRON300924/ttfl-store-backend
+- Cars frontend: MEGATRON300924/ttfl-store-cars
+- Homes frontend: MEGATRON300924/ttfl-store-homes
+
+## Implementation status
+- [ ] Audit existing vendor badge, vendor dashboard navigation, admin routes, shared backend and Cars/Homes account context.
+- [ ] Implement Registered Store badge and revised badge semantics.
+- [ ] Implement legal verification persistence, vendor APIs, secure document handling, and admin decision APIs.
+- [ ] Add TTFL Store vendor “Verify Store” page and admin legal review page.
+- [ ] Add Cars and Homes entry points/status using shared backend APIs.
+- [ ] Add safe migration/backfill for existing vendors and remove automatic legal verification from ordinary vendor approval/subscription grants.
+- [ ] Validate TypeScript/builds, API authorization, badge transitions, and public/private data boundaries.
+
+## Commits, tests, deployment, blockers
+- Work not yet implemented.
+- Record each commit, validation result, deployment state, failures, and next steps below as work progresses.
+
+## Next steps
+- Complete the repository audit and implement the shared backend workflow first, then wire each frontend to it.
