@@ -1,3 +1,5 @@
+@import url("https://cdn.jsdelivr.net/npm/@fontsource/chunk-five@5.2.6/index.css");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -12,7 +14,7 @@
 
   :root { color-scheme: light; }
   html.dark { color-scheme: dark; }
-  html { -webkit-text-size-adjust: 100%; }
+  html { -webkit-text-size-adjust: 100%; font-family: "Chunk Five", Georgia, serif; }
   body {
     @apply bg-cloud-50 text-graphite-900 antialiased;
     transition: background-color 180ms ease, color 180ms ease;
