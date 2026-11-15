@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Users, Package, BarChart3, Wallet, Ticket, Megaphone, Layers, MessageCircle, Settings, FileText, Mail, ShoppingBag, Send, UserPlus, MessageSquare, UserMinus, BellRing, CalendarDays, Gift, AlertTriangle, KeyRound, Flame } from "lucide-react";
+import { Users, Package, BarChart3, Wallet, Ticket, Megaphone, Layers, MessageCircle, Settings, FileText, Mail, ShoppingBag, Send, UserPlus, MessageSquare, UserMinus, BellRing, CalendarDays, Gift, AlertTriangle, KeyRound, Flame, Newspaper } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api, ApiError } from "@/lib/api-client";
 import { BlackFridayQuickToggle } from "@/components/admin/black-friday-quick-toggle";
