@@ -196,3 +196,6 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - Restrict admin gift tier selector to paid plans: `9dece982335c0435ce00cec3d082c654610b42b1`.
 - Validation: source review only; frontend build, authenticated multi-account privacy test and production deployment are pending.
 - Subscription payment-method note: current Payouts bank details are vendor settlement details; Paystack card details are collected during paid subscription checkout. No standalone card-on-file page exists yet.
+
+- Latest product detail protection: backend masks direct external/WhatsApp destinations for vendors without an active paid subscription; storefront now shows an unavailable state instead of a broken referral action.
+- Latest backend gift migration backfills older finite admin gifts from `audit_logs` before the expiry worker processes them.
