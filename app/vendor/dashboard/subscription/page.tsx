@@ -49,7 +49,7 @@ export default function VendorSubscriptionPage() {
           <h1 className="text-xl font-bold text-graphite-900">Pricing plans</h1>
           <p className="mt-1 text-sm text-graphite-500">Choose the plan that fits your store.</p>
         </div>
-        {subscription && subscription.plan.tier !== "FREE" && (
+        {subscription && subscription.plan.tier !== "FREE" && subscription.status !== "EXPIRED" && (
           <Link
             href="/vendor/dashboard/subscription/manage"
             className="inline-flex items-center justify-center rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-graphite-800"
@@ -65,10 +65,12 @@ export default function VendorSubscriptionPage() {
         <div className="mt-5 rounded-card border border-graphite-200 bg-white p-5">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-graphite-400">Current plan</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-graphite-400">{subscription.status === "EXPIRED" ? "Previous plan" : "Current plan"}</p>
               <p className="mt-1 text-lg font-bold text-graphite-900">{subscription.plan.name}</p>
               <p className="mt-1 text-sm text-graphite-500">
-                {subscription.status === "CANCELLED"
+                {subscription.status === "EXPIRED"
+                  ? `Expired ${subscription.renewalDate ? new Date(subscription.renewalDate).toLocaleDateString("en-NG", { dateStyle: "medium" }) : ""}`
+                  : subscription.status === "CANCELLED"
                   ? subscription.renewalDate
                     ? `Cancellation scheduled for ${new Date(subscription.renewalDate).toLocaleDateString("en-NG", { dateStyle: "medium" })}`
                     : "Cancellation scheduled"
@@ -77,12 +79,7 @@ export default function VendorSubscriptionPage() {
                     : "Active subscription"}
               </p>
             </div>
-            <Link
-              href="/vendor/dashboard/subscription/manage"
-              className="text-sm font-semibold text-ember-600 hover:text-ember-700"
-            >
-              View details →
-            </Link>
+            {subscription.status !== "EXPIRED" ? <Link href="/vendor/dashboard/subscription/manage" className="text-sm font-semibold text-ember-600 hover:text-ember-700">View details →</Link> : <Link href="/vendor/dashboard/subscription" className="text-sm font-semibold text-ember-600 hover:text-ember-700">Choose a plan →</Link>}
           </div>
         </div>
       )}

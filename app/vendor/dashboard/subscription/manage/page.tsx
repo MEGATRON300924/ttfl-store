@@ -91,7 +91,8 @@ export default function ManageSubscriptionPage() {
 
   const isCancelled = subscription.status === "CANCELLED";
   const isGifted = subscription.isGifted;
-  const isPaid = subscription.plan.tier !== "FREE";
+  const isPaid = subscription.plan.tier !== "FREE" && subscription.status !== "EXPIRED";
+  const isExpired = subscription.status === "EXPIRED";
 
   return (
     <div className="shell py-8">
@@ -109,6 +110,8 @@ export default function ManageSubscriptionPage() {
         </div>
       </div>
 
+      {isExpired && <div className="mt-5 rounded-card border border-graphite-200 bg-cloud-50 p-4"><p className="text-sm font-semibold text-graphite-900">This plan has expired</p><p className="mt-1 text-sm text-graphite-600">Your store is now on the Free plan. Choose a paid plan if you want to restore paid features.</p><Link href="/vendor/dashboard/subscription" className="mt-2 inline-flex text-sm font-semibold text-ember-700 hover:underline">View paid plans →</Link></div>}
+
       {isGifted && <div className="mt-5 rounded-card border border-ember-200 bg-ember-50 p-4"><p className="text-sm font-semibold text-graphite-900">Complimentary plan from The Tron Forge Limited</p><p className="mt-1 text-sm text-graphite-600">Your gifted access ends {formatDate(subscription.renewalDate)}. No subscription payment method is currently attached to this gift.</p><Link href="/vendor/dashboard/subscription/gift" className="mt-2 inline-flex text-sm font-semibold text-ember-700 hover:underline">View gift details →</Link></div>}
 
       {error && <p className="mt-5 rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}
@@ -124,8 +127,8 @@ export default function ManageSubscriptionPage() {
               </p>
             )}
           </div>
-          <span className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${isCancelled ? "bg-ember-100 text-ember-700" : "bg-verified-100 text-verified-700"}`}>
-            {isCancelled ? "Cancellation scheduled" : subscription.status === "ACTIVE" ? "Active" : subscription.status.toLowerCase()}
+          <span className={`inline-flex w-fit rounded-full px-3 py-1 text-xs font-semibold ${isCancelled ? "bg-ember-100 text-ember-700" : isExpired ? "bg-cloud-100 text-graphite-600" : "bg-verified-100 text-verified-700"}`}>
+            {isCancelled ? "Cancellation scheduled" : isExpired ? "Expired" : subscription.status === "ACTIVE" ? "Active" : subscription.status.toLowerCase()}
           </span>
         </div>
 
@@ -135,7 +138,7 @@ export default function ManageSubscriptionPage() {
             <p className="mt-1 text-sm font-semibold text-graphite-900">{formatDate(subscription.startDate)}</p>
           </div>
           <div className="rounded-card bg-cloud-50 p-4">
-            <p className="text-xs text-graphite-400">{isCancelled ? "Ends on" : "Next renewal"}</p>
+            <p className="text-xs text-graphite-400">{isExpired ? "Expired on" : isCancelled ? "Ends on" : "Next renewal"}</p>
             <p className="mt-1 text-sm font-semibold text-graphite-900">{formatDate(subscription.renewalDate)}</p>
           </div>
           <div className="rounded-card bg-cloud-50 p-4">

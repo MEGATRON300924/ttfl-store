@@ -212,3 +212,5 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 
 - Latest frontend CI run 721 passed the Next.js production build for the private gift confirmation page, vendor subscription UI, paid-only product form and admin plan guidance.
 - Pull request #4 remains draft and mergeable; Vercel production deployment and authenticated cross-account privacy test are pending.
+
+- Subscription screens now label expired gifts as previous/expired plans and hide invalid cancellation controls after the Free-plan downgrade.
