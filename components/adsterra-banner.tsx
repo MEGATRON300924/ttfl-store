@@ -1,61 +1,13 @@
-"use client";
+import { AdsterraSlot } from "@/components/adsterra-slot";
 
-import { useEffect } from "react";
-
-/**
- * Homepage-only Adsterra banner.
- * Keep this placement out of account, checkout and other transactional routes.
- */
 export function AdsterraBanner() {
-  useEffect(() => {
-    const host = document.getElementById("ttfl-adsterra-banner");
-    if (!host || document.getElementById("ttfl-adsterra-banner-script")) return;
-
-    // Adsterra's generated placement configuration must exist before its loader runs.
-    (window as Window & {
-      atOptions?: {
-        key: string;
-        format: string;
-        height: number;
-        width: number;
-        params: Record<string, never>;
-      };
-    }).atOptions = {
-      key: "f9d1b757d3620d5040d3839181db1c80",
-      format: "iframe",
-      height: 90,
-      width: 728,
-      params: {},
-    };
-
-    const script = document.createElement("script");
-    script.id = "ttfl-adsterra-banner-script";
-    script.src = "https://bauval.org/22/f9d1b757d3620d5040d3839181db1c80";
-    script.async = true;
-    // Prevent Cloudflare Rocket Loader from rewriting/delaying this third-party script.
-    script.setAttribute("data-cfasync", "false");
-    script.onerror = () => {
-      console.error("TTFL Store: Adsterra banner script failed to load.");
-    };
-
-    host.appendChild(script);
-
-    return () => {
-      script.remove();
-      host.replaceChildren();
-      delete (window as Window & { atOptions?: unknown }).atOptions;
-    };
-  }, []);
-
   return (
-    <section
-      aria-label="Advertisement"
-      className="shell my-5 flex min-h-[90px] justify-center overflow-hidden"
-    >
-      <div
-        id="ttfl-adsterra-banner"
-        className="flex min-h-[90px] w-full max-w-[728px] items-center justify-center overflow-hidden"
-      />
-    </section>
+    <AdsterraSlot
+      id="ttfl-adsterra-banner"
+      adKey="f9d1b757d3620d5040d3839181db1c80"
+      width={728}
+      height={90}
+      className="shell my-5 min-h-[90px] overflow-hidden"
+    />
   );
 }
