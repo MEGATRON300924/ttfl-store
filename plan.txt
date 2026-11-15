@@ -237,3 +237,32 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - [x] Newsroom PR #5 merged to main as bc970875afba421a8821157664c1e6f6fe9651e8.
 - [x] Vercel production deployment dpl_D7vtFJmkhymy2RUFWF596CfqRCSB is READY and includes /news, /news/[slug], /news/rss.xml, /admin/news and the updated sitemap.
 - [ ] Verify admin-only access, create/publish a real article, image upload, RSS response and sitemap URL against the live production services.
+
+
+
+## Adsterra homepage banner test — 2026-11-15
+
+### Request
+Test the supplied 728×90 Adsterra banner placement on TTFL Store only. Do not add Monetag or roll this placement out to Cars, Foods, Europe, or TTFLWEB.
+
+### Implementation
+- [x] Added a dedicated client-side Adsterra banner component using the supplied placement key and script URL.
+- [x] Mounted the banner on the TTFL Store homepage immediately below the hero; it is not part of the shared layout and therefore does not load on account, checkout, or other routes.
+- [x] Kept the supplied Adsterra script URL and placement dimensions unchanged.
+- [ ] Confirm the TTFL Store website is approved/active in Adsterra and the Adult ads option is disabled before enabling the placement for public traffic.
+- [ ] Run the production build/CI and inspect the preview banner on desktop and mobile.
+- [ ] Confirm a real ad impression is served; an empty slot may mean the zone is pending, unfilled, blocked by browser extensions, or the script is failing.
+- [ ] Check Adsterra dashboard reporting after test traffic; do not infer delivery from the presence of the script alone.
+
+### Commits
+- Banner component: `609c5b0faf9da65ba87002c0b4e9aa5b2ac68076`
+- Homepage placement: `dcd4cbec7935ae0e165dabf5a2900c81688561fc`
+
+### Tests and deployment
+- Source-level insertion check: passed.
+- Build/CI: pending.
+- Production deployment: not performed; changes are isolated on `feat/adsterra-banner-test`.
+- Adult-category exclusion is a publisher-dashboard setting, not something this banner code can enforce. Adsterra's publisher setup guide explains that the BOOST CPM setting can allow all ad types; keep it inactive where audience restrictions matter. See https://adsterra.com/blog/set-up-publishers-dashboard/.
+
+### Next steps
+- Confirm adult ads are disabled for the TTFL Store site in Adsterra, then run CI and review the preview before merging.
