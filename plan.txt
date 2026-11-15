@@ -206,3 +206,6 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - Product detail CTA unavailable state and admin billing-cancellation warning: `df8f2ca62f5bd1d1e6bcc569a22631655b869eb2`.
 - Subscription plan page gifted banner was moved out of the header flex row and the admin gift selector now defaults Free vendors to Pro: `3774c9e4a42d33f42f03710ce40d24c43aba0e2e`.
 - Frontend CI run 718 failed in the existing `next/font/google` JetBrains Mono loader during `next build` (font loader TypeError); product-specific compilation was not reached. Re-run CI and confirm whether this is transient before merge.
+
+- Admin vendor-plan editor placeholder now describes Free as TTFL Store checkout only: `b46ee1692a08fc76ea251a4e7c63fadc4713b258`.
+- Frontend CI run 720 completed successfully for the gift confirmation and paid-selling controls. Latest follow-up change only adjusts the admin plan editor's placeholder copy; production deployment remains pending.
