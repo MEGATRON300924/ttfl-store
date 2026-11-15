@@ -179,3 +179,40 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - Root layout cleanup commit: `24ab77b6a158465491f5cba63e5277c1a6b95bc1`
 - Plan update commit: `d9e4745d682559cfcfd0a96cdd7731973b6b73f1`
 - Build and production deployment verification pending.
+
+
+## Gifted vendor plan confirmation and paid selling restrictions — 2026-11-15
+- [x] Added paid-plan entitlement lookup to the shared product form; Free vendors can only choose TTFL Store checkout. External-link and WhatsApp choices are disabled with a clear upgrade path.
+- [x] Added frontend validation and server enforcement (backend branch: feat/gifted-plan-expiry-and-paid-selling).
+- [x] Added gift status display and private confirmation route for the authenticated vendor account.
+- [x] Updated admin vendor gifting copy to explain automatic one-month expiry and lifetime gifts.
+- [ ] Verify the private confirmation page with authenticated vendor sessions and check that another account cannot see the gift.
+- [ ] Add a dedicated subscription payment-method setup/renewal flow. Current Payouts bank details are settlement details, not a saved subscription payment method.
+- [ ] Run frontend build/CI and deploy after backend API is live.
+
+### Implementation commits — 2026-11-15
+- Paid-only selling method controls and subscription entitlement check in product form: `dadefbe132325b9b9aa357418990533e8ae0bae6`.
+- Private vendor-specific gift confirmation page, gift status UI and admin gift copy: `d893af4a041069555b1c19ebfc6724b28b562521`.
+- Restrict admin gift tier selector to paid plans: `9dece982335c0435ce00cec3d082c654610b42b1`.
+- Validation: source review only; frontend build, authenticated multi-account privacy test and production deployment are pending.
+- Subscription payment-method note: current Payouts bank details are vendor settlement details; Paystack card details are collected during paid subscription checkout. No standalone card-on-file page exists yet.
+
+- Latest product detail protection: backend masks direct external/WhatsApp destinations for vendors without an active paid subscription; storefront now shows an unavailable state instead of a broken referral action.
+- Latest backend gift migration backfills older finite admin gifts from `audit_logs` before the expiry worker processes them.
+
+- Product detail CTA now displays an unavailable state when the backend masks external/WhatsApp purchase destinations for a Free or expired vendor.
+- Admin gift confirmation warns that an existing recurring subscription is cancelled before the complimentary grant to prevent double billing.
+
+- Product detail CTA unavailable state and admin billing-cancellation warning: `df8f2ca62f5bd1d1e6bcc569a22631655b869eb2`.
+- Subscription plan page gifted banner was moved out of the header flex row and the admin gift selector now defaults Free vendors to Pro: `3774c9e4a42d33f42f03710ce40d24c43aba0e2e`.
+- Frontend CI run 718 failed in the existing `next/font/google` JetBrains Mono loader during `next build` (font loader TypeError); product-specific compilation was not reached. Re-run CI and confirm whether this is transient before merge.
+
+- Admin vendor-plan editor placeholder now describes Free as TTFL Store checkout only: `b46ee1692a08fc76ea251a4e7c63fadc4713b258`.
+- Frontend CI run 720 completed successfully for the gift confirmation and paid-selling controls. Latest follow-up change only adjusts the admin plan editor's placeholder copy; production deployment remains pending.
+
+- Latest frontend CI run 721 passed the Next.js production build for the private gift confirmation page, vendor subscription UI, paid-only product form and admin plan guidance.
+- Pull request #4 remains draft and mergeable; Vercel production deployment and authenticated cross-account privacy test are pending.
+
+- Subscription screens now label expired gifts as previous/expired plans and hide invalid cancellation controls after the Free-plan downgrade.
+
+- Latest frontend CI run 724 passed the Next.js production build after adding the expired-plan state and hiding invalid post-expiry subscription controls.
