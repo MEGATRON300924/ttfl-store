@@ -189,3 +189,10 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - [ ] Verify the private confirmation page with authenticated vendor sessions and check that another account cannot see the gift.
 - [ ] Add a dedicated subscription payment-method setup/renewal flow. Current Payouts bank details are settlement details, not a saved subscription payment method.
 - [ ] Run frontend build/CI and deploy after backend API is live.
+
+### Implementation commits — 2026-11-15
+- Paid-only selling method controls and subscription entitlement check in product form: `dadefbe132325b9b9aa357418990533e8ae0bae6`.
+- Private vendor-specific gift confirmation page, gift status UI and admin gift copy: `d893af4a041069555b1c19ebfc6724b28b562521`.
+- Restrict admin gift tier selector to paid plans: `9dece982335c0435ce00cec3d082c654610b42b1`.
+- Validation: source review only; frontend build, authenticated multi-account privacy test and production deployment are pending.
+- Subscription payment-method note: current Payouts bank details are vendor settlement details; Paystack card details are collected during paid subscription checkout. No standalone card-on-file page exists yet.
