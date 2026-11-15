@@ -209,3 +209,6 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 
 - Admin vendor-plan editor placeholder now describes Free as TTFL Store checkout only: `b46ee1692a08fc76ea251a4e7c63fadc4713b258`.
 - Frontend CI run 720 completed successfully for the gift confirmation and paid-selling controls. Latest follow-up change only adjusts the admin plan editor's placeholder copy; production deployment remains pending.
+
+- Latest frontend CI run 721 passed the Next.js production build for the private gift confirmation page, vendor subscription UI, paid-only product form and admin plan guidance.
+- Pull request #4 remains draft and mergeable; Vercel production deployment and authenticated cross-account privacy test are pending.
