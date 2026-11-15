@@ -216,3 +216,15 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - Subscription screens now label expired gifts as previous/expired plans and hide invalid cancellation controls after the Free-plan downgrade.
 
 - Latest frontend CI run 724 passed the Next.js production build after adding the expired-plan state and hiding invalid post-expiry subscription controls.
+
+
+## TTFL Store Newsroom — 2026-11-15
+- [x] Added public /news index page with published article cards, cover images, summaries, publication dates and RSS feed link.
+- [x] Added public /news/[slug] article pages with unique canonical metadata, Open Graph/Twitter metadata, publication/modified timestamps and Schema.org NewsArticle + BreadcrumbList JSON-LD.
+- [x] Added /news/rss.xml RSS 2.0 feed for published articles.
+- [x] Added admin-only /admin/news publishing workspace with create/edit/delete, draft/published states, headline, slug, summary, article body, cover image upload, image alt text, SEO title and description.
+- [x] Added News to the admin navigation and public footer.
+- [x] Added the News index and published article URLs to the XML sitemap. Draft articles are never returned by the public API and therefore cannot be indexed.
+- [ ] Run frontend production build and verify News/admin routes.
+- [ ] Verify backend + frontend deployments and test admin authorization, cover image upload, public draft exclusion, article JSON-LD, RSS and sitemap on production.
+- [ ] Publish an accurate Black Friday announcement with confirmed campaign dates and conditions; the News system does not invent campaign dates or automatically publish unverified event details.
