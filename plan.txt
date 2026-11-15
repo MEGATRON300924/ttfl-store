@@ -214,3 +214,5 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - Pull request #4 remains draft and mergeable; Vercel production deployment and authenticated cross-account privacy test are pending.
 
 - Subscription screens now label expired gifts as previous/expired plans and hide invalid cancellation controls after the Free-plan downgrade.
+
+- Latest frontend CI run 724 passed the Next.js production build after adding the expired-plan state and hiding invalid post-expiry subscription controls.
