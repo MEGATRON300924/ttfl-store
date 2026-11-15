@@ -228,3 +228,8 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - [ ] Run frontend production build and verify News/admin routes.
 - [ ] Verify backend + frontend deployments and test admin authorization, cover image upload, public draft exclusion, article JSON-LD, RSS and sitemap on production.
 - [ ] Publish an accurate Black Friday announcement with confirmed campaign dates and conditions; the News system does not invent campaign dates or automatically publish unverified event details.
+
+- [x] Vercel preview production build completed successfully on commit c96a5dfca4712f6b5c3189e6f76bcecbbfccb358, including the News routes and TypeScript checks.
+- [x] Corrected two type/build issues found during validation: reset-button event callback typing and missing News icon import.
+- [ ] Run one final preview build for the latest plan/status commit and verify public/admin routes in a browser.
+- [ ] News feature remains on its PR branch; it has not been merged into main or deployed to production.
