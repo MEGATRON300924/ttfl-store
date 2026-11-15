@@ -316,3 +316,11 @@ Test the supplied 728×90 Adsterra banner placement on TTFL Store only. Do not a
 #### Verification
 - Source changes committed to `fix/adsterra-banner-script-loading`.
 - Build/deployment verification pending.
+
+
+### Mobile ad sizing follow-up — 2026-11-15
+- [x] Made both Adsterra iframe placements fluid: iframe width is constrained to the available viewport, with the original 728:90 and 300:250 aspect ratios preserved.
+- [x] Removed the fixed 90px minimum-height reservation so the homepage banner scales down proportionally on narrow screens instead of forcing horizontal overflow.
+- [x] Kept desktop maximum dimensions unchanged (728×90 homepage; 300×250 footer).
+- [ ] Verify the rendered iframe dimensions at 320px, 375px, 768px and desktop widths after the preview build completes; confirm the ad creative itself respects iframe sizing.
+- Validation: source change only; build and visual browser checks pending.
