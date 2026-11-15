@@ -40,7 +40,7 @@ export default function AdminNewsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  function reset() { setEditingId(null); setForm(EMPTY); setError(""); setMessage(""); }
+  function reset(clearMessage = true) { setEditingId(null); setForm(EMPTY); setError(""); if (clearMessage) setMessage(""); }
 
   async function uploadCover(file?: File) {
     if (!file) return;
@@ -60,8 +60,8 @@ export default function AdminNewsPage() {
       if (editingId) await api.patch(`/api/news/admin/articles/${editingId}`, form);
       else await api.post("/api/news/admin/articles", form);
       await loadArticles();
+      reset(false);
       setMessage(form.status === "PUBLISHED" ? "Article published successfully." : "Draft saved.");
-      reset();
     } catch (err) { setError(err instanceof ApiError ? err.message : "Could not save this article."); }
     finally { setBusy(false); }
   }
