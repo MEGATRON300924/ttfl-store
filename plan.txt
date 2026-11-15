@@ -233,3 +233,7 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - [x] Corrected two type/build issues found during validation: reset-button event callback typing and missing News icon import.
 - [ ] Run one final preview build for the latest plan/status commit and verify public/admin routes in a browser.
 - [ ] News feature remains on its PR branch; it has not been merged into main or deployed to production.
+
+- [x] Newsroom PR #5 merged to main as bc970875afba421a8821157664c1e6f6fe9651e8.
+- [x] Vercel production deployment dpl_D7vtFJmkhymy2RUFWF596CfqRCSB is READY and includes /news, /news/[slug], /news/rss.xml, /admin/news and the updated sitemap.
+- [ ] Verify admin-only access, create/publish a real article, image upload, RSS response and sitemap URL against the live production services.
