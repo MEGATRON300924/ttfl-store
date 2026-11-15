@@ -3,15 +3,15 @@
 import { useEffect } from "react";
 
 /**
- * Temporary homepage-only Adsterra banner test.
- * Keep this placement off account, checkout and other transactional routes.
+ * Homepage-only Adsterra banner.
+ * Keep this placement out of account, checkout and other transactional routes.
  */
 export function AdsterraBanner() {
   useEffect(() => {
     const host = document.getElementById("ttfl-adsterra-banner");
     if (!host || document.getElementById("ttfl-adsterra-banner-script")) return;
 
-    // Adsterra's generated placement configuration.
+    // Adsterra's generated placement configuration must exist before its loader runs.
     (window as Window & {
       atOptions?: {
         key: string;
@@ -32,6 +32,12 @@ export function AdsterraBanner() {
     script.id = "ttfl-adsterra-banner-script";
     script.src = "https://bauval.org/22/f9d1b757d3620d5040d3839181db1c80";
     script.async = true;
+    // Prevent Cloudflare Rocket Loader from rewriting/delaying this third-party script.
+    script.setAttribute("data-cfasync", "false");
+    script.onerror = () => {
+      console.error("TTFL Store: Adsterra banner script failed to load.");
+    };
+
     host.appendChild(script);
 
     return () => {
