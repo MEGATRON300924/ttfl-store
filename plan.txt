@@ -295,3 +295,24 @@ Test the supplied 728×90 Adsterra banner placement on TTFL Store only. Do not a
 
 ### Follow-up commit
 - Banner loader Cloudflare compatibility and error diagnostic: `f558bf694d31db2a6191d42cba10942b84e39290`.
+
+
+### Additional footer banner request — 2026-11-15
+- [x] Added the supplied 300×250 Adsterra placement to the shared site footer.
+- [x] Kept the 728×90 homepage placement and the 300×250 footer placement on separate slots.
+- [x] Added a shared serialized loader because both supplied snippets use the same global `atOptions`; the placements are loaded sequentially to prevent configuration collisions.
+- [x] Added an explicit “Advertisement” label.
+- [x] Suppressed both placements on checkout, cart, account, vendor, admin, auth and login routes.
+- [x] Kept the pop-up/popunder script excluded.
+- [ ] Confirm the full Vercel preview build passes and inspect both placements at desktop/mobile widths.
+- [ ] Confirm actual ad fill/impressions and that Adult ad categories are excluded in the Adsterra dashboard.
+- [ ] Do not merge until the build is READY and both slots are verified.
+
+#### Commits
+- Shared serialized Adsterra slot loader: `f2b386c80b4ce4565f45666640529593f138cc82`
+- Refactor homepage banner to shared loader: `924e6a99733fb838ebb09e67cf4ee2361336fb88`
+- Add 300×250 footer placement: `2d49ca2ccaf649b18225e33efa79c96fe77cfe40`
+
+#### Verification
+- Source changes committed to `fix/adsterra-banner-script-loading`.
+- Build/deployment verification pending.
