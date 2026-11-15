@@ -49,9 +49,7 @@ export default function VendorSubscriptionPage() {
           <h1 className="text-xl font-bold text-graphite-900">Pricing plans</h1>
           <p className="mt-1 text-sm text-graphite-500">Choose the plan that fits your store.</p>
         </div>
-        {subscription?.isGifted && subscription.plan.tier !== "FREE" && <div className="mt-5 rounded-card border border-ember-200 bg-ember-50 p-4"><p className="text-sm font-semibold text-graphite-900">This plan was gifted by The Tron Forge Limited.</p><p className="mt-1 text-xs text-graphite-600">Your complimentary access ends {subscription.renewalDate ? new Date(subscription.renewalDate).toLocaleDateString("en-NG", { dateStyle: "long" }) : "never (lifetime gift)"}.</p><Link href="/vendor/dashboard/subscription/gift" className="mt-2 inline-flex text-xs font-semibold text-ember-700 hover:underline">View gift confirmation →</Link></div>}
-
-      {subscription && subscription.plan.tier !== "FREE" && (
+        {subscription && subscription.plan.tier !== "FREE" && (
           <Link
             href="/vendor/dashboard/subscription/manage"
             className="inline-flex items-center justify-center rounded-card bg-graphite-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-graphite-800"
@@ -60,6 +58,8 @@ export default function VendorSubscriptionPage() {
           </Link>
         )}
       </div>
+
+      {subscription?.isGifted && subscription.plan.tier !== "FREE" && <div className="mt-5 rounded-card border border-ember-200 bg-ember-50 p-4"><p className="text-sm font-semibold text-graphite-900">This plan was gifted by The Tron Forge Limited.</p><p className="mt-1 text-xs text-graphite-600">Your complimentary access ends {subscription.renewalDate ? new Date(subscription.renewalDate).toLocaleDateString("en-NG", { dateStyle: "long" }) : "never (lifetime gift)"}.</p><Link href="/vendor/dashboard/subscription/gift" className="mt-2 inline-flex text-xs font-semibold text-ember-700 hover:underline">View gift confirmation →</Link></div>}
 
       {subscription && subscription.plan.tier !== "FREE" && (
         <div className="mt-5 rounded-card border border-graphite-200 bg-white p-5">
