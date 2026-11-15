@@ -199,3 +199,6 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 
 - Latest product detail protection: backend masks direct external/WhatsApp destinations for vendors without an active paid subscription; storefront now shows an unavailable state instead of a broken referral action.
 - Latest backend gift migration backfills older finite admin gifts from `audit_logs` before the expiry worker processes them.
+
+- Product detail CTA now displays an unavailable state when the backend masks external/WhatsApp purchase destinations for a Free or expired vendor.
+- Admin gift confirmation warns that an existing recurring subscription is cancelled before the complimentary grant to prevent double billing.

@@ -28,6 +28,8 @@ export function ProductPurchaseActions({ product, selectedVariant = null }: { pr
 
   if (product.sellingMethodUnavailable) return <div role="status" className="rounded-card border border-graphite-200 bg-cloud-50 px-4 py-3 text-center"><p className="text-sm font-semibold text-graphite-800">External selling is unavailable</p><p className="mt-1 text-xs text-graphite-500">This seller needs an active paid plan to use external links or WhatsApp sales.</p></div>;
 
+  if (product.sellingMethodUnavailable) return <div role="status" className="rounded-card border border-graphite-200 bg-cloud-50 px-4 py-3 text-center"><p className="text-sm font-semibold text-graphite-800">External selling is unavailable</p><p className="mt-1 text-xs text-graphite-500">This seller needs an active paid plan to use external links or WhatsApp sales.</p></div>;
+
   if (outOfStock) return <div role="status" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-center dark:border-red-900/50 dark:bg-red-950/20"><p className="text-sm font-bold tracking-wide text-red-700 dark:text-red-300">SOLD OUT</p><p className="mt-1 text-xs text-red-600 dark:text-red-400">This product is currently unavailable.</p></div>;
 
   if (product.sellingMethod === "EXTERNAL_LINK") return <button onClick={handleReferralClick} disabled={redirecting} className="flex w-full items-center justify-center gap-2 rounded-card bg-graphite-900 px-5 py-3.5 text-sm font-semibold text-white hover:bg-graphite-800 disabled:opacity-60"><ExternalLink className="h-4 w-4" />{redirecting ? "Opening…" : "Buy on seller's website"}</button>;
