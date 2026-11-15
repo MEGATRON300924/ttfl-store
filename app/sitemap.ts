@@ -29,7 +29,7 @@ async function getAllProducts(): Promise<ApiProduct[]> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticPaths = ["/", "/shop", "/black-friday", "/deals", "/categories", "/brands", "/locations", "/featured", "/stores", "/services", "/events", "/partners", "/support", "/support/vendors", "/support/refunds", "/contact", "/about", "/trust", "/legal/terms", "/legal/privacy", "/docs", "/sell", "/sell/pricing"];
+  const staticPaths = ["/", "/news", "/shop", "/black-friday", "/deals", "/categories", "/brands", "/locations", "/featured", "/stores", "/services", "/events", "/partners", "/support", "/support/vendors", "/support/refunds", "/contact", "/about", "/trust", "/legal/terms", "/legal/privacy", "/docs", "/sell", "/sell/pricing"];
   const staticPages = staticPaths.map(path => ({
     url: `${SITE_URL}${path}`,
     lastModified: new Date(),
@@ -40,9 +40,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   // Load categories and products independently. A temporary failure in one
   // API endpoint should not remove successfully retrieved URLs from the sitemap.
-  const [categoriesResult, products] = await Promise.all([
+  const [categoriesResult, products, newsResult] = await Promise.all([
     api.get<{ categories: ApiCategory[] }>("/api/categories").catch(() => ({ categories: [] as ApiCategory[] })),
     getAllProducts().catch(() => [] as ApiProduct[]),
+    api.get<{ articles: { slug: string; updatedAt: string }[] }>("/api/news?limit=50").catch(() => ({ articles: [] as { slug: string; updatedAt: string }[] })),
   ]);
   const indexableProducts = products.filter(p => !p.comingSoon && p.status === "ACTIVE" && Boolean(p.slug) && p.description?.trim().length >= 80 && (p.images?.length ?? 0) > 0);
   const allCategories = (categoriesResult.categories ?? []).flatMap(category => [category, ...(category.children ?? [])]);
@@ -65,5 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const locations = Array.from(new Map(indexableProducts.map(p => String(p.location ?? p.vendor?.location ?? "").trim()).filter(Boolean).map(location => [slugify(location), location])).entries()).filter(([slug]) => slug);
   const locationPages = locations.map(([slug]) => ({ url: `${SITE_URL}/locations/${slug}`, changeFrequency: "weekly" as const, priority: 0.65 }));
 
-  return [...staticPages, ...categoryPages, ...productPages, ...storePages, ...brandPages, ...locationPages];
+  const newsPages = (newsResult.articles ?? []).filter(article => Boolean(article.slug)).map(article => ({ url: `${SITE_URL}/news/${article.slug}`, lastModified: new Date(article.updatedAt), changeFrequency: "weekly" as const, priority: 0.75 }));
+
+  return [...staticPages, ...newsPages, ...categoryPages, ...productPages, ...storePages, ...brandPages, ...locationPages];
 }

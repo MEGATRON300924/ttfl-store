@@ -13,6 +13,7 @@ import {
   Mail,
   Megaphone,
   Menu,
+  Newspaper,
   MessageCircle,
   Package,
   Send,
@@ -48,6 +49,7 @@ const GROUPS = [
   { label: "Operations", links: [
     ["/admin/events", "Partner events", CalendarDays],
     ["/admin/waitlists", "Coming Soon", BellRing],
+    ["/admin/news", "News articles", Newspaper],
     ["/admin/support", "Support", MessageCircle],
     ["/admin/store-reports", "Store reports", FileText],
   ] as const },
