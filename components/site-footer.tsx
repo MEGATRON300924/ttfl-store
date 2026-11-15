@@ -1,3 +1,4 @@
+import { AdsterraSlot } from "@/components/adsterra-slot";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 
@@ -12,6 +13,9 @@ const columns = [
 export function SiteFooter() {
   return (
     <footer className="border-t border-graphite-200 bg-graphite-950 text-graphite-200">
+      <div className="shell py-6">
+        <AdsterraSlot id="ttfl-adsterra-footer" adKey="4938b3df5ce60212bb86fe65c719a6ab" width={300} height={250} className="mx-auto w-full max-w-[300px]" />
+      </div>
       <div className="shell grid gap-10 py-12 sm:grid-cols-2 lg:grid-cols-[1.2fr_repeat(5,1fr)]">
         <div>
           <Logo variant="light" />

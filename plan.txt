@@ -266,3 +266,53 @@ Test the supplied 728×90 Adsterra banner placement on TTFL Store only. Do not a
 
 ### Next steps
 - Confirm adult ads are disabled for the TTFL Store site in Adsterra, then run CI and review the preview before merging.
+
+
+## Adsterra delivery and non-intrusive advertising follow-up — 2026-11-15
+
+### User feedback
+- The homepage banner did not appear after the first production deployment.
+- User supplied an additional script from `abscloud.org` described as a pop-up ad and asked that advertising remain non-annoying.
+
+### Decisions
+- Keep exactly one display banner on the homepage below the hero.
+- Do not install the supplied pop-up/popunder script. It can create a new tab or interrupt a shopper, and the supplied code does not provide a reliable frequency cap or consent/targeting controls. Reconsider only if the publisher dashboard supports a strict frequency cap and the user explicitly approves.
+- Do not place third-party ads on product detail, search, cart, checkout, account, or vendor/admin routes.
+- Do not add sticky, full-screen, auto-redirect, or repeated overlays.
+
+### Follow-up implementation
+- [x] Added `data-cfasync="false"` to the dynamically inserted Adsterra banner loader to prevent Cloudflare Rocket Loader from rewriting/delaying it, following Adsterra's published troubleshooting guidance.
+- [x] Added a script-load error diagnostic in the browser console.
+- [ ] Run CI/build and inspect the preview.
+- [ ] Confirm the publisher's website and banner unit are Approved/Active in Adsterra.
+- [ ] Confirm Adult ads are disabled in the Adsterra publisher settings.
+- [ ] Verify actual banner rendering and impressions on desktop and mobile. Script presence alone is not proof of ad delivery.
+
+### Previous production release
+- PR #6 merged to `main` as `e06af2087b8a3b3e108585182efb99fb1995fc67`.
+- Vercel production deployment `dpl_3349qkKdGmxr8DhMg5KBfp2CzUZ9` was READY for that merge commit.
+- The initial implementation's banner was not confirmed visible; this follow-up is a diagnostic/fix attempt, not a claim that rendering is resolved.
+
+### Follow-up commit
+- Banner loader Cloudflare compatibility and error diagnostic: `f558bf694d31db2a6191d42cba10942b84e39290`.
+
+
+### Additional footer banner request — 2026-11-15
+- [x] Added the supplied 300×250 Adsterra placement to the shared site footer.
+- [x] Kept the 728×90 homepage placement and the 300×250 footer placement on separate slots.
+- [x] Added a shared serialized loader because both supplied snippets use the same global `atOptions`; the placements are loaded sequentially to prevent configuration collisions.
+- [x] Added an explicit “Advertisement” label.
+- [x] Suppressed both placements on checkout, cart, account, vendor, admin, auth and login routes.
+- [x] Kept the pop-up/popunder script excluded.
+- [ ] Confirm the full Vercel preview build passes and inspect both placements at desktop/mobile widths.
+- [ ] Confirm actual ad fill/impressions and that Adult ad categories are excluded in the Adsterra dashboard.
+- [ ] Do not merge until the build is READY and both slots are verified.
+
+#### Commits
+- Shared serialized Adsterra slot loader: `f2b386c80b4ce4565f45666640529593f138cc82`
+- Refactor homepage banner to shared loader: `924e6a99733fb838ebb09e67cf4ee2361336fb88`
+- Add 300×250 footer placement: `2d49ca2ccaf649b18225e33efa79c96fe77cfe40`
+
+#### Verification
+- Source changes committed to `fix/adsterra-banner-script-loading`.
+- Build/deployment verification pending.
