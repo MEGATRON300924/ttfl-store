@@ -93,8 +93,13 @@ export function AdsterraSlot({
       </p>
       <div
         id={id}
-        className="mx-auto flex w-full items-center justify-center overflow-hidden"
-        style={{ minHeight: height, maxWidth: width }}
+        className="mx-auto flex w-full items-center justify-center overflow-hidden [&>iframe]:!h-auto [&>iframe]:!w-full [&>iframe]:!max-w-full [&>iframe]:[aspect-ratio:var(--ad-ratio)]"
+        style={{
+          minHeight: 0,
+          maxWidth: width,
+          aspectRatio: `${width} / ${height}`,
+          "--ad-ratio": `${width} / ${height}`,
+        }}
       />
     </section>
   );
