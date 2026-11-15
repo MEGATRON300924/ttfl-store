@@ -90,6 +90,7 @@ export default function ManageSubscriptionPage() {
   }
 
   const isCancelled = subscription.status === "CANCELLED";
+  const isGifted = subscription.isGifted;
   const isPaid = subscription.plan.tier !== "FREE";
 
   return (
@@ -108,6 +109,8 @@ export default function ManageSubscriptionPage() {
         </div>
       </div>
 
+      {isGifted && <div className="mt-5 rounded-card border border-ember-200 bg-ember-50 p-4"><p className="text-sm font-semibold text-graphite-900">Complimentary plan from The Tron Forge Limited</p><p className="mt-1 text-sm text-graphite-600">Your gifted access ends {formatDate(subscription.renewalDate)}. No subscription payment method is currently attached to this gift.</p><Link href="/vendor/dashboard/subscription/gift" className="mt-2 inline-flex text-sm font-semibold text-ember-700 hover:underline">View gift details →</Link></div>}
+
       {error && <p className="mt-5 rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}
 
       <div className="mt-6 max-w-3xl rounded-card border border-graphite-200 bg-white p-6">
@@ -115,7 +118,7 @@ export default function ManageSubscriptionPage() {
           <div>
             <p className="text-sm text-graphite-500">Current plan</p>
             <h2 className="mt-1 text-2xl font-bold text-graphite-900">{subscription.plan.name}</h2>
-            {isPaid && (
+            {isPaid && !isGifted && (
               <p className="mt-1 text-sm text-graphite-500">
                 {formatNaira(Number(subscription.plan.price))} / {subscription.plan.billingPeriod === "MONTHLY" ? "month" : "year"}
               </p>

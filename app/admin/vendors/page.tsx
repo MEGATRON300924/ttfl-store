@@ -81,7 +81,7 @@ export default function AdminVendorsPage() {
           </div>
 
           <div className="mt-5 border-t border-graphite-100 pt-4">
-            <div className="flex items-start gap-2"><Gift className="mt-0.5 h-4 w-4 text-ember-600" /><div><p className="text-sm font-semibold text-graphite-900">Grant subscription</p><p className="text-xs text-graphite-500">Give this store a TTFL plan without a Paystack payment. Granting a plan also verifies and approves the store.</p></div></div>
+            <div className="flex items-start gap-2"><Gift className="mt-0.5 h-4 w-4 text-ember-600" /><div><p className="text-sm font-semibold text-graphite-900">Grant subscription</p><p className="text-xs text-graphite-500">Gift this store a TTFL plan without a Paystack payment. A one-month gift expires automatically and returns the vendor to Free; lifetime gifts do not expire. Granting a plan also approves marketplace access, not legal verification.</p></div></div>
             <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center">
               <select id={`grant-tier-${app.id}`} defaultValue={app.tier} className="rounded-card border border-graphite-300 bg-white px-3 py-2 text-sm font-medium text-graphite-900"><option value="FREE">Free</option><option value="PRO">Pro</option><option value="BUSINESS">Business</option><option value="ENTERPRISE">Enterprise</option></select>
               <label className="flex items-center gap-2 rounded-card border border-graphite-200 px-3 py-2 text-sm text-graphite-700"><input id={`grant-lifetime-${app.id}`} type="checkbox" className="h-4 w-4" /> Lifetime</label>

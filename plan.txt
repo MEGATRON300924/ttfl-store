@@ -179,3 +179,13 @@ Change the TTFL Store website typography to the ChunkFive typeface.
 - Root layout cleanup commit: `24ab77b6a158465491f5cba63e5277c1a6b95bc1`
 - Plan update commit: `d9e4745d682559cfcfd0a96cdd7731973b6b73f1`
 - Build and production deployment verification pending.
+
+
+## Gifted vendor plan confirmation and paid selling restrictions — 2026-11-15
+- [x] Added paid-plan entitlement lookup to the shared product form; Free vendors can only choose TTFL Store checkout. External-link and WhatsApp choices are disabled with a clear upgrade path.
+- [x] Added frontend validation and server enforcement (backend branch: feat/gifted-plan-expiry-and-paid-selling).
+- [x] Added gift status display and private confirmation route for the authenticated vendor account.
+- [x] Updated admin vendor gifting copy to explain automatic one-month expiry and lifetime gifts.
+- [ ] Verify the private confirmation page with authenticated vendor sessions and check that another account cannot see the gift.
+- [ ] Add a dedicated subscription payment-method setup/renewal flow. Current Payouts bank details are settlement details, not a saved subscription payment method.
+- [ ] Run frontend build/CI and deploy after backend API is live.
