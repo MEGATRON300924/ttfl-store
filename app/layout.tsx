@@ -59,9 +59,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-NG" className={mono.variable}>
       <body>
-        <Script id="monetag-inpage-push" strategy="afterInteractive">{\`
+        <Script id="monetag-inpage-push" strategy="afterInteractive">{`
 (function(s){s.dataset.zone='12276099',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
-\`}</Script>
+`}</Script>
         <AdSensePolicyGuard />
         <SiteStructuredData />
         <AuthProvider>
