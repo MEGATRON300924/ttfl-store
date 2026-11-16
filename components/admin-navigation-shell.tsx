@@ -73,12 +73,12 @@ export default function AdminNavigationShell({ children }: { children: React.Rea
     <div className="min-h-[calc(100vh-80px)] bg-cloud-50">
       {open && <button aria-label="Close admin menu" onClick={() => setOpen(false)} className="fixed inset-0 z-30 bg-black/20 lg:hidden" />}
       <div className="flex min-h-[calc(100vh-80px)]">
-        <aside className={`fixed inset-y-0 left-0 z-40 mt-20 flex w-72 flex-col border-r border-graphite-200 bg-white px-4 py-5 transition-transform lg:static lg:z-auto lg:mt-0 lg:translate-x-0 ${open ? "translate-x-0" : "-translate-x-full"}`}>
-          <div className="mb-5 flex items-center justify-between px-2 lg:hidden">
+        <aside className={`fixed bottom-0 left-0 top-20 z-40 flex h-auto min-h-0 w-72 flex-col overflow-hidden border-r border-graphite-200 bg-white px-4 py-5 transition-transform lg:sticky lg:top-20 lg:bottom-auto lg:h-[calc(100vh-5rem)] lg:self-start ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}>
+          <div className="mb-5 flex shrink-0 items-center justify-between px-2 lg:hidden">
             <span className="text-sm font-bold text-graphite-900">Admin workspace</span>
             <button onClick={() => setOpen(false)} className="rounded-card p-2 text-graphite-600 hover:bg-cloud-100" aria-label="Close admin menu"><X className="h-5 w-5" /></button>
           </div>
-          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto pr-1">
+          <div className="min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-contain pr-1">
             {GROUPS.map((group) => (
               <div key={group.label}>
                 <p className="px-2 pb-2 text-[10px] font-bold uppercase tracking-[0.14em] text-graphite-500">{group.label}</p>
