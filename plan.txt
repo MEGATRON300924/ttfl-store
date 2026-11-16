@@ -32,3 +32,11 @@
 - [ ] Real-device Android/mobile and desktop visual verification remains outstanding.
 - [ ] Confirm the production Vercel deployment status and test the live admin sidebar after deployment.
 - Note: the earlier “do not merge” next-step entries above describe the state before approval; this section records the later authorized merge. No claim of successful production deployment or real-device verification is made.
+
+
+## Admin mobile drawer scroll containment — 2026-11-16
+- [x] Identified the remaining failure: the mobile drawer did not lock the document behind it, allowing page scroll to chain when the finger reached the drawer's scroll boundary.
+- [x] Added lifecycle-managed document scroll locking while the drawer is open; previous inline overflow/overscroll styles are restored when it closes or unmounts.
+- [x] Kept the menu list as the only scrollable navigation region and added overscroll containment to the drawer surface.
+- [ ] Run frontend validation/build and verify on Android that the final System links are reachable without the page behind the drawer moving.
+- [ ] Open a PR for review; do not merge or deploy without approval.
