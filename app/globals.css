@@ -188,3 +188,28 @@ a[href="/wishlist"]:active svg { animation: heart-beat 360ms ease-out; }
 @media (prefers-reduced-motion: reduce) {
   .cart-fly { animation: none; opacity: 0; }
 }
+
+
+/* Compact, consistently visible scrollbar for the admin navigation. */
+.admin-sidebar-scroll {
+  min-height: 0;
+  overflow-y: scroll;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #aab1bc transparent;
+}
+.admin-sidebar-scroll::-webkit-scrollbar {
+  width: 5px;
+}
+.admin-sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.admin-sidebar-scroll::-webkit-scrollbar-thumb {
+  min-height: 28px;
+  border-radius: 999px;
+  background: #aab1bc;
+}
+.admin-sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #737d8c;
+}
