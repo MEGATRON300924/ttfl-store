@@ -91,3 +91,11 @@
 - [x] Added the supplied Monetag verification meta value to the global Next.js metadata so it is emitted in the document head across storefront routes.
 - [ ] Run frontend validation/build and confirm the live HTML head contains the exact meta tag after deployment.
 - [ ] Monetag ad-delivery script has not been added: the user supplied only the verification meta tag in this request. Add the separate Monetag ad script when its exact snippet and placement are provided.
+
+
+## Monetag in-page push ads — 2026-11-16
+- [x] Added the supplied Monetag in-page push loader to the global storefront layout using Next.js Script with the `afterInteractive` strategy; it loads once from the shared root layout after the document is interactive.
+- [x] Retained the Monetag site-verification metadata added in PR #12.
+- [ ] Run frontend validation/build and inspect the deployed page to confirm the Monetag loader is present and the external tag request succeeds.
+- [ ] Check desktop and mobile storefront behavior for unexpected overlays or navigation interference after Monetag activates.
+- [ ] Merge/deploy only after the preview build is successful and the change is reviewed.
