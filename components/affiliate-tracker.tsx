@@ -19,12 +19,17 @@ export function AffiliateTracker(){
     const params=new URLSearchParams(window.location.search);const ref=params.get("ref")?.trim().toUpperCase();if(!ref||ref.length<3)return;
     const type=params.get("type")?.trim().toUpperCase()==="VENDOR"?"VENDOR":"CUSTOMER";
     localStorage.setItem(REFERRAL_CODE_KEY,ref);localStorage.setItem(REFERRAL_TYPE_KEY,type);const sessionId=getOrCreateAffiliateSession();
-    void api.post("/api/affiliates/click",{code:ref,sessionId,referralType:type,landingPath:window.location.pathname,source:document.referrer||undefined});
+    void (async()=>{
+      await api.post("/api/affiliates/click",{code:ref,sessionId,referralType:type,landingPath:window.location.pathname,source:document.referrer||undefined}).catch(()=>undefined);
+      if(type!=="VENDOR"||localStorage.getItem(PENDING_CLAIM_KEY))return;
+      try{const result=await api.get<any>(`/api/affiliates/vendor-invite?code=${encodeURIComponent(ref)}&sessionId=${encodeURIComponent(sessionId)}`);if(result.show)setInvite(result);}catch{}
+    })();
   },[]);
   useEffect(()=>{
-    const code=localStorage.getItem(REFERRAL_CODE_KEY);const type=localStorage.getItem(REFERRAL_TYPE_KEY);const sessionId=getStoredAffiliateSession();
-    if(!code||type!=="VENDOR"||!sessionId)return;
-    void api.get<any>(`/api/affiliates/vendor-invite?code=${encodeURIComponent(code)}&sessionId=${encodeURIComponent(sessionId)}`).then(result=>{if(result.show)setInvite(result);}).catch(()=>undefined);
+    const pending=localStorage.getItem(PENDING_CLAIM_KEY);if(!pending||!user)return;
+    let data:{code:string;sessionId:string};try{data=JSON.parse(pending);}catch{return;}
+    setClaiming(true);
+    void api.post<any>("/api/affiliates/vendor-reward/claim",data).then(result=>{localStorage.removeItem(PENDING_CLAIM_KEY);setSavedReward(result.reward?{tier:result.reward.tier,months:result.reward.months}:null);setSaved(true);setInvite(null);}).catch((err)=>setClaimError(err instanceof ApiError?err.message:"We couldn't save this vendor reward. Please try again.")).finally(()=>setClaiming(false));
   },[user]);
   useEffect(()=>{
     const pending=localStorage.getItem(PENDING_CLAIM_KEY);if(!pending||!user)return;
