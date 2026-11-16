@@ -31,12 +31,6 @@ export function AffiliateTracker(){
     setClaiming(true);
     void api.post<any>("/api/affiliates/vendor-reward/claim",data).then(result=>{localStorage.removeItem(PENDING_CLAIM_KEY);setSavedReward(result.reward?{tier:result.reward.tier,months:result.reward.months}:null);setSaved(true);setInvite(null);}).catch((err)=>setClaimError(err instanceof ApiError?err.message:"We couldn't save this vendor reward. Please try again.")).finally(()=>setClaiming(false));
   },[user]);
-  useEffect(()=>{
-    const pending=localStorage.getItem(PENDING_CLAIM_KEY);if(!pending||!user)return;
-    let data:{code:string;sessionId:string};try{data=JSON.parse(pending);}catch{return;}
-    setClaiming(true);
-    void api.post<any>("/api/affiliates/vendor-reward/claim",data).then(result=>{localStorage.removeItem(PENDING_CLAIM_KEY);setSavedReward(result.reward?{tier:result.reward.tier,months:result.reward.months}:null);setSaved(true);setInvite(null);}).catch((err)=>setClaimError(err instanceof ApiError?err.message:"We couldn't save this vendor reward. Please try again.")).finally(()=>setClaiming(false));
-  },[user]);
   async function claim(){
     const code=localStorage.getItem(REFERRAL_CODE_KEY);const sessionId=getStoredAffiliateSession();if(!code||!sessionId)return;
     setClaiming(true);
