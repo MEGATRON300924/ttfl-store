@@ -16,6 +16,7 @@ import { BrowserNotificationListener } from "@/components/browser-notification-l
 import { NotificationPermissionPrompt } from "@/components/notification-permission-prompt";
 import { GoogleCustomerReviewsBadge } from "@/components/google-customer-reviews-badge";
 import { api } from "@/lib/api-client";
+import Script from "next/script";
 
 const SITE_URL = "https://ttflstore.name.ng";
 const ADSENSE_CLIENT = "ca-pub-2236157159704579";
@@ -58,6 +59,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en-NG" className={mono.variable}>
       <body>
+        <Script id="monetag-inpage-push" strategy="afterInteractive">{\`
+(function(s){s.dataset.zone='12276099',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))
+\`}</Script>
         <AdSensePolicyGuard />
         <SiteStructuredData />
         <AuthProvider>
