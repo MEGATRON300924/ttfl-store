@@ -9,13 +9,14 @@ import { useAuth } from "@/lib/auth-context";
 export default function AffiliatePage() {
   const { user, loading } = useAuth();
   const [rate, setRate] = useState(5);
+  const [programEnabled, setProgramEnabled] = useState(true);
   const [joining, setJoining] = useState(false);
   const [joined, setJoined] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    api.get<{ program: { commissionRate: number } }>("/api/affiliates/program")
-      .then(({ program }) => setRate(program.commissionRate))
+    api.get<{ program: { commissionRate: number; enabled: boolean } }>("/api/affiliates/program")
+      .then(({ program }) => { setRate(program.commissionRate); setProgramEnabled(program.enabled); })
       .catch(() => undefined);
   }, []);
 
@@ -44,10 +45,10 @@ export default function AffiliatePage() {
           <h1 className="mt-4 text-3xl font-bold tracking-tight text-graphite-900 sm:text-5xl">Share TTFL Store. Earn when people buy.</h1>
           <p className="mt-4 max-w-2xl text-base leading-7 text-graphite-600 sm:text-lg">Get your personal referral link, share it with your audience, and earn a commission on qualifying paid orders.</p>
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <button onClick={join} disabled={joining || joined} className="inline-flex items-center justify-center gap-2 rounded-card bg-ember-600 px-5 py-3 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-60">
+            {programEnabled ? <button onClick={join} disabled={joining || joined} className="inline-flex items-center justify-center gap-2 rounded-card bg-ember-600 px-5 py-3 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-60">
               {joined ? "Affiliate account created" : joining ? "Setting up…" : user ? "Join the affiliate program" : "Log in to join"}
               {!joined && <ArrowRight className="h-4 w-4" />}
-            </button>
+            </button> : <p className="rounded-card bg-cloud-100 px-5 py-3 text-sm font-semibold text-graphite-600">The affiliate programme is currently unavailable.</p>}
             <Link href="/affiliate/dashboard" className="inline-flex items-center justify-center rounded-card border border-graphite-300 px-5 py-3 text-sm font-semibold text-graphite-900 hover:bg-cloud-100">Affiliate dashboard</Link>
           </div>
           {error && <p className="mt-3 text-sm text-ember-700">{error}</p>}

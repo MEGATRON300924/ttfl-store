@@ -48,3 +48,33 @@
 - PR: https://github.com/MEGATRON300924/ttfl-store/pull/9
 - [x] Document scroll lock is now part of the production branch; prior inline overflow/overscroll styles are restored when the drawer closes or unmounts.
 - [ ] Confirm Vercel production deployment and verify the drawer on a real Android device; no device-level test has been performed here.
+
+
+## Affiliate programme and dashboard reliability — 2026-11-16
+- [x] Audited the public affiliate landing page, affiliate dashboard, referral tracker, checkout flow, vendor invite popup, admin controls, and shared backend API contract.
+- [x] Checkout now sends the captured customer referral code and browser session to the backend; this lets the server bind attribution to the actual order instead of relying only on the customer's post-payment confirmation page remaining open.
+- [x] Updated the vendor invitation tracker to wait for the click record before requesting the invitation, removing a race that could suppress the invite popup.
+- [x] Replaced hard-coded “1 month Pro” reward confirmation text with the actual tier and duration returned by the backend.
+- [x] Added visible errors for failed vendor reward claims and made the public join action respect the program-enabled setting.
+- [x] Kept the existing affiliate dashboard route and footer links; no duplicate affiliate account or login system introduced.
+- [ ] Run frontend lint/build and backend CI; verify referral click → checkout attribution → paid order → commission ledger → dashboard metrics.
+- [ ] Verify vendor referral invite → claim/decline → saved reward → approved vendor redemption using real test accounts.
+- [ ] Merge/deploy frontend and backend together only after both checks pass and explicit approval.
+
+### Frontend commits
+- Checkout attribution payload: `0c2738f1e1a887f5ee12a272cc9e69cc98235ccc`
+- Vendor invite reward UI and claim error handling: `187f7fed2d020cf7bcfa21113f30b0e861c48cf9`
+- Affiliate program enabled state: `21c6d25b5c3c194edc2d08870f1ee0aa3ed8c6b9`
+- Referral click/invite sequencing: `30bc7430149caa3c835c6b34b43f8ef5464d09fb`
+- Duplicate claim-effect cleanup: `5961db967bf5bcbe36323ff840875522fe76df59`
+
+### Dependency
+- Backend companion PR is required for the new optional checkout fields and server-side commission ledger finalization. Do not release this frontend branch independently.
+
+
+### Validation update — 2026-11-16
+- [x] Vercel preview build for commit `5961db967bf5bcbe36323ff840875522fe76df59` reached READY; Next.js build completed successfully.
+- [x] A follow-up commit `db0de1032d41ca34e9a16ecba2bcf59a4286466b` remembers a dismissed vendor invite for logged-out visitors.
+- [ ] Vercel preview for the latest commit is queued; latest-commit build result is not yet confirmed.
+- [ ] Protected preview routes could not be opened through the available public web viewer; authenticated browser-level testing remains pending.
+- [ ] No production deployment or merge has been made.
