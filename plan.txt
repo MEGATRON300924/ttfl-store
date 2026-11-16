@@ -85,3 +85,9 @@
 - Merge commit: `3637e59fa7de72cbadd9d4d90ebbcd7f3c5fc285`.
 - [x] Vercel preview status for the merged PR head was successful.
 - [ ] Confirm production Vercel deployment and complete authenticated affiliate/vendor reward end-to-end checks.
+
+
+## Monetag site verification — 2026-11-16
+- [x] Added the supplied Monetag verification meta value to the global Next.js metadata so it is emitted in the document head across storefront routes.
+- [ ] Run frontend validation/build and confirm the live HTML head contains the exact meta tag after deployment.
+- [ ] Monetag ad-delivery script has not been added: the user supplied only the verification meta tag in this request. Add the separate Monetag ad script when its exact snippet and placement are provided.
