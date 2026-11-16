@@ -53,6 +53,42 @@ export default function VendorDashboardNavigationShell({ children }: { children:
   const [membership, setMembership] = useState<Membership>(null);
 
   useEffect(() => {
+    if (!mobileOpen) return;
+
+    const scrollY = window.scrollY;
+    const html = document.documentElement;
+    const body = document.body;
+    const previous = {
+      htmlOverflow: html.style.overflow,
+      htmlOverscroll: html.style.overscrollBehavior,
+      bodyOverflow: body.style.overflow,
+      bodyOverscroll: body.style.overscrollBehavior,
+      bodyPosition: body.style.position,
+      bodyTop: body.style.top,
+      bodyWidth: body.style.width,
+    };
+
+    html.style.overflow = "hidden";
+    html.style.overscrollBehavior = "none";
+    body.style.overflow = "hidden";
+    body.style.overscrollBehavior = "none";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
+
+    return () => {
+      html.style.overflow = previous.htmlOverflow;
+      html.style.overscrollBehavior = previous.htmlOverscroll;
+      body.style.overflow = previous.bodyOverflow;
+      body.style.overscrollBehavior = previous.bodyOverscroll;
+      body.style.position = previous.bodyPosition;
+      body.style.top = previous.bodyTop;
+      body.style.width = previous.bodyWidth;
+      window.scrollTo(0, scrollY);
+    };
+  }, [mobileOpen]);
+
+  useEffect(() => {
     if (user && pathname !== "/vendor/dashboard") {
       fetch("/api/vendor-staff/me").then(async (res) => {
         if (res.ok) {
@@ -103,8 +139,8 @@ export default function VendorDashboardNavigationShell({ children }: { children:
       </div>
 
       <div className="flex min-h-[calc(100vh-4rem)]">
-        {mobileOpen && <button className="fixed inset-0 z-40 bg-black/30 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close menu"/>}
-        <aside className={`fixed inset-y-0 left-0 z-50 mt-16 flex w-72 flex-col border-r border-graphite-200 bg-white p-4 transition-transform dark:border-graphite-800 dark:bg-graphite-950 lg:sticky lg:top-16 lg:z-0 lg:mt-0 lg:h-[calc(100vh-4rem)] lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
+        {mobileOpen && <button className="fixed inset-x-0 top-16 bottom-0 z-40 bg-black/30 lg:hidden" onClick={() => setMobileOpen(false)} aria-label="Close menu"/>}
+        <aside className={`fixed left-0 top-16 z-50 flex h-[calc(100vh-4rem)] max-h-[calc(100vh-4rem)] w-72 flex-col overflow-hidden overscroll-none border-r border-graphite-200 bg-white p-4 transition-transform dark:border-graphite-800 dark:bg-graphite-950 supports-[height:100dvh]:h-[calc(100dvh-4rem)] supports-[height:100dvh]:max-h-[calc(100dvh-4rem)] lg:sticky lg:top-16 lg:z-0 lg:mt-0 lg:h-[calc(100vh-4rem)] lg:max-h-none lg:translate-x-0 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
           <div className="mb-4 flex shrink-0 items-center justify-between lg:hidden"><strong>Menu</strong><button onClick={() => setMobileOpen(false)} aria-label="Close menu"><X/></button></div>
           <div className="mb-4 shrink-0 rounded-2xl border border-graphite-200 bg-cloud-50 p-3 dark:border-graphite-800 dark:bg-graphite-900">
             <p className="text-[10px] font-bold uppercase tracking-[.16em] text-ember-600">Your store</p>
@@ -112,7 +148,7 @@ export default function VendorDashboardNavigationShell({ children }: { children:
             <p className="mt-1 truncate text-xs text-graphite-500">{user?.vendorProfile?.location || "Nigeria"}</p>
             <span className="mt-3 inline-flex rounded-full bg-verified-100 px-2 py-1 text-[11px] font-semibold text-verified-700">{user?.vendorProfile?.status === "APPROVED" ? "Active" : user?.vendorProfile?.status || "Pending"}</span>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y pr-1">
             <nav className="space-y-5">
               {NAV_GROUPS.map(group => (
                 <div key={group.label}>
