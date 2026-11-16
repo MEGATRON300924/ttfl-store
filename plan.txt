@@ -13,3 +13,12 @@
 
 ### Next steps
 - Confirm CI/build result, inspect the mobile drawer and desktop sidebar, then merge/deploy when approved.
+
+
+## Admin sidebar compact scrollbar follow-up — 2026-11-16
+- [x] Replaced the mobile drawer's implicit top/bottom sizing with an explicit viewport-relative height below the 5rem header, including dynamic viewport-height support.
+- [x] Switched the navigation region to an always-scrollable vertical region with touch panning and contained overscroll.
+- [x] Added a compact 5px scrollbar treatment (thin Firefox scrollbar and styled WebKit thumb/track) shared by mobile and desktop navigation.
+- [ ] Verify on a real Android/mobile viewport that the scrollbar is visible and the full System section can be reached; CSS scrollbar visibility can vary by browser/OS.
+- [ ] Run frontend build/CI; do not merge or deploy until verification.
+- Follow-up commits: component `9a734460bf47f50e031cb2e5b1bc795ecb91056b`; scrollbar CSS `2c3fc6bd9fd093ecc596bfa09306067df2472540`.
