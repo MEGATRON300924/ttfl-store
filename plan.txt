@@ -40,3 +40,11 @@
 - [x] Kept the menu list as the only scrollable navigation region and added overscroll containment to the drawer surface.
 - [ ] Run frontend validation/build and verify on Android that the final System links are reachable without the page behind the drawer moving.
 - [ ] Open a PR for review; do not merge or deploy without approval.
+
+
+## Admin mobile drawer scroll containment merge — 2026-11-16
+- [x] PR #9 marked ready for review and squash-merged into `main`.
+- Merge commit: `5afa37b45df3a21333ee7f8932dd5a5a974c4425`.
+- PR: https://github.com/MEGATRON300924/ttfl-store/pull/9
+- [x] Document scroll lock is now part of the production branch; prior inline overflow/overscroll styles are restored when the drawer closes or unmounts.
+- [ ] Confirm Vercel production deployment and verify the drawer on a real Android device; no device-level test has been performed here.
