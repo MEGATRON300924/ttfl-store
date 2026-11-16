@@ -9,6 +9,7 @@ const REFERRAL_CODE_KEY="ttfl_affiliate_ref";
 const REFERRAL_TYPE_KEY="ttfl_affiliate_type";
 const REFERRAL_SESSION_KEY="ttfl_affiliate_session";
 const PENDING_CLAIM_KEY="ttfl_affiliate_pending_vendor_claim";
+const DECLINED_VENDOR_CODE_KEY="ttfl_affiliate_declined_vendor_code";
 
 function getOrCreateAffiliateSession(){const existing=localStorage.getItem(REFERRAL_SESSION_KEY);if(existing&&existing.length>=8&&existing.length<=120)return existing;const sessionId=crypto.randomUUID();localStorage.setItem(REFERRAL_SESSION_KEY,sessionId);return sessionId;}
 
@@ -21,7 +22,7 @@ export function AffiliateTracker(){
     localStorage.setItem(REFERRAL_CODE_KEY,ref);localStorage.setItem(REFERRAL_TYPE_KEY,type);const sessionId=getOrCreateAffiliateSession();
     void (async()=>{
       await api.post("/api/affiliates/click",{code:ref,sessionId,referralType:type,landingPath:window.location.pathname,source:document.referrer||undefined}).catch(()=>undefined);
-      if(type!=="VENDOR"||localStorage.getItem(PENDING_CLAIM_KEY))return;
+      if(type!=="VENDOR"||localStorage.getItem(PENDING_CLAIM_KEY)||localStorage.getItem(DECLINED_VENDOR_CODE_KEY)===ref)return;
       try{const result=await api.get<any>(`/api/affiliates/vendor-invite?code=${encodeURIComponent(ref)}&sessionId=${encodeURIComponent(sessionId)}`);if(result.show)setInvite(result);}catch{}
     })();
   },[]);
@@ -34,11 +35,11 @@ export function AffiliateTracker(){
   async function claim(){
     const code=localStorage.getItem(REFERRAL_CODE_KEY);const sessionId=getStoredAffiliateSession();if(!code||!sessionId)return;
     setClaiming(true);
-    try{const result=await api.post<any>("/api/affiliates/vendor-reward/claim",{code,sessionId});setSavedReward(result.reward?{tier:result.reward.tier,months:result.reward.months}:invite?.perk?{tier:invite.perk.tier,months:invite.perk.months}:null);setClaimError(null);setInvite(null);setSaved(true);}
+    try{const result=await api.post<any>("/api/affiliates/vendor-reward/claim",{code,sessionId});setSavedReward(result.reward?{tier:result.reward.tier,months:result.reward.months}:invite?.perk?{tier:invite.perk.tier,months:invite.perk.months}:null);setClaimError(null);localStorage.removeItem(DECLINED_VENDOR_CODE_KEY);setInvite(null);setSaved(true);}
     catch(err){if(err instanceof ApiError&&err.status===401){localStorage.setItem(PENDING_CLAIM_KEY,JSON.stringify({code,sessionId}));router.push(`/login?next=${encodeURIComponent(window.location.pathname+window.location.search)}`);}else setClaimError(err instanceof ApiError?err.message:"We couldn't save this vendor reward. Please try again.");}
     finally{setClaiming(false);}
   }
-  async function decline(){const code=localStorage.getItem(REFERRAL_CODE_KEY);const sessionId=getStoredAffiliateSession();if(!code||!sessionId)return;try{await api.post("/api/affiliates/vendor-reward/decline",{code,sessionId});}catch{}setInvite(null);}
+  async function decline(){const code=localStorage.getItem(REFERRAL_CODE_KEY);const sessionId=getStoredAffiliateSession();if(!code||!sessionId)return;localStorage.setItem(DECLINED_VENDOR_CODE_KEY,code);try{await api.post("/api/affiliates/vendor-reward/decline",{code,sessionId});}catch{}setInvite(null);}
   if(!invite&&!saved)return null;
   return <div className="fixed inset-0 z-[100] grid place-items-center bg-graphite-950/55 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="TTFL Store vendor invitation">
     <div className="w-full max-w-md overflow-hidden rounded-[28px] border border-white/60 bg-white shadow-2xl">
