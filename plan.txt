@@ -78,3 +78,10 @@
 - [ ] Vercel preview for the latest commit is queued; latest-commit build result is not yet confirmed.
 - [ ] Protected preview routes could not be opened through the available public web viewer; authenticated browser-level testing remains pending.
 - [ ] No production deployment or merge has been made.
+
+
+### Merge result — 2026-11-16
+- [x] PR #11 merged into `main` using squash merge after the latest Vercel preview reached READY.
+- Merge commit: `3637e59fa7de72cbadd9d4d90ebbcd7f3c5fc285`.
+- [x] Vercel preview status for the merged PR head was successful.
+- [ ] Confirm production Vercel deployment and complete authenticated affiliate/vendor reward end-to-end checks.
