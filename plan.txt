@@ -22,3 +22,13 @@
 - [ ] Verify on a real Android/mobile viewport that the scrollbar is visible and the full System section can be reached; CSS scrollbar visibility can vary by browser/OS.
 - [ ] Run frontend build/CI; do not merge or deploy until verification.
 - Follow-up commits: component `9a734460bf47f50e031cb2e5b1bc795ecb91056b`; scrollbar CSS `2c3fc6bd9fd093ecc596bfa09306067df2472540`.
+
+
+## Admin sidebar merge update — 2026-11-16
+- [x] PR #8 (Fix admin sidebar scrolling) was marked ready and squash-merged into `main`.
+- Merge commit: `27f75950580ab28927637c967c8d9a5fc2321d12`.
+- PR: https://github.com/MEGATRON300924/ttfl-store/pull/8
+- [x] GitHub Actions `validate` check passed on the PR head (`4479917b356d0256dffb78298fd04109441c07a0`); Vercel Preview Comments check also passed.
+- [ ] Real-device Android/mobile and desktop visual verification remains outstanding.
+- [ ] Confirm the production Vercel deployment status and test the live admin sidebar after deployment.
+- Note: the earlier “do not merge” next-step entries above describe the state before approval; this section records the later authorized merge. No claim of successful production deployment or real-device verification is made.
