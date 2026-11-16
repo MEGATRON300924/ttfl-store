@@ -48,3 +48,20 @@
 - PR: https://github.com/MEGATRON300924/ttfl-store/pull/9
 - [x] Document scroll lock is now part of the production branch; prior inline overflow/overscroll styles are restored when the drawer closes or unmounts.
 - [ ] Confirm Vercel production deployment and verify the drawer on a real Android device; no device-level test has been performed here.
+
+
+## Vendor dashboard mobile drawer correction — 2026-11-16
+- [x] Compared the vendor dashboard navigation with the TTFL Store Cars seller dashboard. The main vendor drawer was using the same general fixed-panel pattern, but its mobile positioning depended on `inset-y-0` plus a top margin and did not lock the underlying document.
+- [x] Updated the vendor dashboard home page and shared vendor navigation shell together so the drawer behaves consistently on the overview and all vendor subpages.
+- [x] Anchored the mobile drawer below the 64px sticky header with a bounded viewport height, including dynamic viewport-height support for mobile browser chrome.
+- [x] Added a dedicated scrollable navigation region with touch panning and overscroll containment; pinned store summary and footer links remain outside that region.
+- [x] Added lifecycle-managed document scroll locking while the drawer is open, restoring prior inline styles and the original scroll position on close/unmount.
+- [ ] Run TypeScript/build validation and inspect the Vercel preview at narrow mobile widths; physical Android verification remains outstanding.
+- [ ] Keep this change in a PR for review; do not merge or deploy without explicit approval.
+
+### Changes
+- `app/vendor/dashboard/page.tsx`: vendor dashboard overview drawer, overlay and body scroll lock.
+- `components/vendor-dashboard-navigation-shell.tsx`: shared vendor subpage drawer, overlay and body scroll lock.
+
+### Known unrelated issue
+- `TTFL-ERR-20261116-B2CDCE98` on `POST /api/auth/refresh` is a backend authentication error and is not changed by this frontend drawer patch. Continue investigating it separately with the exact server-side exception/stack trace.
