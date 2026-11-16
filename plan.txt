@@ -99,3 +99,6 @@
 - [ ] Run frontend validation/build and inspect the deployed page to confirm the Monetag loader is present and the external tag request succeeds.
 - [ ] Check desktop and mobile storefront behavior for unexpected overlays or navigation interference after Monetag activates.
 - [ ] Merge/deploy only after the preview build is successful and the change is reviewed.
+
+- Validation note: the first preview attempt on the initial implementation commit failed because the inline JSX template-literal delimiters were escaped incorrectly. Corrected in commit `efbb7fdf298ef50e61b34e1ee309f7b89dbe4d58`; the Vercel deployment for that corrected commit is currently building and GitHub validation is still running.
+
