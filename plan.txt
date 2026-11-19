@@ -154,3 +154,4 @@
 - [x] Added Jiji and SHEIN image CDN hosts to the Next.js remote image allowlist.
 - [ ] Re-run frontend CI and verify preview build.
 - [ ] Test end-to-end with vendor authentication after the matching backend is deployed.
+\n\n## Supplier importer error visibility and Jumia support — 2026-11-19\n- [x] Updated the vendor importer guidance and placeholder to include Jumia alongside AliExpress, Jiji and SHEIN.\n- [x] Replaced the high-brightness light error strip with a dark, high-contrast, selectable diagnostic panel that clearly distinguishes the error heading from the backend message.\n- [x] Removed the duplicate extraction warning sentence.\n- [ ] Run frontend lint/typecheck/build and verify the error panel in light and dark dashboard themes.\n- [ ] Confirm the matching backend PR is merged and deployed before live Jiji/Jumia end-to-end testing.\n
