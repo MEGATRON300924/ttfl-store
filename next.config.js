@@ -8,6 +8,21 @@ const nextConfig = {
         hostname: "res.cloudinary.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "**.alicdn.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.aliexpress-media.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "www.aliexpress.com",
+        pathname: "/**",
+      },
     ],
   },
   async rewrites() {
