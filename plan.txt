@@ -110,3 +110,19 @@
 - [x] Kept the Monetag site-verification meta tag in metadata; it does not load ads or create pop-ups.
 - [ ] Run frontend validation/build and verify the deployed storefront no longer requests nap5k.com/tag.min.js.
 - [ ] Merge and release the removal after validation.
+## Black Friday 2026 homepage SEO — 2026-11-19
+- [x] Added homepage-specific metadata so the homepage targets "TTFL Store Black Friday 2026" and relevant Nigeria shopping searches before the campaign starts.
+- [x] Added a concise meta description and keyword set covering TTFL Store, Black Friday 2026, Black Friday deals in Nigeria, online shopping deals, and the Nigerian marketplace.
+- [x] Added homepage canonical URL, index/follow directives, Open Graph metadata, and Twitter/X card metadata for consistent search and social previews.
+- [x] Made homepage metadata switch to the saved campaign headline and description when the public campaign API reports the campaign is live; static pre-launch metadata remains available if the API is unavailable.
+- [x] Confirmed `/black-friday` is already included in `app/sitemap.ts` with priority 0.9 and that `robots.ts` already publishes the sitemap URL. No duplicate sitemap entry was added.
+- [ ] Run frontend lint/typecheck/build and inspect generated homepage HTML metadata on the preview deployment.
+- [ ] Confirm the live Google Search Console property and submit/request indexing for the homepage and `/black-friday` after deployment. Search engines control crawl timing and snippet selection; metadata cannot guarantee an exact Google result.
+- [ ] Merge/deploy only after validation and approval.
+
+### Commit
+- Homepage SEO metadata: `53466b6b24bd9dd032a4c3d485deae5a4fc63073`.
+
+### Next steps
+- Validate the branch, create a PR, and verify the rendered `<title>`, description, canonical, robots, Open Graph, and Twitter tags.
+- After production deployment, use Google Search Console URL Inspection to request recrawling of both URLs.
