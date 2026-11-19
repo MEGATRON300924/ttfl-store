@@ -147,3 +147,10 @@
 - [x] GitHub Actions run `44492300364` passed on the corrected JSX commit, including the Next.js production build.
 - [ ] A final CI run is pending for the subsequent supplier CDN host allowlist update (`a88615de098f17327211b3492650ed16ceb58daf`).
 - [ ] Preview deployment and end-to-end authenticated vendor testing remain pending; PR #17 is open and not merged.
+
+
+### Multi-store supplier support — 2026-11-19
+- [x] Updated vendor importer copy to advertise AliExpress, Jiji Nigeria and SHEIN URLs.
+- [x] Added Jiji and SHEIN image CDN hosts to the Next.js remote image allowlist.
+- [ ] Re-run frontend CI and verify preview build.
+- [ ] Test end-to-end with vendor authentication after the matching backend is deployed.
