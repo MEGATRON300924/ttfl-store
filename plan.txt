@@ -104,6 +104,12 @@
 
 
 
+## Remove Monetag in-page push ads — 2026-11-19
+- [x] Removed the site-wide Monetag in-page push loader (zone 12276099 / nap5k.com/tag.min.js) from the shared root layout at the user's request because the pop-up behavior was disruptive.
+- [x] Removed the now-unused Next.js Script import.
+- [x] Kept the Monetag site-verification meta tag in metadata; it does not load ads or create pop-ups.
+- [ ] Run frontend validation/build and verify the deployed storefront no longer requests nap5k.com/tag.min.js.
+- [ ] Merge and release the removal after validation.
 ## Black Friday 2026 homepage SEO — 2026-11-19
 - [x] Added homepage-specific metadata so the homepage targets "TTFL Store Black Friday 2026" and relevant Nigeria shopping searches before the campaign starts.
 - [x] Added a concise meta description and keyword set covering TTFL Store, Black Friday 2026, Black Friday deals in Nigeria, online shopping deals, and the Nigerian marketplace.
