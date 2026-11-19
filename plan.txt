@@ -180,3 +180,11 @@
 - [ ] Run frontend validation and verify the preview build.
 - [ ] Merge and deploy with the Foods release; then test login, registration, Google sign-in, and one-time handoff against `https://foods.ttflstore.name.ng`.
 - Replacement branch: `fix/foods-auth-handoff-release` (supersedes stale draft PR #3).
+
+
+## TTFL Foods seller onboarding integration — 2026-11-19
+- [x] Add Food as a first-class marketplace choice on the main TTFL Store /sell page.
+- [x] Keep authentication on TTFL Store; create a short-lived, one-time handoff token before redirecting an authenticated seller to foods.ttflstore.name.ng/register.
+- [ ] Verify existing-vendor and new-vendor onboarding against the shared backend and Foods frontend.
+- [ ] Run one consolidated Vercel preview for this feature branch, verify the build and cross-subdomain handoff, then merge only after coordinated Foods/backend checks pass.
+- [ ] Do not add a Foods login or registration credential store.
