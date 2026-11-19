@@ -126,3 +126,36 @@
 ### Next steps
 - Validate the branch, create a PR, and verify the rendered `<title>`, description, canonical, robots, Open Graph, and Twitter tags.
 - After production deployment, use Google Search Console URL Inspection to request recrawling of both URLs.
+
+## Vendor product creation improvements — 2026-11-19
+### Phase 1: Import product details from a URL (planned; not implemented)
+- [ ] Add an "Import from URL" action to the existing vendor product creation form. Vendors can paste a product-page URL (initial target: AliExpress; design the importer so other supported suppliers can be added later).
+- [ ] Build a server-side import endpoint. Validate and normalize URLs, allowlist supported hosts, block private/local IPs and unsafe redirects, enforce timeouts/response-size limits, and do not fetch arbitrary internal addresses (SSRF protection).
+- [ ] Extract available product data such as title, description, images, source price, currency, variants/options, and source URL. Treat extraction as best-effort: supplier pages may block automated access, change markup, or require JavaScript/login.
+- [ ] Convert the extracted source price into NGN and USD using a clearly identified exchange-rate source and timestamp. Do not treat a supplier's displayed currency as USD, and do not silently overwrite vendor-entered prices or shipping costs.
+- [ ] Present a review step that pre-fills the existing product form. Vendors must be able to edit every imported field, choose images/variants, set their own selling price and stock, and confirm before saving. Clearly label estimated/conversion values and missing fields.
+- [ ] Never publish or save an imported product automatically; vendor review and explicit submission remain mandatory.
+- [ ] Add extraction tests for supported URL patterns, malformed pages, missing prices, variant pricing, currencies, and supplier failures; verify that ordinary manual product creation remains unchanged.
+
+### Phase 2: Spreadsheet product import (planned; not implemented)
+- [ ] Add a spreadsheet upload/import flow for vendor bulk product creation, supporting a documented CSV/XLSX template.
+- [ ] Provide a downloadable template with required/optional columns, examples, supported currencies, image URL guidance, and variant/stock conventions.
+- [ ] Parse and validate rows before saving; show a preview with row-level errors and allow vendors to correct or skip invalid rows.
+- [ ] Support duplicate detection and safe retry/idempotency so repeated uploads do not create accidental duplicate listings.
+- [ ] Require vendor confirmation before creating products; report successful, skipped, and failed rows with downloadable error details.
+- [ ] Enforce file type/size limits, safe parsing, vendor ownership checks, and existing product moderation/approval rules.
+
+### Phase 3: MAX AI-assisted product creation (explicitly deferred; do not start)
+- [ ] Future idea only: let vendors use MAX AI to draft product titles, descriptions, categories, attributes, and other listing content from their instructions or supplied product information.
+- [ ] Do not implement, scaffold, or begin this phase until the user explicitly asks to start it. Any future AI-generated content must remain editable and require vendor review before submission.
+
+### Suggested implementation order
+1. Inspect the current vendor product form, product schema/API, image handling, pricing/currency rules, and vendor approval workflow.
+2. Implement and validate URL import as a separate draft-prefill flow without changing the existing manual form contract.
+3. Add CSV/XLSX bulk import using the same validation and product-creation service where practical.
+4. Keep MAX AI-assisted creation deferred until separately authorized.
+
+### Scope and safety notes
+- Supplier scraping is not guaranteed to work for every AliExpress page; prefer an official/authorized API or permitted data source where available, with graceful manual-entry fallback.
+- Imported source prices are reference data, not TTFL Store selling prices. FX conversion must show the rate/source/time and must not set vendor margins automatically.
+- No implementation or production changes have been made for these feature ideas yet.
