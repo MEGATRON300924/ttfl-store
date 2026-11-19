@@ -126,3 +126,16 @@
 ### Next steps
 - Validate the branch, create a PR, and verify the rendered `<title>`, description, canonical, robots, Open Graph, and Twitter tags.
 - After production deployment, use Google Search Console URL Inspection to request recrawling of both URLs.
+
+## Supplier URL product importer — 2026-11-19
+- [x] Started implementation on `feat/vendor-url-product-import`; branch is based on current `main`.
+- [x] Audited the existing vendor create-product flow and confirmed it uses the shared `ProductForm`, with product creation handled by the shared backend.
+- [ ] Add a vendor-only URL import panel that calls the authenticated backend importer and pre-fills editable product name, description, and supported image URLs.
+- [ ] Show supplier source price, currency, USD equivalent, NGN equivalent, FX rate and quote timestamp separately from the vendor's selling price. Never copy supplier cost into the public selling-price field automatically.
+- [ ] Add clear extraction failures/manual fallback and require vendor review before the normal product submission flow.
+- [ ] Validate URL importer behavior, SSRF protections, frontend TypeScript/build, and preview deployment.
+- [ ] Spreadsheet CSV/XLSX import remains the next phase; MAX AI product creation remains explicitly deferred and must not be started.
+
+### Branch and validation
+- Frontend branch: `feat/vendor-url-product-import`.
+- No functional frontend code has been committed yet. Record each implementation commit, test result, PR and deployment state below.
