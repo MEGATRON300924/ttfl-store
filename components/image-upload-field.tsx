@@ -86,7 +86,7 @@ export function ImageUploadField({
             onDrop={() => handleDrop(i)}
             className="group relative aspect-square overflow-hidden rounded-[7px] border border-graphite-200 bg-cloud-100"
           >
-            <Image src={img.url} alt="" fill sizes="120px" className="object-cover" />
+            <Image src={img.url} alt="" fill sizes="120px" unoptimized={img.publicId.startsWith("existing-imported-")} className="object-cover" />
             {i === 0 && (
               <span className="absolute left-1 top-1 rounded-tag bg-graphite-900/80 px-1.5 py-0.5 text-[10px] font-medium text-white">
                 Primary
