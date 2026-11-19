@@ -130,12 +130,13 @@
 ## Supplier URL product importer — 2026-11-19
 - [x] Started implementation on `feat/vendor-url-product-import`; branch is based on current `main`.
 - [x] Audited the existing vendor create-product flow and confirmed it uses the shared `ProductForm`, with product creation handled by the shared backend.
-- [ ] Add a vendor-only URL import panel that calls the authenticated backend importer and pre-fills editable product name, description, and supported image URLs.
-- [ ] Show supplier source price, currency, USD equivalent, NGN equivalent, FX rate and quote timestamp separately from the vendor's selling price. Never copy supplier cost into the public selling-price field automatically.
-- [ ] Add clear extraction failures/manual fallback and require vendor review before the normal product submission flow.
+- [x] Added a vendor-only URL import panel and connected it to the authenticated backend preview endpoint; extracted name, description and supported supplier image URLs prefill the editable form.
+- [x] Added separate supplier price, USD/NGN equivalents, FX source/rate and timestamp display. Supplier cost is not copied into the vendor selling-price field.
+- [x] Added extraction error/manual-entry fallback, supplier warnings, and retained the existing normal vendor review-and-submit flow.
 - [ ] Validate URL importer behavior, SSRF protections, frontend TypeScript/build, and preview deployment.
 - [ ] Spreadsheet CSV/XLSX import remains the next phase; MAX AI product creation remains explicitly deferred and must not be started.
 
 ### Branch and validation
 - Frontend branch: `feat/vendor-url-product-import`.
-- No functional frontend code has been committed yet. Record each implementation commit, test result, PR and deployment state below.
+- Frontend commits: `31a2cb7` (plan), `3a34650` (import panel), `6e31c74` (form prefill), `0178b7d` (imported image preview), `0a028fc` (supplier image host allowlist).
+- Typecheck/build and live deployment verification remain pending.
