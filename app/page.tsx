@@ -2,6 +2,53 @@ import { canServeAdSenseForRequest } from "@/lib/adsense-eligibility";
 import { AdSenseLoader } from "@/components/adsense-loader";
 import { AdsterraBanner } from "@/components/adsterra-banner";
 import { Hero } from "@/components/hero"; import { Section } from "@/components/section"; import { CategoryGrid } from "@/components/category-grid"; import { ProductCard } from "@/components/product-card"; import { StoreCard } from "@/components/store-card"; import { SponsoredStoreCard } from "@/components/sponsored-store-card"; import { api } from "@/lib/api-client"; import type { ApiProduct,StoreBadge,VendorTier } from "@/lib/api-types"; import { categories } from "@/lib/mock-data"; import type { Product } from "@/lib/mock-data"; import { isVideoUrl } from "@/lib/media"; import Link from "next/link"; import { ArrowRight,Search,Store,Sparkles,ShieldCheck,CalendarDays } from "lucide-react";
+export async function generateMetadata(): Promise<Metadata> {
+  const fallbackTitle = "TTFL Store Black Friday 2026 | Black Friday Deals in Nigeria";
+  const fallbackDescription = "Get ready for TTFL Store Black Friday 2026, November 23–30. Discover Black Friday deals, limited-time offers and products from vendors across Nigeria.";
+  let title = fallbackTitle;
+  let description = fallbackDescription;
+
+  try {
+    const response = await api.get<{ campaign: { headline: string; subheadline: string }; isLive: boolean }>("/api/settings/black-friday/public");
+    if (response.isLive) {
+      title = `${response.campaign.headline} | Black Friday Deals in Nigeria`;
+      description = response.campaign.subheadline;
+    }
+  } catch {
+    // Keep the Black Friday launch SEO available if the campaign API is temporarily unavailable.
+  }
+
+  const keywords = [
+    "TTFL Store Black Friday 2026",
+    "Black Friday deals Nigeria",
+    "Black Friday 2026 Nigeria",
+    "TTFL Store Black Friday",
+    "Black Friday shopping Nigeria",
+    "online shopping deals Nigeria",
+    "limited-time offers Nigeria",
+    "TTFL Store Nigeria",
+    "Nigerian online marketplace",
+  ];
+
+  return {
+    title: { absolute: title },
+    description,
+    keywords,
+    alternates: { canonical: SITE_URL },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
+    openGraph: {
+      type: "website",
+      siteName: "TTFL Store",
+      title,
+      description,
+      url: SITE_URL,
+      locale: "en_NG",
+      images: [{ url: "/ttflstore.png", width: 1200, height: 630, alt: "TTFL Store Black Friday 2026" }],
+    },
+    twitter: { card: "summary_large_image", title, description, images: ["/ttflstore.png"] },
+  };
+}
+
 type PublicStore={id:string;name:string;slug:string;customUrl?:string|null;rating:number;productCount:number;verified:boolean;location:string|null;logoUrl:string|null;tier?:VendorTier|string|null;badges?:StoreBadge[]}; type FlashDeal={id:string;productId:string;name:string;slug:string;price:number|string;salePrice:number|string;storeName:string;storeSlug:string;verified:boolean;imageUrl?:string|null}; type FeaturedProduct={id:string;product:{id:string;slug:string;name:string;price:string;previousPrice:string|null;avgRating:string|null;reviewCount:number;sellingMethod:"CHECKOUT"|"EXTERNAL_LINK"|"WHATSAPP";externalUrl:string|null;whatsappNumber:string|null;images:{url:string}[];vendor:{storeName:string;storeSlug:string;verified:boolean;location:string|null;whatsappNumber?:string|null}}}; type FeaturedStore={id:string;vendor:{id:string;storeName:string;storeSlug:string;location:string|null;logoUrl:string|null;verified:boolean;tier:string|null;_count?:{products?:number};badges?:StoreBadge[]}}; type SponsoredCampaign={id:string;name:string;target_type:string;target_id:string;storeName:string;storeSlug:string;storeLogoUrl:string|null;storeVerified:boolean;productSlug:string|null;productName:string|null;serviceSlug:string|null;serviceTitle:string|null};
 function toCardProduct(p:ApiProduct):Product{return{id:p.id,slug:p.slug,name:p.name,price:Number(p.price),previousPrice:p.previousPrice?Number(p.previousPrice):undefined,image:p.images.find(image=>!isVideoUrl(image.url))?.url??p.images[0]?.url??"",video:p.images.find(image=>isVideoUrl(image.url))?.url??null,vendor:p.vendor.storeName,vendorSlug:p.vendor.storeSlug,verified:p.vendor.verified,location:p.location??p.vendor.location??"",rating:Number(p.avgRating??0),reviewCount:p.reviewCount??0,sellingMethod:p.sellingMethod==="EXTERNAL_LINK"?"external":p.sellingMethod==="WHATSAPP"?"whatsapp":"checkout",externalUrl:p.externalUrl??null,whatsappNumber:p.whatsappNumber??p.vendor.whatsappNumber??null,estimatedDeliveryDays:p.estimatedDeliveryDays??7,comingSoon:Boolean(p.comingSoon),availableAt:p.availableAt??null,launchedAt:p.launchedAt??null};} function toFeaturedProduct(p:FeaturedProduct):Product{return{id:p.product.id,slug:p.product.slug,name:p.product.name,price:Number(p.product.price),previousPrice:p.product.previousPrice?Number(p.product.previousPrice):undefined,image:p.product.images.find(image=>!isVideoUrl(image.url))?.url??p.product.images[0]?.url??"",video:p.product.images.find(image=>isVideoUrl(image.url))?.url??null,vendor:p.product.vendor.storeName,vendorSlug:p.product.vendor.storeSlug,verified:p.product.vendor.verified,location:p.product.vendor.location??"",rating:Number(p.product.avgRating??0),reviewCount:p.product.reviewCount,sellingMethod:p.product.sellingMethod==="EXTERNAL_LINK"?"external":p.product.sellingMethod==="WHATSAPP"?"whatsapp":"checkout",externalUrl:p.product.externalUrl??null,whatsappNumber:p.product.whatsappNumber??p.product.vendor.whatsappNumber??null};} function toFlashCard(p:FlashDeal):Product{return{id:p.productId,slug:p.slug,name:p.name,price:Number(p.salePrice),previousPrice:Number(p.price),image:p.imageUrl??"",vendor:p.storeName,vendorSlug:p.storeSlug,verified:p.verified,location:"",rating:0,reviewCount:0,sellingMethod:"checkout"};} function toFeaturedStore(s:FeaturedStore):PublicStore{return{id:s.vendor.id,name:s.vendor.storeName,slug:s.vendor.storeSlug,customUrl:null,rating:0,productCount:Number(s.vendor._count?.products??0),verified:Boolean(s.vendor.verified),location:s.vendor.location??null,logoUrl:s.vendor.logoUrl??null,tier:s.vendor.tier,badges:s.vendor.badges??(s.vendor.verified?["VERIFIED"]:[])};}
 function normalizeStores(response:{stores?:PublicStore[]}):PublicStore[]{return response.stores??[];}
