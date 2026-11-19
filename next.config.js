@@ -45,6 +45,26 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "jumia.is",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.jumia.is",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "jumia.com.ng",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.jumia.com.ng",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "ltwebstatic.com",
         pathname: "/**",
       },

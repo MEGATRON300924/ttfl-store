@@ -154,3 +154,20 @@
 - [x] Added Jiji and SHEIN image CDN hosts to the Next.js remote image allowlist.
 - [ ] Re-run frontend CI and verify preview build.
 - [ ] Test end-to-end with vendor authentication after the matching backend is deployed.
+
+
+## Supplier importer error visibility and Jumia support — 2026-11-19
+- [x] Updated the vendor importer guidance and placeholder to include Jumia alongside AliExpress, Jiji and SHEIN.
+- [x] Replaced the high-brightness light error strip with a dark, high-contrast, selectable diagnostic panel that clearly distinguishes the error heading from the backend message.
+- [x] Removed the duplicate extraction warning sentence.
+- [ ] Run frontend lint/typecheck/build and verify the error panel in light and dark dashboard themes.
+- [ ] Confirm the matching backend PR is merged and deployed before live Jiji/Jumia end-to-end testing.
+
+
+### Jiji/Jumia importer UX correction — 2026-11-19 status
+- [x] Replaced the bright error strip with a dark, high-contrast error panel whose diagnostic text is selectable for copying.
+- [x] Added AliExpress, Jiji, SHEIN and Jumia guidance; added Jumia storefront and `jumia.is` image hosts to Next.js remote image configuration.
+- [x] Removed duplicate extraction fallback wording.
+- [x] Frontend PR #19: https://github.com/MEGATRON300924/ttfl-store/pull/19
+- [ ] Final frontend CI for latest head `8d9b35ee93d394f81d8be4f21078b04b9e8c8170` and visual preview verification remain pending.
+- [ ] Merge and production deployment should be coordinated with backend PR #9; no live fix is claimed yet.
