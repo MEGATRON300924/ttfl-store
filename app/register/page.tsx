@@ -12,7 +12,7 @@ import { GoogleSignIn } from "@/components/google-sign-in";
 function RegisterContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const loginHref = searchParams.get("market") === "EU" ? `/login?market=EU&next=${encodeURIComponent(searchParams.get("next") || "https://europe.ttflstore.name.ng/")}` : "/login";
+  const loginHref = searchParams.get("market") === "EU" ? `/login?market=EU&next=${encodeURIComponent(searchParams.get("next") || "https://europe.ttflstore.name.ng/")}` : (searchParams.get("next") ? `/login?next=${encodeURIComponent(searchParams.get("next")!)}` : "/login");
   async function continueToDestination() {
     const next = new URLSearchParams(window.location.search).get("next");
     const destination = next || "/";
@@ -20,7 +20,7 @@ function RegisterContent() {
       if (new URLSearchParams(window.location.search).get("market") === "EU") await api.patch("/api/auth/me/market", { market: "EU" }).catch(() => undefined);
       const url = new URL(destination, window.location.origin);
       if (url.hostname === "us.ttflstore.name.ng") url.hostname = "europe.ttflstore.name.ng";
-      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng", "europe.ttflstore.name.ng"]);
+      const allowedHosts = new Set(["ttflstore.name.ng", "www.ttflstore.name.ng", "cars.ttflstore.name.ng", "homes.ttflstore.name.ng", "europe.ttflstore.name.ng", "foods.ttflstore.name.ng"]);
       if (url.origin !== window.location.origin && !allowedHosts.has(url.hostname)) throw new Error("Invalid redirect destination");
       if (url.origin === window.location.origin) { router.push(url.pathname + url.search + url.hash); return; }
       const handoff = await api.post<{ token: string }>("/api/auth/handoff/create", {});

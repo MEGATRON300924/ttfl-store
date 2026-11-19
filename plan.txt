@@ -171,3 +171,12 @@
 - [x] Frontend PR #19: https://github.com/MEGATRON300924/ttfl-store/pull/19
 - [ ] Final frontend CI for latest head `8d9b35ee93d394f81d8be4f21078b04b9e8c8170` and visual preview verification remain pending.
 - [ ] Merge and production deployment should be coordinated with backend PR #9; no live fix is claimed yet.
+
+
+## TTFL Foods shared authentication handoff — 2026-11-19
+- [x] Rebased the Foods cross-subdomain handoff change on the current TTFL Store `main` head after the original draft PR became conflicted by later storefront merges.
+- [x] Preserve the `next` return URL when Nigerian-market users switch between login and registration.
+- [x] Allow only the exact verified Foods host (`foods.ttflstore.name.ng`) in both login and registration handoff allowlists; arbitrary external redirect hosts remain rejected.
+- [ ] Run frontend validation and verify the preview build.
+- [ ] Merge and deploy with the Foods release; then test login, registration, Google sign-in, and one-time handoff against `https://foods.ttflstore.name.ng`.
+- Replacement branch: `fix/foods-auth-handoff-release` (supersedes stale draft PR #3).
