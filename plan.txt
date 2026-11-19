@@ -140,3 +140,10 @@
 - Frontend branch: `feat/vendor-url-product-import`.
 - Frontend commits: `31a2cb7` (plan), `3a34650` (import panel), `6e31c74` (form prefill), `0178b7d` (imported image preview), `0a028fc` (supplier image host allowlist).
 - Typecheck/build and live deployment verification remain pending.
+
+
+### Frontend CI result — 2026-11-19
+- [x] The first build caught a missing JSX conditional closing brace in the new ProductForm importer panel; corrected in commit `2e54c319849113172b02efe60dea279685b465b0`.
+- [x] GitHub Actions run `44492300364` passed on the corrected JSX commit, including the Next.js production build.
+- [ ] A final CI run is pending for the subsequent supplier CDN host allowlist update (`a88615de098f17327211b3492650ed16ceb58daf`).
+- [ ] Preview deployment and end-to-end authenticated vendor testing remain pending; PR #17 is open and not merged.
