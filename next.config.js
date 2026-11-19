@@ -33,6 +33,26 @@ const nextConfig = {
         hostname: "www.aliexpress.com",
         pathname: "/**",
       },
+      {
+        protocol: "https",
+        hostname: "jiji.ng",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.jiji.ng",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "ltwebstatic.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "**.ltwebstatic.com",
+        pathname: "/**",
+      },
     ],
   },
   async rewrites() {
