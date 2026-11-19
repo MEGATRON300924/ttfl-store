@@ -197,4 +197,6 @@
 - [x] Refresh secure tracking-link data every 10 seconds while the tracking page is open.
 - [ ] Verify live updates on mobile and desktop using an active rider portal; check stale GPS fallback after 2 minutes.
 - Branch: `main`.
-- Status: implementation prepared; preview build and browser tests pending.
+- [x] Main Store Vercel production deployment is READY; `/orders/track` route smoke check returned HTTP 200.
+- [ ] Verify live map updates with an active rider after the backend PR is deployed.
+- Status: tracking UI deployed; live GPS data awaits backend deployment.
