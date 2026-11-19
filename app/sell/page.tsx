@@ -3,14 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { CheckCircle2, Store, EyeOff, LayoutTemplate, CarFront, Home, Package, Smartphone, ArrowRight, LogIn } from "lucide-react";
+import { CheckCircle2, Store, EyeOff, LayoutTemplate, CarFront, Home, Package, Smartphone, ArrowRight, LogIn, Utensils } from "lucide-react";
 import { api, ApiError } from "@/lib/api-client";
 import { useAuth } from "@/lib/auth-context";
 import { TextField } from "@/components/text-field";
 import type { ApiCategory } from "@/lib/api-types";
 
 type StoreType = "PUBLIC" | "PRIVATE" | "DISPLAY";
-type Marketplace = "CARS" | "HOMES" | "GENERAL" | "MINIMAL";
+type Marketplace = "CARS" | "HOMES" | "FOODS" | "GENERAL" | "MINIMAL";
 
 const storeTypes: [StoreType, string, string, typeof Store][] = [
   ["PUBLIC", "Public Store", "Your store can be discovered by customers across TTFL Store.", Store],
@@ -21,6 +21,7 @@ const storeTypes: [StoreType, string, string, typeof Store][] = [
 const marketplaces: [Marketplace, string, string, typeof Store][] = [
   ["CARS", "Cars", "Cars, SUVs, trucks, motorcycles and other vehicles.", CarFront],
   ["HOMES", "Homes", "Houses, apartments, land and other property listings.", Home],
+  ["FOODS", "Food", "Restaurants, prepared meals, local cuisines and food delivery.", Utensils],
   ["GENERAL", "Normal products", "A full TTFL Store covering your usual product categories.", Package],
   ["MINIMAL", "Minimal products", "Focused everyday products such as phones, gadgets, groceries and similar goods.", Smartphone],
 ];
@@ -71,8 +72,20 @@ export default function SellPage() {
     );
   }
 
-  function chooseMarketplace(value: Marketplace) {
+  async function chooseMarketplace(value: Marketplace) {
     setMarketplace(value);
+    if (value === "FOODS") {
+      setError(null);
+      setSubmitting(true);
+      try {
+        const { token } = await api.post<{ token: string }>("/api/auth/handoff/create");
+        window.location.assign("https://foods.ttflstore.name.ng/register?handoff=" + encodeURIComponent(token));
+      } catch (err) {
+        setError(err instanceof ApiError ? err.message : "We could not securely open TTFL Foods. Please try again.");
+        setSubmitting(false);
+      }
+      return;
+    }
     if (value === "CARS") {
       window.location.href = "https://cars.ttflstore.name.ng/register?next=/sell";
       return;
@@ -131,10 +144,11 @@ export default function SellPage() {
       <div className="mx-auto max-w-3xl">
         <p className="text-[11px] font-bold uppercase tracking-[.16em] text-ember-600">Seller onboarding</p>
         <h1 className="mt-2 text-2xl font-bold text-graphite-900 sm:text-3xl">What do you want to sell?</h1>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-graphite-600">Choose the marketplace that best fits your business. You can use your TTFL account across TTFL Store, TTFL Cars and TTFL Homes.</p>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-graphite-600">Choose the marketplace that best fits your business. You can use your TTFL account across TTFL Store, TTFL Cars, TTFL Homes and TTFL Foods.</p>
+        {error && <p role="alert" className="mt-5 rounded-[7px] bg-ember-100 px-3 py-2 text-sm text-ember-700">{error}</p>}
         <div className="mt-7 grid gap-3 sm:grid-cols-2">
           {marketplaces.map(([type, label, description, Icon]) => (
-            <button key={type} type="button" onClick={() => chooseMarketplace(type)} className="group rounded-card border border-graphite-200 bg-white p-5 text-left shadow-card transition hover:-translate-y-0.5 hover:border-ember-500 hover:shadow-card-hover">
+            <button key={type} type="button" onClick={() => void chooseMarketplace(type)} disabled={submitting} className="group rounded-card border border-graphite-200 bg-white p-5 text-left shadow-card transition hover:-translate-y-0.5 hover:border-ember-500 hover:shadow-card-hover disabled:cursor-wait disabled:opacity-60">
               <span className="grid h-11 w-11 place-items-center rounded-card bg-cloud-100 text-ember-600 group-hover:bg-ember-100"><Icon className="h-5 w-5" /></span>
               <span className="mt-4 flex items-center justify-between gap-3"><strong className="text-base text-graphite-900">{label}</strong><ArrowRight className="h-4 w-4 text-graphite-400 transition group-hover:translate-x-0.5 group-hover:text-ember-600" /></span>
               <span className="mt-2 block text-sm leading-6 text-graphite-500">{description}</span>
