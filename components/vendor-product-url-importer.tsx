@@ -40,20 +40,20 @@ export function VendorProductUrlImporter({ onImport }: { onImport: (result: Impo
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-ember-700 shadow-sm dark:bg-graphite-800"><PackageSearch className="h-5 w-5" /></span>
         <div className="min-w-0 flex-1">
           <h2 className="text-sm font-semibold text-graphite-900 dark:text-white">Import from supplier URL</h2>
-          <p className="mt-1 text-xs leading-5 text-graphite-500 dark:text-graphite-400">Paste an AliExpress, Jiji or SHEIN product link to prefill supported details. You can edit everything before listing.</p>
+          <p className="mt-1 text-xs leading-5 text-graphite-500 dark:text-graphite-400">Paste an AliExpress, Jiji, SHEIN or Jumia product link to prefill supported details. You can edit everything before listing.</p>
         </div>
       </div>
       <div className="mt-3 flex flex-col gap-2 sm:flex-row">
         <label className="relative min-w-0 flex-1">
           <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-graphite-400" />
-          <input value={url} onChange={(event) => setUrl(event.target.value)} type="url" placeholder="https://www.aliexpress.com/item/… or https://jiji.ng/… or https://us.shein.com/…" className="w-full rounded-lg border border-graphite-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-ember-600 dark:border-graphite-700 dark:bg-graphite-950 dark:text-white" />
+          <input value={url} onChange={(event) => setUrl(event.target.value)} type="url" placeholder="AliExpress, Jiji, SHEIN or Jumia product URL" className="w-full rounded-lg border border-graphite-200 bg-white py-2.5 pl-9 pr-3 text-sm outline-none focus:border-ember-600 dark:border-graphite-700 dark:bg-graphite-950 dark:text-white" />
         </label>
         <button type="button" onClick={handleImport} disabled={loading || !url.trim()} className="inline-flex items-center justify-center gap-2 rounded-lg bg-ember-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-ember-700 disabled:cursor-not-allowed disabled:opacity-60">
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowDownToLine className="h-4 w-4" />}
           {loading ? "Importing…" : "Import details"}
         </button>
       </div>
-      {error && <p role="alert" className="mt-3 rounded-lg bg-ember-100 px-3 py-2 text-xs text-ember-800">{error}</p>}
+      {error && <div role="alert" aria-live="polite" className="mt-3 rounded-xl border border-graphite-700 bg-graphite-900 px-3 py-3 text-sm leading-6 text-graphite-100 shadow-sm"><p className="mb-1 text-xs font-semibold text-rose-300">Import couldn’t be completed</p><p className="select-text break-words text-graphite-100">{error}</p><p className="mt-2 text-[11px] text-graphite-400">You can select and copy this message, then share it with TTFL support.</p></div>}
       {result && (
         <div className="mt-3 rounded-xl border border-graphite-200 bg-white p-3 dark:border-graphite-700 dark:bg-graphite-950">
           <p className="text-xs font-semibold text-graphite-800 dark:text-white">Imported from {result.supplier}</p>
@@ -69,7 +69,7 @@ export function VendorProductUrlImporter({ onImport }: { onImport: (result: Impo
           {result.extracted.images.length > 0 && <p className="mt-2 text-[11px] text-graphite-500">{result.extracted.images.length} supplier image(s) added to the editable product gallery. Re-upload images to your own media storage where possible.</p>}
         </div>
       )}
-      <p className="mt-2 text-[11px] text-graphite-400">Currently supports AliExpress, Jiji Nigeria and SHEIN product pages. Some stores block automated extraction; if that happens, use the normal form. Some pages block automated extraction; if that happens, use the normal form.</p>
+      <p className="mt-2 text-[11px] text-graphite-400">Supports AliExpress, Jiji Nigeria, SHEIN and Jumia product pages. Some listings may block automated extraction; if that happens, enter the details manually.</p>
     </section>
   );
 }
