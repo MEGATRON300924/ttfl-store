@@ -10,7 +10,17 @@ const nextConfig = {
       },
       {
         protocol: "https",
+        hostname: "alicdn.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "**.alicdn.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "aliexpress-media.com",
         pathname: "/**",
       },
       {
