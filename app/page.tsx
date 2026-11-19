@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+const SITE_URL = "https://ttflstore.name.ng";
 import { canServeAdSenseForRequest } from "@/lib/adsense-eligibility";
 import { AdSenseLoader } from "@/components/adsense-loader";
 import { AdsterraBanner } from "@/components/adsterra-banner";
