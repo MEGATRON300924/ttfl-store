@@ -30,6 +30,27 @@ function getEstimatedDeliveryDate(vendorOrder: ApiTrackedVendorOrder, createdAt:
 }
 
 function TrackingMap({ vendorOrder, createdAt }: { vendorOrder: ApiTrackedVendorOrder; createdAt: string }) {
+  if (vendorOrder.liveLocation) {
+    const point = vendorOrder.liveLocation;
+    const lat = point.latitude;
+    const lon = point.longitude;
+    const bbox = [lon - 0.012, lat - 0.009, lon + 0.012, lat + 0.009].join(",");
+    const mapUrl = "https://www.openstreetmap.org/export/embed.html?bbox=" + encodeURIComponent(bbox) + "&layer=mapnik&marker=" + encodeURIComponent(lat + "," + lon);
+    const directions = vendorOrder.deliveryDestination
+      ? "https://www.google.com/maps/dir/?api=1&origin=" + encodeURIComponent(lat + "," + lon) + "&destination=" + encodeURIComponent(vendorOrder.deliveryDestination.latitude + "," + vendorOrder.deliveryDestination.longitude)
+      : "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(lat + "," + lon);
+    return <div className="overflow-hidden rounded-[28px] border border-graphite-200 bg-white">
+      <div className="flex items-center justify-between gap-3 border-b border-graphite-100 px-4 py-3">
+        <div><p className="text-xs font-bold text-graphite-950">Rider location</p><p className="mt-0.5 text-[10px] text-emerald-700">GPS received · {new Date(point.updatedAt).toLocaleTimeString("en-NG",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}</p></div>
+        <span className="rounded-full bg-emerald-50 px-3 py-1.5 text-[10px] font-bold text-emerald-700">LIVE</span>
+      </div>
+      <iframe title="Live TTFL rider location" src={mapUrl} className="h-[360px] w-full border-0 sm:h-[420px]" loading="lazy" referrerPolicy="no-referrer-when-downgrade"/>
+      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-graphite-100 px-4 py-3">
+        <p className="text-[11px] text-graphite-500">GPS accuracy ±{Math.round(point.accuracy ?? 0)}m · Refreshes automatically</p>
+        <a href={directions} target="_blank" rel="noreferrer" className="rounded-xl bg-graphite-950 px-3 py-2 text-xs font-bold text-white">Open directions in Google Maps</a>
+      </div>
+    </div>;
+  }
   const current = Math.min(5, Math.max(1, vendorOrder.currentCheckpoint));
   const estimate = getEstimatedDeliveryDate(vendorOrder, createdAt);
   const currentEvent = vendorOrder.checkpoints[current - 1]?.event;
@@ -264,7 +285,7 @@ function TrackOrderContent() {
 
   useEffect(() => {
     if (!result || linkToken || demo) return;
-    const timer = window.setInterval(() => { void fetchTracking().catch(() => undefined); }, 30000);
+    const timer = window.setInterval(() => { void fetchTracking().catch(() => undefined); }, 10000);
     return () => window.clearInterval(timer);
   }, [result, linkToken, demo, fetchTracking]);
 
@@ -274,7 +295,7 @@ function TrackOrderContent() {
       void api.get<ApiTrackingResult>(`/api/orders/track-link/${encodeURIComponent(linkToken)}`)
         .then((data) => { setResult(data); setLastUpdated(new Date()); })
         .catch(() => undefined);
-    }, 30000);
+    }, 10000);
     return () => window.clearInterval(timer);
   }, [linkToken, result, demo]);
 

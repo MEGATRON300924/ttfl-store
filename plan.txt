@@ -188,3 +188,13 @@
 - [ ] Verify existing-vendor and new-vendor onboarding against the shared backend and Foods frontend.
 - [ ] Run one consolidated Vercel preview for this feature branch, verify the build and cross-subdomain handoff, then merge only after coordinated Foods/backend checks pass.
 - [ ] Do not add a Foods login or registration credential store.
+
+ 
+## TTFL Foods customer live rider map — 2026-11-19
+- [x] Extend customer tracking types with rider GPS and delivery destination coordinates.
+- [x] Display a real OpenStreetMap map with the current rider marker once a fresh GPS update is received; retain the existing checkpoint view until the first GPS fix.
+- [x] Add a Google Maps directions link from the rider's last position to the customer's pinned delivery point.
+- [x] Refresh secure tracking-link data every 10 seconds while the tracking page is open.
+- [ ] Verify live updates on mobile and desktop using an active rider portal; check stale GPS fallback after 2 minutes.
+- Branch: `main`.
+- Status: implementation prepared; preview build and browser tests pending.
