@@ -53,7 +53,7 @@ export function VendorProductUrlImporter({ onImport }: { onImport: (result: Impo
           {loading ? "Importing…" : "Import details"}
         </button>
       </div>
-      {error && <div role="alert" aria-live="polite" className="mt-3 rounded-xl border border-graphite-700 bg-graphite-900 px-3 py-3 text-sm leading-6 text-graphite-100 shadow-sm"><p className="mb-1 text-xs font-semibold text-rose-300">Import couldn’t be completed</p><p className="select-text break-words text-graphite-100">{error}</p><p className="mt-2 text-[11px] text-graphite-400">You can select and copy this message, then share it with TTFL support.</p></div>}
+      {error && <div role="alert" aria-live="polite" className="mt-3 rounded-xl border border-graphite-700 bg-graphite-900 px-3 py-3 text-sm leading-6 text-white shadow-sm"><p className="mb-1 text-xs font-semibold text-rose-300">Import couldn’t be completed</p><p className="select-text break-words text-white">{error}</p><p className="mt-2 text-[11px] text-graphite-400">You can select and copy this message, then share it with TTFL support.</p></div>}
       {result && (
         <div className="mt-3 rounded-xl border border-graphite-200 bg-white p-3 dark:border-graphite-700 dark:bg-graphite-950">
           <p className="text-xs font-semibold text-graphite-800 dark:text-white">Imported from {result.supplier}</p>
