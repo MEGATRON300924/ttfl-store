@@ -126,3 +126,24 @@
 ### Next steps
 - Validate the branch, create a PR, and verify the rendered `<title>`, description, canonical, robots, Open Graph, and Twitter tags.
 - After production deployment, use Google Search Console URL Inspection to request recrawling of both URLs.
+
+## Supplier URL product importer — 2026-11-19
+- [x] Started implementation on `feat/vendor-url-product-import`; branch is based on current `main`.
+- [x] Audited the existing vendor create-product flow and confirmed it uses the shared `ProductForm`, with product creation handled by the shared backend.
+- [x] Added a vendor-only URL import panel and connected it to the authenticated backend preview endpoint; extracted name, description and supported supplier image URLs prefill the editable form.
+- [x] Added separate supplier price, USD/NGN equivalents, FX source/rate and timestamp display. Supplier cost is not copied into the vendor selling-price field.
+- [x] Added extraction error/manual-entry fallback, supplier warnings, and retained the existing normal vendor review-and-submit flow.
+- [ ] Validate URL importer behavior, SSRF protections, frontend TypeScript/build, and preview deployment.
+- [ ] Spreadsheet CSV/XLSX import remains the next phase; MAX AI product creation remains explicitly deferred and must not be started.
+
+### Branch and validation
+- Frontend branch: `feat/vendor-url-product-import`.
+- Frontend commits: `31a2cb7` (plan), `3a34650` (import panel), `6e31c74` (form prefill), `0178b7d` (imported image preview), `0a028fc` (supplier image host allowlist).
+- Typecheck/build and live deployment verification remain pending.
+
+
+### Frontend CI result — 2026-11-19
+- [x] The first build caught a missing JSX conditional closing brace in the new ProductForm importer panel; corrected in commit `2e54c319849113172b02efe60dea279685b465b0`.
+- [x] GitHub Actions run `44492300364` passed on the corrected JSX commit, including the Next.js production build.
+- [ ] A final CI run is pending for the subsequent supplier CDN host allowlist update (`a88615de098f17327211b3492650ed16ceb58daf`).
+- [ ] Preview deployment and end-to-end authenticated vendor testing remain pending; PR #17 is open and not merged.
