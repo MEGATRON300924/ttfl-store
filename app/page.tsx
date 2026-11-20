@@ -45,9 +45,9 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       url: SITE_URL,
       locale: "en_NG",
-      images: [{ url: "/ttflstore.png", width: 1200, height: 630, alt: "TTFL Store Black Friday 2026" }],
+      images: [{ url: "/ttflstore.jpg", width: 1200, height: 630, alt: "TTFL Store Black Friday 2026" }],
     },
-    twitter: { card: "summary_large_image", title, description, images: ["/ttflstore.png"] },
+    twitter: { card: "summary_large_image", title, description, images: ["/ttflstore.jpg"] },
   };
 }
 
