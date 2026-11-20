@@ -7,7 +7,7 @@ export function Logo({ variant = "dark" }: { variant?: "dark" | "light" }) {
   return (
     <Link href="/" className="flex min-w-0 shrink-0 items-center gap-2" aria-label="TTFL Store home">
       <Image
-        src="/ttflstore.png"
+        src="/ttflstore.jpg"
         alt="TTFL Store"
         width={110}
         height={28}

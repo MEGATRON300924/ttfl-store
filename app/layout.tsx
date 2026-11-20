@@ -45,10 +45,10 @@ export async function generateMetadata(): Promise<Metadata> {
   category: "shopping",
   creator: "The Tron Forge Limited",
   publisher: "The Tron Forge Limited",
-  icons: { icon: "/ttflstore.png", apple: "/ttflstore.png" },
+  icons: { icon: "/ttflstore.jpg", apple: "/ttflstore.jpg" },
   alternates: { canonical: SITE_URL },
-  openGraph: { type: "website", siteName: "TTFL Store", title: defaultTitle, description: defaultDescription, url: SITE_URL, locale: "en_NG", images: [{ url: "/ttflstore.png", width: 1200, height: 630, alt: "TTFL Store" }] },
-  twitter: { card: "summary_large_image", title: defaultTitle, description: defaultDescription, images: ["/ttflstore.png"] },
+  openGraph: { type: "website", siteName: "TTFL Store", title: defaultTitle, description: defaultDescription, url: SITE_URL, locale: "en_NG", images: [{ url: "/ttflstore.jpg", width: 1200, height: 630, alt: "TTFL Store" }] },
+  twitter: { card: "summary_large_image", title: defaultTitle, description: defaultDescription, images: ["/ttflstore.jpg"] },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
   other: { "google-adsense-account": ADSENSE_CLIENT, monetag: "a2ac141d3a67a79177560f335601d003" },
   };

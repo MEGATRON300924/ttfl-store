@@ -213,3 +213,16 @@ a[href="/wishlist"]:active svg { animation: heart-beat 360ms ease-out; }
 .admin-sidebar-scroll::-webkit-scrollbar-thumb:hover {
   background: #737d8c;
 }
+
+
+/* Monochrome TTFL Store brand accents. Semantic verification/status colours remain distinct. */
+html.dark .text-ember-700,
+html.dark .text-ember-600,
+html.dark .text-ember-500 { color: #F5F6F8 !important; }
+html.dark [class~="hover:text-ember-700"]:hover,
+html.dark [class~="hover:text-ember-600"]:hover,
+html.dark [class~="hover:text-ember-500"]:hover { color: #FFFFFF !important; }
+html.dark .bg-ember-100 { background-color: #30343D !important; }
+html.dark .border-ember-100 { border-color: #454B56 !important; }
+html.dark :focus-visible { outline-color: #FFFFFF; }
+html.dark ::selection { background: #3A3F4C; color: #FFFFFF; }

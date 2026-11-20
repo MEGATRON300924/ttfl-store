@@ -200,3 +200,25 @@
 - [x] Main Store Vercel production deployment is READY; `/orders/track` route smoke check returned HTTP 200.
 - [ ] Verify live map updates with an active rider after the backend PR is deployed.
 - Status: tracking UI deployed; live GPS data awaits backend deployment.
+
+
+## TTFL Store monochrome rebrand — 2026-11-20
+- [x] Confirmed the new supplied logo asset exists at `public/ttflstore.jpg`.
+- [x] Updated the shared `Logo` component to use `/ttflstore.jpg`, so the storefront header, mobile drawer and footer use the new logo consistently.
+- [x] Updated global site icon, Apple icon, Open Graph and X/Twitter image references in the root metadata to `/ttflstore.jpg`.
+- [x] Updated homepage Open Graph and X/Twitter image references to `/ttflstore.jpg`.
+- [x] Replaced the shared Ember brand accent palette with black, charcoal and light grey. Existing semantic verification, success and gold/status colours are preserved.
+- [x] Added dark-mode contrast overrides for monochrome brand text, hover states, selection and keyboard focus indicators.
+- [ ] Run GitHub validation and Vercel preview build; inspect the desktop header, mobile drawer, footer, homepage CTAs and dark mode.
+- [ ] Merge and deploy only after the preview passes. Production appearance has not yet been verified.
+
+### Branch
+- `feat/ttfl-store-monochrome-rebrand`
+
+
+### Validation update — 2026-11-20
+- [x] Confirmed the PR head contains the final monochrome logo, palette and dark-mode changes; GitHub reports the PR is mergeable.
+- [x] Confirmed the new logo file is present in the branch at `public/ttflstore.jpg` (245,278 bytes).
+- [ ] GitHub Actions has not reported a build run for this branch, so TypeScript/Next.js build validation is not yet confirmed.
+- [ ] Vercel preview deployment was rejected by the account's deployment rate limit (more than 100 deployments in 24 hours; retry after the limit resets). No preview URL or visual verification is available yet.
+- [ ] Keep PR #22 open until build and visual checks can run; production has not been changed.
