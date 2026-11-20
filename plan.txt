@@ -214,3 +214,11 @@
 
 ### Branch
 - `feat/ttfl-store-monochrome-rebrand`
+
+
+### Validation update — 2026-11-20
+- [x] Confirmed the PR head contains the final monochrome logo, palette and dark-mode changes; GitHub reports the PR is mergeable.
+- [x] Confirmed the new logo file is present in the branch at `public/ttflstore.jpg` (245,278 bytes).
+- [ ] GitHub Actions has not reported a build run for this branch, so TypeScript/Next.js build validation is not yet confirmed.
+- [ ] Vercel preview deployment was rejected by the account's deployment rate limit (more than 100 deployments in 24 hours; retry after the limit resets). No preview URL or visual verification is available yet.
+- [ ] Keep PR #22 open until build and visual checks can run; production has not been changed.
