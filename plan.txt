@@ -232,3 +232,8 @@
 - [x] Added a dismissible, non-modal shopping recommendation prompt that appears after a delay, only when approved specials are available, and remembers dismissal for the current session.
 - [ ] Run frontend CI/typecheck/build and confirm the vendor form, homepage section and recommendation prompt render correctly on mobile and desktop.
 - [ ] Validate the combined frontend/backend flow after both PRs are available; do not merge or deploy one side independently.
+
+### Validation update — 2026-11-21
+- [x] GitHub Actions frontend validation/build passed for feature commit `62c0faa66053d62890da16aefe8eb59138e67381`.
+- [ ] Vercel preview build failed during the existing `next/font` loader in `app/layout.tsx` with `TypeError: Cannot read properties of null (reading '1')`; the log does not identify a feature-file compile error. Recheck preview deployment before merge.
+- [ ] Complete browser-level vendor form and homepage review after a successful preview build.
