@@ -222,3 +222,13 @@
 - [ ] GitHub Actions has not reported a build run for this branch, so TypeScript/Next.js build validation is not yet confirmed.
 - [ ] Vercel preview deployment was rejected by the account's deployment rate limit (more than 100 deployments in 24 hours; retry after the limit resets). No preview URL or visual verification is available yet.
 - [ ] Keep PR #22 open until build and visual checks can run; production has not been changed.
+
+
+## Vendor Black Friday participation and homepage recommendations — 2026-11-21
+- [x] Added an admin-controlled Black Friday opt-in to the normal new-product form; the option is fetched from the public campaign settings and stays hidden when the campaign/vendor participation is disabled.
+- [x] Required vendors to enter both the Black Friday price and discount percentage, with client-side validation that the two values agree with the regular product price.
+- [x] Submitted the newly created product to the backend Black Friday proposal endpoint; failed proposal submission can be retried without creating a duplicate product.
+- [x] Added a dedicated homepage Black Friday Specials section that displays only approved Black Friday flash deals while the campaign is live.
+- [x] Added a dismissible, non-modal shopping recommendation prompt that appears after a delay, only when approved specials are available, and remembers dismissal for the current session.
+- [ ] Run frontend CI/typecheck/build and confirm the vendor form, homepage section and recommendation prompt render correctly on mobile and desktop.
+- [ ] Validate the combined frontend/backend flow after both PRs are available; do not merge or deploy one side independently.
