@@ -235,5 +235,5 @@
 
 ### Validation update — 2026-11-21
 - [x] GitHub Actions frontend validation/build passed for feature commit `62c0faa66053d62890da16aefe8eb59138e67381`.
-- [ ] Vercel preview build failed during the existing `next/font` loader in `app/layout.tsx` with `TypeError: Cannot read properties of null (reading '1')`; the log does not identify a feature-file compile error. Recheck preview deployment before merge.
-- [ ] Complete browser-level vendor form and homepage review after a successful preview build.
+- [x] A later Vercel preview build for the latest feature commit `0fea99dbe68a4879142aaf69f3ae98f86a75e059` reached READY: https://vercel.com/the-tron-forge-limited/ttfl-store/3pjbyjLNxVXfg4krUGKaY3Y7QDjw. Earlier preview attempts hit a transient `next/font` loader error in `app/layout.tsx`; the latest build compiled successfully.
+- [ ] Complete authenticated browser-level vendor form and homepage review; the available public page viewer cannot access the protected preview.
