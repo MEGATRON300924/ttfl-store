@@ -251,3 +251,14 @@
 
 ### Commit
 - Product form: `985cba5d6c2d4b03d39908795ed09ddacdac425b`.
+
+
+## Store-wide promotional popup clarity — 2026-11-24
+- [x] Confirmed the existing Broadcast Center already supports visitor-facing site popups through `/api/broadcast/public-popup` when the audience is set to ALL.
+- [x] Confirmed popup product references (up to 8) render with product image, name, price, and direct product links.
+- [x] Confirmed custom CTA buttons already support editable labels and HTTP(S) destination URLs.
+- [x] Updated Broadcast Center copy to explain that product references appear in the store popup and that custom buttons are popup CTAs.
+- [x] Renamed the popup control to “Store popup for visitors” and clarified that “All active users” is the audience option required to include signed-out visitors.
+- [ ] Run frontend typecheck/build and verify the popup on signed-in and signed-out storefront sessions, including mobile layout and dismissal persistence.
+- [ ] Open PR and merge only after validation.
+- Branch: `feat/storewide-promo-popup-broadcast-2026`.
