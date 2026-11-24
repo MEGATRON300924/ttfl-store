@@ -262,3 +262,13 @@
 - [ ] Run frontend typecheck/build and verify the popup on signed-in and signed-out storefront sessions, including mobile layout and dismissal persistence.
 - [ ] Open PR and merge only after validation.
 - Branch: `feat/storewide-promo-popup-broadcast-2026`.
+
+
+## Black Friday product-form pricing correction — 2026-11-24
+- [x] Removed the separate Black Friday price input from the product form.
+- [x] Reused the existing product form fields: Previous price is the original price; Current/Nigerian price is the customer-facing discounted price.
+- [x] Made Previous price required while Black Friday participation is selected.
+- [x] Calculate the displayed discount directly as `(previousPrice - currentPrice) / previousPrice * 100`.
+- [x] Submit only the product ID to the Black Friday proposal endpoint; no independently entered sale price or discount is sent from the browser.
+- [ ] Run lint, typecheck and production build; test create and edit flows, invalid/equal prices, and approved/pending Black Friday proposals.
+- Branch: `fix/black-friday-use-product-prices-2026`.
