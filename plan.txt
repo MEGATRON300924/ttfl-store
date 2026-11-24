@@ -237,3 +237,17 @@
 - [x] GitHub Actions frontend validation/build passed for feature commit `62c0faa66053d62890da16aefe8eb59138e67381`.
 - [x] A later Vercel preview build for the latest feature commit `0fea99dbe68a4879142aaf69f3ae98f86a75e059` reached READY: https://vercel.com/the-tron-forge-limited/ttfl-store/3pjbyjLNxVXfg4krUGKaY3Y7QDjw. Earlier preview attempts hit a transient `next/font` loader error in `app/layout.tsx`; the latest build compiled successfully.
 - [ ] Complete authenticated browser-level vendor form and homepage review; the available public page viewer cannot access the protected preview.
+
+
+## Black Friday existing-product enrollment and discount calculation — 2026-11-24
+- [x] Exposed the vendor Black Friday participation controls when editing an existing eligible product, not only while creating a new product.
+- [x] Reused the existing authenticated Black Friday proposal endpoint so existing listings follow the same campaign eligibility, ownership, checkout, and admin-approval checks as newly created products.
+- [x] Replaced manual discount-percentage entry with a live percentage calculated from the regular product price and entered Black Friday sale price; the submit path sends the calculated percentage to the backend.
+- [x] Reviewed vendor featured-product selection: it already filters for active, non-Coming-Soon products, matching backend eligibility rules. The reported inability to purchase/feature needs the exact on-screen/API error and an eligible vendor account to diagnose.
+- [ ] Run frontend typecheck/build and test both new-product and edit-existing-product Black Friday submissions using a vendor test account.
+- [ ] Test featured product purchase end-to-end with an eligible active product and capture the exact API error if the purchase still fails.
+- [ ] Replace `app/favicon.ico`, `app/icon.png`, root `icon.png`, and update global icon metadata/SEO references only after the approved new black cart emblem asset is supplied. The correct new asset is not currently present in the repository; do not substitute the old store logo.
+- [ ] No merge or production deployment has been performed.
+
+### Commit
+- Product form: `985cba5d6c2d4b03d39908795ed09ddacdac425b`.
